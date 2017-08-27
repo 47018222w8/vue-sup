@@ -1,12 +1,16 @@
 <template>
 	<div ref="quote">
-		<group>
+		<tab active-color="#2196f3" v-model="index">
+			<tab-item index="0" selected>零件</tab-item>
+			<tab-item index="1">车辆信息</tab-item>
+		</tab>
+		<group v-show="index===1">
 			<cell title="品牌" :value="ins.title" is-link @click.native="showPreview = !showPreview" :arrow-direction="showPreview ? 'up' : 'down'"></cell>
 			<template v-if="showPreview">
 				<cell-form-preview :list="previewList"></cell-form-preview>
 			</template>
 		</group>
-		<div>
+		<div class="parts" v-show="index===0">
 			<scroll class="wrapper c-left" :data="infoList">
 				<div>
 					<group title="零件">
@@ -14,9 +18,9 @@
 					</group>
 				</div>
 			</scroll>
-			<scroll class="wrapper c-right " ref="scrollRight"  :data="infoList" >
+			<scroll class="wrapper c-right " ref="scrollRight" :data="infoList">
 				<div ref="cRight">
-					<group  class="cRightList" :title="info.name" v-for="info in infoList" :key="info.insInfoId" label-width="4.5em" label-margin-right="2em" label-align="right">
+					<group class="cRightList" :title="info.name" v-for="info in infoList" :key="info.insInfoId" label-width="4.5em" label-margin-right="2em" label-align="right">
 						<selector v-model="info.qualityRequirement" :options="qualityList" value-text-align="left" title="零件质量"></selector>
 						<datetime v-model="info.canShipDateBs" format="YYYY-MM-DD HH" title="发货时间" value-text-align="left"></datetime>
 						<x-input title="金额" v-model="info.reportPrice" type="number" :max="10"></x-input>
@@ -50,6 +54,7 @@
 				showPreview: false, //折叠面板信息
 				listenScroll: true,
 				partListHeight: [],
+				index:0
 			};
 		},
 		components: {
@@ -69,13 +74,13 @@
 		},
 		created() {
 			this.initData();
-			
+
 		},
-		mounted(){
-			
+		mounted() {
+
 		},
-		
-		beforeUpdate(){
+
+		beforeUpdate() {
 			this.$nextTick(() => {
 				this._calculateHeight(); // 初始化列表高度列表 不在这个时期用不了
 			})
@@ -94,7 +99,7 @@
 
 				})
 			},
-			choosePart(insInfoId,index) {
+			choosePart(insInfoId, index) {
 				this.insInfoId = insInfoId;
 				this.$refs.scrollRight.scrollTo(0, -this.partListHeight[index], 300)
 			},
@@ -122,18 +127,25 @@
 		background-color: #FFFFFF;
 	}
 	
-	.c-left {
-		width: 25%;
-		max-height: 450px;
-		float: left;
+	
+	
+	.parts {
+		display: flex;
+		position: absolute;
+		top: 174px;
+		bottom: 46px;
+		width: 100%;
 		overflow: hidden;
 	}
 	
-	.c-right {
-		width: 73%;
-		max-height: 450px;
-		float: right;
-		overflow: hidden;
+	.parts .c-left {
+		flex: 0 0 80px;
+		width: 80px;
+		background: #f3f5f7;
+		margin-top: 2px;
 	}
-	
+	.parts .c-right {
+		    flex: 1;
+    margin-top: 2px;
+	}
 </style>

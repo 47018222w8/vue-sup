@@ -43,7 +43,7 @@
 						if(result.code === 200) {
 							this.showToast("登录成功");
 							this.$router.push({
-								name: 'QuoteList'
+								name: 'quoteList'
 							})
 						} else {}
 					}).catch(function(error) {
