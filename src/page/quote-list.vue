@@ -1,26 +1,25 @@
 <template>
 	<div>
-		<tab active-color="#2196f3" v-model="index">
+		<tab active-color="#2196f3" v-model="tabIndex">
 			<tab-item index="0" selected>报价</tab-item>
 			<tab-item index="1">整单</tab-item>
 		</tab>
-		<div v-if="index===0">
-			<group>
-				<cell v-for="quote in quoteList" :key="quote.insId" :title="quote.title" @click.native="toQuotePage(quote.insId)" :inline-desc='quote.desc'>
-					<img slot="icon" width="30" style="display:block;margin-right:5px;" :src="quote.src">
-				</cell>
-			</group>
-			<mugen-scroll :handler="fetchData" :should-handle="!loading">
-				加载中...
-			</mugen-scroll>
+		<div class="quote-list">
+			<scroll class="wrapper" :pullup="true" @scrollToEnd="loadMore" v-show="tabIndex===0" :data="quoteList" style="flex: 1;">
+				<group>
+					<cell v-for="quote in quoteList" :key="quote.insId" :title="quote.title" @click.native="toQuotePage(quote.insId)" :inline-desc='quote.desc'>
+						<img slot="icon" width="30" style="display:block;margin-right:5px;" :src="quote.src">
+					</cell>
+					<load-more :show-loading="loading" :tip="quoteList.length===0?'暂无数据':'下拉刷新'" background-color="#fbf9fe"></load-more>
+				</group>
+			</scroll>
 		</div>
 
 	</div>
 </template>
 <script>
-	import { Tabbar, TabbarItem, XHeader, Cell, Group, Tab, TabItem } from 'vux'
-	import MugenScroll from 'vue-mugen-scroll'
-	import axios from '../components/fetch'
+	import {LoadMore,Divider, Tabbar, TabbarItem, XHeader, Cell, Group, Tab, TabItem } from 'vux'
+	import scroll from '../components/scroll'
 	export default {
 		components: {
 			XHeader,
@@ -30,37 +29,59 @@
 			TabbarItem,
 			Tab,
 			TabItem,
-			MugenScroll
+			scroll,
+			Divider,
+			LoadMore
 		},
 		data() {
 			return {
 				quoteList: [],
 				pageNum: 1,
-				activeTab: 'tab1',
 				refreshing: false,
-				scroller: null,
-				trigger: null,
-				index: 0,
-				loading:false
+				tabIndex: 0,
+				loading: false
 			};
 		},
-		mounted() {
-			this.scroller = window;
+		created() {
+			this._initData();
 		},
+		mounted() {},
 		methods: {
-			async initData() {
+			async _initData() {
 				this.$vux.loading.show({
 					text: '加载中'
 				})
-				await axios.get('/quote/list?pageNum=' + this.pageNum).then((response) => {
+				this.loading=true;
+				await this.$http.get('/quote/list?pageNum=' + this.pageNum).then((response) => {
 					let result = response.data;
 					if(result.code === 200) {
 						this.quoteList.push(...result.data.list);
 						this.pageNum++
-					} else {}
-				}).catch(function(error) {
-
+					} else if(result.code === 1) {
+						let vue=this
+						this.$vux.alert.show({
+							title: '错误',
+							content: result.msg,
+							onHide() {
+								vue.$router.push({
+									name: 'login'
+								})
+							}
+						})
+					} else {
+						this.$vux.alert.show({
+							title: '错误',
+							content: result.msg
+						})
+					}
+				}).catch((error) => {
+					console.log(error)
+					this.$vux.alert.show({
+						title: '错误',
+						content: '未知错误,请联系管理员'
+					})
 				})
+				this.loading=false;
 				this.$vux.loading.hide()
 			},
 			toQuotePage(insId) {
@@ -71,31 +92,20 @@
 					}
 				})
 			},
-			handleTabChange(val) {
-				this.activeTab = val;
-			},
-			async refresh() {
-				this.refreshing = true;
-				this.pageNum = 1;
-				await axios.get('/quote/list?pageNum=1').then((response) => {
-					let result = response.data;
-					if(result.code === 200) {
-						this.quoteList = result.data.list;
-					} else {}
-				}).catch(function(error) {
-
-				})
-				this.refreshing = false;
-			},
-			fetchData(){
-				this.loading=true;
-				this.initData();
-				this.loading=false;
+			loadMore() {
+				this._initData();
 			}
 		}
 	}
 </script>
 
-<style>
-
+<style scoped>
+	.quote-list {
+		display: flex;
+		position: absolute;
+		top: 70px;
+		bottom: 46px;
+		width: 100%;
+		overflow: hidden;
+	}
 </style>

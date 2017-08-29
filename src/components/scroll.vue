@@ -74,6 +74,7 @@
 				if(this.listenScroll) {
 					let me = this;
 					this.scroll.on('scroll', (pos) => {
+						this.$store.commit('SCROLL_Y',{scrollY:pos.y})
 						me.$emit('scroll', pos)
 					})
 				}
@@ -90,7 +91,7 @@
 				if(this.pulldown) {
 					this.scroll.on('touchend', (pos) => {
 						// 下拉动作 
-						if(pos.y > 50) {
+						if(pos.y > 75) {
 							this.$emit('pulldown')
 						}
 					})
@@ -117,6 +118,10 @@
 			scrollTo() {
 				// 代理better-scroll的scrollTo方法 
 				this.scroll && this.scroll.scrollTo.apply(this.scroll, arguments)
+			},
+			scrollBy(){
+				// 代理better-scroll的scrollBy方法 
+				this.scroll && this.scroll.scrollBy.apply(this.scroll, arguments)
 			},
 			scrollToElement() {
 				// 代理better-scroll的scrollToElement方法 

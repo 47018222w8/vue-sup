@@ -6,7 +6,7 @@
 		<div v-show="showTabBar" style="padding-top: 53px;"></div>
 		<tabbar v-show="showTabBar" style="position: fixed;z-index: 500;bottom: 0;width: 100%;">
 			<tabbar-item :selected="selectedTabBar('quoteList')" :link="{name:'quoteList'}">
-				<i slot="icon"   class="fa fa-home"></i>
+				<i slot="icon"  class="fa fa-home"></i>
 				<span slot="label" >报价</span>
 			</tabbar-item>
 			<tabbar-item >
