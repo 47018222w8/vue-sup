@@ -18,7 +18,7 @@
 	</div>
 </template>
 <script>
-	import {LoadMore,Divider, Tabbar, TabbarItem, XHeader, Cell, Group, Tab, TabItem } from 'vux'
+	import {LoadMore,Divider, Tabbar, TabbarItem, XHeader, Cell, Group, Tab, TabItem ,Badge} from 'vux'
 	import scroll from '../components/scroll'
 	export default {
 		components: {
@@ -31,7 +31,8 @@
 			TabItem,
 			scroll,
 			Divider,
-			LoadMore
+			LoadMore,
+			Badge
 		},
 		data() {
 			return {
