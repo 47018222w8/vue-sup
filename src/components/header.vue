@@ -15,7 +15,7 @@
 	}
 </script>
 
-<style scoped>
+<style scoped lang="less">
 	.s-header {
 		display: flex;
 		position: fixed;
@@ -24,7 +24,7 @@
 		width: 100%;
 		height: 40px;
 		color: white;
-		background: #2196f3;
+		background: @s-primary-color;
 	}
 	.s-header .h-middle{
 		display: flex;

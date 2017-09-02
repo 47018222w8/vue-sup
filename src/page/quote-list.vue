@@ -14,11 +14,12 @@
 				</group>
 			</scroll>
 		</div>
-
+		<s-footer></s-footer>
 	</div>
 </template>
 <script>
 	import {LoadMore,Divider, Tabbar, TabbarItem, XHeader, Cell, Group, Tab, TabItem ,Badge} from 'vux'
+	import sFooter from '../components/footer'
 	import scroll from '../components/scroll'
 	export default {
 		components: {
@@ -32,7 +33,8 @@
 			scroll,
 			Divider,
 			LoadMore,
-			Badge
+			Badge,
+			sFooter
 		},
 		data() {
 			return {
@@ -104,8 +106,8 @@
 	.quote-list {
 		display: flex;
 		position: absolute;
-		top: 70px;
-		bottom: 46px;
+		top: 73px;
+		bottom: 40px;
 		width: 100%;
 		overflow: hidden;
 	}

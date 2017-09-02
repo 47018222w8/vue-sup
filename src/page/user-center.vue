@@ -21,15 +21,18 @@
 			</div>
 		</card>
 		<divider>我是有底线的</divider>
+		<s-footer></s-footer>
 	</div>
 </template>
 
 <script>
 	import { Divider, Card } from 'vux'
+	import sFooter from '../components/footer'
 	export default {
 		components: {
 			Card,
-			Divider
+			Divider,
+			sFooter
 		}
 	}
 </script>

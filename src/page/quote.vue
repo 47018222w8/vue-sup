@@ -1,5 +1,5 @@
 <template>
-	<div ref="quote">
+	<div>
 		<tab active-color="#2196f3" v-model="tabIndex">
 			<tab-item index="0" selected>零件</tab-item>
 			<tab-item index="1">车辆信息</tab-item>
@@ -11,12 +11,20 @@
 		</group>
 		<div class="parts" v-show="tabIndex===0" ref="parts">
 			<scroll ref="scrollLeft" class="wrapper c-left" :data="insInfoList">
+				<ul>
+					<li class="c-li" :class="cLeftIndex===index?'c-active':''" v-for="(info,index) in insInfoList" :key="info.id" @click="choosePart(info.id,index)">
+						<p>{{info.name}}</p>
+					</li>
+				</ul>
+				<!--
 				<div>
 					<group title="零件">
 						<cell class="cLeftList" :class="cLeftIndex===index?'c-active':'c-link'" v-for="(info,index) in insInfoList" :key="info.id" :title="info.name" @click.native="choosePart(info.id,index)" />
 					</group>
 				</div>
+				-->
 			</scroll>
+			<div class="c-middle"></div>
 			<div class="c-right ">
 				<group :title="insInfoList[cLeftIndex].name" label-width="4.5em" label-margin-right="2em" label-align="right">
 					<checker v-model="insInfoList[cLeftIndex].isOperProd" default-item-class="c-checker" selected-item-class="c-checker-selected">
@@ -47,7 +55,7 @@
 </template>
 
 <script>
-	import {Swiper, Checker, CheckerItem, XButton, TransferDom, CellFormPreview, Flexbox, FlexboxItem, XTextarea, XInput, Datetime, Selector, PopupPicker, Cell, Group, Tab, TabItem, Previewer } from 'vux'
+	import { Swiper, Checker, CheckerItem, XButton, TransferDom, CellFormPreview, Flexbox, FlexboxItem, XTextarea, XInput, Datetime, Selector, PopupPicker, Cell, Group, Tab, TabItem, Previewer } from 'vux'
 	import scroll from '../components/scroll'
 
 	export default {
@@ -65,7 +73,7 @@
 				cLeftIndex: 0, //menu索引
 				imgPriviewList: [], //零件图预览
 				carInfoTitle: '', //
-				insImgList: [],//询价单图片信息
+				insImgList: [], //询价单图片信息
 				leftPartEachHeight: [] //左侧每个零件的高度
 			};
 		},
@@ -95,17 +103,17 @@
 							}];
 							insInfoList[i].listRPI = listRPI;
 						}
-						ins.rearImg&&this.insImgList.push({
-							img:ins.rearImg,
-							title:'车尾照片'
+						ins.rearImg && this.insImgList.push({
+							img: ins.rearImg,
+							title: '车尾照片'
 						})
-						ins.fontImg&&this.insImgList.push({
-							img:ins.fontImg,
-							title:'车头照片'
+						ins.fontImg && this.insImgList.push({
+							img: ins.fontImg,
+							title: '车头照片'
 						})
-						ins.driveLicense&&this.insImgList.push({
-							img:ins.driveLicense,
-							title:'车头照片'
+						ins.driveLicense && this.insImgList.push({
+							img: ins.driveLicense,
+							title: '车头照片'
 						})
 						this.carInfoTitle = ins.carBrandName;
 						this.insInfoList = insInfoList;
@@ -215,35 +223,43 @@
 	}
 </script>
 
-<style scoped>
-	.c-link {
-		background-color: #EDEDED;
-	}
-	
-	.c-active {
-		background-color: #FFFFFF;
-	}
-	
+<style scoped lang="less">
 	.parts {
 		display: flex;
 		position: absolute;
 		top: 94px;
-		bottom: 46px;
+		bottom: 42px;
 		width: 100%;
-	}
-	
-	.parts .c-left {
-		flex: 0 0 80px;
-		width: 80px;
-		background: #f3f5f7;
-		margin-top: 2px;
-		overflow: hidden;
-	}
-	
-	.parts .c-right {
-		flex: 1;
-		margin-top: 2px;
-		overflow: scroll;
+		.c-left {
+			flex: 0 0 80px;
+			width: 80px;
+			background: #fff;
+			margin-top: 2px;
+			overflow: hidden;
+			.c-active {
+				background-color: @popup-picker-header-bg-color;
+				color: #2196F3;
+				border-left: 5px solid #2196F3;
+				font-size: 16px;
+			}
+			li {
+				font-size: 14px;
+				text-align: right;
+				p {
+					padding-top: 7px;
+					padding-bottom: 7px;
+					padding-right: 2px;
+				}
+			}
+		}
+		.c-middle {
+			flex: 0 0 3%;
+		}
+		.c-right {
+			flex: 1;
+			margin-top: 2px;
+			overflow: scroll;
+		}
 	}
 	
 	.c-checker {
