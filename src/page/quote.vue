@@ -10,44 +10,38 @@
 			<cell-form-preview :list="carInfo"></cell-form-preview>
 		</group>
 		<div class="parts" v-show="tabIndex===0" ref="parts">
-			<scroll ref="scrollLeft" class="wrapper c-left" :data="insInfoList">
-				<ul>
-					<li class="c-li" :class="cLeftIndex===index?'c-active':''" v-for="(info,index) in insInfoList" :key="info.id" @click="choosePart(info.id,index)">
-						<p>{{info.name}}</p>
-					</li>
-				</ul>
-				<!--
-				<div>
-					<group title="零件">
-						<cell class="cLeftList" :class="cLeftIndex===index?'c-active':'c-link'" v-for="(info,index) in insInfoList" :key="info.id" :title="info.name" @click.native="choosePart(info.id,index)" />
-					</group>
-				</div>
-				-->
-			</scroll>
+			<ul class="c-left">
+				<li class="c-li" :class="cLeftIndex===index?'c-active':''" v-for="(info,index) in insInfoList" :key="info.id" @click="choosePart(info.id,index)">
+					<p><i v-show="info.done" class="fa fa-check fa-primary"></i>
+						<badge v-show="!info.done"></badge>{{info.name}}</p>
+				</li>
+			</ul>
 			<div class="c-middle"></div>
-			<div class="c-right ">
+			<div class="c-right " v-if="insInfoList.length>0">
 				<group :title="insInfoList[cLeftIndex].name" label-width="4.5em" label-margin-right="2em" label-align="right">
-					<checker v-model="insInfoList[cLeftIndex].isOperProd" default-item-class="c-checker" selected-item-class="c-checker-selected">
-						<checker-item v-for="i in ['0','1']" :key="i" :value="i">{{i==='0'?'经营':'不经营'}}</checker-item>
-					</checker>
 					<cell title="相关图片" is-link @click.native="showPartImg(cLeftIndex)"></cell>
 				</group>
+				<checker v-model="insInfoList[cLeftIndex].isOperProd" default-item-class="c-checker" selected-item-class="c-checker-selected">
+					<checker-item v-for="i in ['0','1']" :key="i" :value="i">{{i==='0'?'经营':'不经营'}}</checker-item>
+				</checker>
 				<group v-for="(rpi,index) in insInfoList[cLeftIndex].listRPI" :key="index" label-width="4.5em" label-margin-right="2em" label-align="right">
-					<selector v-model="rpi.qualityRequirement" :options="qualityList" value-text-align="left" title="零件质量"></selector>
-					<datetime v-model="rpi.canShipDateBs" format="YYYY-MM-DD HH" title="发货时间" value-text-align="left"></datetime>
+					<popup-picker :data="qualityList" v-model="rpi.qrArry" :columns="1" title="零件品质" value-text-align="left" show-name></popup-picker>
+					<datetime v-model="rpi.canShipDateBsStr" format="YYYY-MM-DD HH" title="发货时间" value-text-align="left"></datetime>
 					<x-input title="金额" v-model="rpi.reportPrice" type="number"></x-input>
-					<div style="text-align: center;">
-						<x-button v-if="index!==0" type="warn" @click.native="delMoreQuality" mini>删除此品质报价</x-button>
+					<x-textarea style="padding-bottom: 0;" title="备注" v-model="rpi.remark" :show-counter="false" :rows="3" :max="100"></x-textarea>
+					<div style="text-align: center;padding-top: 5px;padding-bottom:5px;">
+						<button v-if="index!==0" @click="delMoreQuality(index)" class="s-btn s-btn-danger s-btn-outline">删除此品质报价</button>
 					</div>
-
 				</group>
-				<group style="text-align:center;">
-					<x-textarea style="padding-bottom: 0;" title="备注" v-model="insInfoList[cLeftIndex].remark" :show-counter="false" :rows="3" :max="100"></x-textarea>
-					<x-button type="primary" @click.native="addMoreQuality" plain mini>提供更多品质报价</x-button>
-				</group>
+				<div style="text-align: center;margin: 5px 0 10px 0;">
+					<button @click="addMoreQuality" class="s-btn s-btn-primary s-btn-outline">提供更多品质报价</button>
+				</div>
 			</div>
 		</div>
-		<x-button @click.native="confirmIndex=1" v-show="tabIndex===0" type="primary" style="position: fixed;z-index: 500;bottom: 0;width: 100%;">核对报价</x-button>
+		<div style="text-align: center;position: fixed;bottom: 0;width: 100%;">
+			<button @click="subForm" class="s-btn s-btn-primary" style="width: 100%;font-size: 16px;">核对报价</button>
+		</div>
+		<!--零件图片预览-->
 		<div v-transfer-dom>
 			<previewer :list="imgPriviewList" ref="previewer"></previewer>
 		</div>
@@ -55,9 +49,8 @@
 </template>
 
 <script>
-	import { Swiper, Checker, CheckerItem, XButton, TransferDom, CellFormPreview, Flexbox, FlexboxItem, XTextarea, XInput, Datetime, Selector, PopupPicker, Cell, Group, Tab, TabItem, Previewer } from 'vux'
-	import scroll from '../components/scroll'
-
+	import { Badge, Swiper, Checker, CheckerItem, TransferDom, CellFormPreview, Flexbox, FlexboxItem, XTextarea, XInput, Datetime, Selector, PopupPicker, Cell, Group, Tab, TabItem, Previewer } from 'vux'
+	import constant from '../components/constant'
 	export default {
 		directives: {
 			TransferDom
@@ -83,26 +76,42 @@
 		mounted() {
 
 		},
-		computed: {},
+		computed: {
+
+		},
 		methods: {
 			//初始化数据
 			async _initData() {
 				this.$vux.loading.show({
 					text: '加载中'
 				});
-				await this.$http.get('/quote/info/' + this.insId).then((response) => {
+				await this.$http.get('/quote/' + this.insId).then((response) => {
 					let result = response.data;
 					if(result.code === 200) {
-						let ins = result.data.ins;
+						//零件品质
+						let qualityList = result.data.qualityList;
+						for(let i = 0; i < qualityList.length; i++) {
+							this.qualityList.push({
+								value: String(qualityList[i].id), //沃日,show-name只能用string
+								name: qualityList[i].propertyName,
+								parent: 0
+							})
+						}
+						//零件列表
 						let insInfoList = result.data.insInfoList;
 						for(let i = 0; i < insInfoList.length; i++) {
 							let listRPI = [{
-								canShipDateBs: null,
+								canShipDateBsStr: null,
 								reportPrice: null,
-								qualityRequirement: null
+								qrArry: [this.qualityList[0].value], //坑爹的数组
+								qualityRequirement: this.qualityList[0].value,
+								remark: null
 							}];
+							insInfoList[i].done = false;
 							insInfoList[i].listRPI = listRPI;
 						}
+						//询价单信息
+						let ins = result.data.ins;
 						ins.rearImg && this.insImgList.push({
 							img: ins.rearImg,
 							title: '车尾照片'
@@ -118,13 +127,6 @@
 						this.carInfoTitle = ins.carBrandName;
 						this.insInfoList = insInfoList;
 						this.insInfoId = this.insInfoList[0].id;
-						let qualityList = result.data.qualityList;
-						for(let i = 0; i < qualityList.length; i++) {
-							this.qualityList.push({
-								key: qualityList[i].id,
-								value: qualityList[i].propertyName
-							})
-						}
 						this.carInfo.splice(0, 0, {
 							label: "车型",
 							value: ins.carMark
@@ -187,17 +189,70 @@
 			},
 			//选择零件
 			choosePart(insInfoId, index) {
+				let rpi = this.insInfoList[this.cLeftIndex].listRPI;
+				let f = false;
+				if(this.insInfoList[this.cLeftIndex].isOperProd === '0') {
+					for(let i = 0; i < rpi.length; i++) {
+						if(constant.MONEY_TEST.test(rpi[i].reportPrice) && rpi[i].qualityRequirement && rpi[i].canShipDateBsStr) {
+							f = true;
+						} else {
+							f = false;
+						}
+					}
+				} else {
+					f = true;
+				}
+
+				if(f) {
+					this.insInfoList[this.cLeftIndex].done = true;
+				} else {
+					this.insInfoList[this.cLeftIndex].done = false;
+				}
 				this.cLeftIndex = index;
 			},
 			addMoreQuality() {
 				this.insInfoList[this.cLeftIndex].listRPI.push({
-					canShipDateBs: null,
+					canShipDateBsStr: null,
 					reportPrice: null,
-					qualityRequirement: null
+					qrArry: [this.qualityList[0].value],
+					qualityRequirement: this.qualityList[0].value,
+					remark: null
 				});
 			},
 			delMoreQuality(index) {
 				this.insInfoList[this.cLeftIndex].listRPI.splice(index, 1);
+			},
+			subForm() {
+				let insInfoList = this.insInfoList;
+				let listRP = [];
+				for(let i = 0; i < insInfoList.length; i++) {
+					listRP.push({
+						id: insInfoList[i].id,
+						isOperProd:insInfoList[i].isOperProd,
+						listRPI: insInfoList[i].listRPI
+					})
+				}
+				let ins = {
+					id: this.insId,
+					listRP: listRP
+				}
+				console.log(JSON.stringify(ins))
+				this.$http.post('/quote', ins).then((response) => {
+					let result = response.data;
+					if(result.code === 200) {
+						this.$vux.toast.show({
+							text: '报价成功',
+							time:1500,
+							position:'bottom'
+						})
+					} else {}
+				}).catch((error) => {
+					console.log(error);
+					this.$vux.alert.show({
+						title: '错误',
+						content: '未知错误,请联系管理员'
+					})
+				})
 			}
 		},
 		components: {
@@ -213,29 +268,28 @@
 			Flexbox,
 			FlexboxItem,
 			CellFormPreview,
-			scroll,
 			Previewer,
-			XButton,
 			Checker,
 			CheckerItem,
-			Swiper
+			Swiper,
+			Badge
 		}
 	}
 </script>
 
-<style scoped lang="less">
+<style lang="less">
 	.parts {
 		display: flex;
 		position: absolute;
 		top: 94px;
-		bottom: 42px;
+		bottom: 50px;
 		width: 100%;
 		.c-left {
 			flex: 0 0 80px;
 			width: 80px;
 			background: #fff;
 			margin-top: 2px;
-			overflow: hidden;
+			overflow: auto;
 			.c-active {
 				background-color: @popup-picker-header-bg-color;
 				color: #2196F3;
@@ -258,7 +312,7 @@
 		.c-right {
 			flex: 1;
 			margin-top: 2px;
-			overflow: scroll;
+			overflow: auto;
 		}
 	}
 	

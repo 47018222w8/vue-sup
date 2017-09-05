@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import constant from '../components/constant'
+import cookies from 'cookiesjs'
 Vue.use(Router)
 const home = r => require.ensure([], () => r(require('../page/home')), 'home')
 const login = r => require.ensure([], () => r(require('../page/login')), 'login')
@@ -13,7 +15,14 @@ export default new Router({
 	},{
 		path: '/home',
 		name: 'home',
-		component: home
+		component: home,
+		beforeEnter: (to, from, next) => {
+	        if(cookies(constant.JWT_HEADER)){
+				next();
+			}else{
+				next('/login');
+			}
+      	}
 	},{
 		path: '/login',
 		name: 'login',

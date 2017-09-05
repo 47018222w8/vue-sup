@@ -12,6 +12,7 @@
 <script>
 	import constant from '../components/constant'
 	import { XInput, Group, XButton, Cell } from 'vux'
+	import cookies from 'cookiesjs'
 	export default {
 		name: 'Login',
 		components: {
@@ -40,14 +41,23 @@
 					this.$http.post('/login/validate', this.formData).then((response) => {
 						let result = response.data;
 						if(result.code === 200) {
-							this.showToast("登录成功");
-							localStorage.setItem(constant.JWT_HEADER,constant.JWT_TOKEN_HEAD+result.data);
-							this.$router.push({
-								name: 'quoteList'
-							})
-						} else {}
-					}).catch(function(error) {
+							cookies({
+								Authorization: constant.JWT_TOKEN_HEAD + result.data
+							});
+							this.$http.defaults.headers.common[constant.JWT_HEADER] = constant.JWT_TOKEN_HEAD + result.data;
+							setTimeout(() => {
+								this.$router.push({
+									name: 'quoteList'
+								})
+							}, 1000)
 
+						} else {}
+					}).catch((error)=> {
+						console.log(error);
+						this.$vux.alert.show({
+							title: '错误',
+							content: '未知错误,请联系管理员'
+						})
 					})
 				}
 			},
@@ -55,27 +65,20 @@
 				if(this.formData.uname.trim() === '') {
 					this.$vux.toast.show({
 						text: '请输入用户名',
-						type:'text'
+						type: 'text'
 					})
 					return false;
 				} else if(this.formData.password.trim() === '') {
 					this.$vux.toast.show({
 						text: '请输入密码',
-						type:'text'
+						type: 'text'
 					})
 					return false;
 				} else {
 					return true;
 				}
 			},
-			showToast(message) {
-				this.toast = true;
-				this.message = message;
-				if(this.toastTimer) clearTimeout(this.toastTimer)
-				this.toastTimer = setTimeout(() => {
-					this.toast = false
-				}, 1500)
-			}
+			
 		}
 
 	}
