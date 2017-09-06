@@ -1,0 +1,29 @@
+{
+    "editor.fontSize": 16,
+    "editor.tabSize": 2,
+    "editor.detectIndentation": false,
+    "editor.formatOnSave": false,
+    "files.associations": {
+        "*.vue": "vue"
+    },
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "html",
+        "vue",
+        {
+            "language": "html",
+            "autoFix": true
+        }
+    ],
+    "emmet.syntaxProfiles": {
+        "vue-html": "html",
+        "vue": [
+            "css",
+            "html",
+            "less"
+        ]
+    },
+    "editor.fontFamily": "Source Code Pro, 'Courier New', monospace",
+    "files.autoSave": "off"
+}
