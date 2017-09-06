@@ -19,6 +19,7 @@ axios.defaults.headers.common[constant.JWT_HEADER] = cookies(constant.JWT_HEADER
 axios.defaults.timeout = 10000
 Vue.prototype.$http = axios
 Vue.config.productionTip = false
+
 /* eslint-disable no-new */
 new Vue({
   router,
