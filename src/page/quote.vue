@@ -23,11 +23,11 @@
           <div>
             <group :title="insInfoList[cLeftIndex].name" label-width="4.5em" label-margin-right="2em" label-align="right">
               <cell title="相关图片" is-link @click.native="showPartImg(cLeftIndex)"></cell>
-              <popup-picker :data="isOperProdList" v-model="insInfoList[cLeftIndex].iopArry" :columns="1" title="是否经营" value-text-align="left" show-name></popup-picker>
+              <popup-picker @on-show="blur" :data="isOperProdList" v-model="insInfoList[cLeftIndex].iopArry" :columns="1" title="是否经营" value-text-align="left" show-name></popup-picker>
             </group>
             <group class="groupClass" v-for="(rpi,index) in insInfoList[cLeftIndex].listRPI" :key="index" label-width="4.5em" label-margin-right="2em" label-align="right">
-              <popup-picker :data="qualityList" v-model="rpi.qrArry" :columns="1" title="零件品质" value-text-align="left" show-name></popup-picker>
-              <datetime v-model="rpi.canShipDateBsStr" format="YYYY-MM-DD HH" title="发货时间" value-text-align="left"></datetime>
+              <popup-picker  @on-show="blur" :data="insInfoList[cLeftIndex].qualityList" v-model="rpi.qrArry" :columns="1" title="零件品质" value-text-align="left" show-name></popup-picker>
+              <datetime @click.native="blur" v-model="rpi.canShipDateBsStr" format="YYYY-MM-DD HH" title="发货时间" value-text-align="left"></datetime>
               <x-input @on-focus="onFocus(index)" title="金额" v-model="rpi.reportPrice" type="number"></x-input>
               <x-textarea style="padding-bottom: 0;" title="备注" v-model="rpi.remark" :show-counter="false" :rows="3" :max="100"></x-textarea>
               <div style="text-align: center;padding-top: 5px;padding-bottom:5px;">
@@ -41,7 +41,7 @@
           </div>
         </scroll>
       </div>
-      <div v-show="tabIndex===0" style="text-align: center;position: fixed;bottom: 0;width: 100%;">
+      <div v-show="tabIndex===0" ref="subBtn" style="text-align: center;position: fixed;bottom: 0;width: 100%;">
         <button @click="subForm" class="s-btn s-btn-primary" style="width: 100%;font-size: 16px;">下一步</button>
       </div>
     </div>
@@ -63,7 +63,7 @@ export default {
   data() {
     return {
       irpe: {
-        id: this.$route.params.insId,
+        insId: this.$route.params.insId,
         expressMoney: 0,
         taxRate: 0
       },
@@ -104,7 +104,7 @@ export default {
       this.$vux.loading.show({
         text: '加载中'
       })
-      await this.$http.get('/quote/' + this.irpe.id).then((response) => {
+      await this.$http.get('/quote/' + this.irpe.insId).then((response) => {
         let result = response.data
         if (result.code === 200) {
           // 零件品质
@@ -126,6 +126,7 @@ export default {
               qualityRequirement: this.qualityList[0].value,
               remark: null
             }]
+            insInfoList[i].qualityList = this.qualityList
             insInfoList[i].iopArry = [this.isOperProdList[0].value]
             insInfoList[i].isOperProd = this.isOperProdList[0].value
             insInfoList[i].done = false // 未完成状态
@@ -197,6 +198,7 @@ export default {
     },
     // 显示零件图片
     showPartImg(index) {
+      this.blur
       if (this.insInfoList[index].groupSrc.length > 0) {
         this.imgPriviewList = this.insInfoList[index].groupSrc
         this.$nextTick(() => {
@@ -229,6 +231,7 @@ export default {
       this._calculateHeight()
       this.cLeftIndex = index
     },
+    // 提供更多品质报价
     addMoreQuality() {
       this.insInfoList[this.cLeftIndex].listRPI.push({
         canShipDateBsStr: null,
@@ -239,10 +242,14 @@ export default {
       })
       setTimeout((e) => {
         this._calculateHeight()
-      })
+      }, 150)
     },
+    // 删除品质报价
     delMoreQuality(index) {
       this.insInfoList[this.cLeftIndex].listRPI.splice(index, 1)
+      setTimeout((e) => {
+        this._calculateHeight()
+      }, 150)
     },
     // 提交报价
     subForm() {
@@ -289,12 +296,32 @@ export default {
       }
     },
     // 哔了狗的虚拟键盘遮挡
-    onFocus(index, value, $event) {
-      console.log(this.partInfosHeight)
+    onFocus(index) {
       // 键盘弹出需要时间
       setTimeout((e) => {
         this.$refs.scrollRight.scrollTo(0, -this.partInfosHeight[index], 300)
       }, 150)
+    },
+    // 失去全部焦点
+    blur() {
+      document.activeElement.blur()
+    },
+    // 零件品质不可重复
+    resetQualityList(index) {
+      let info = this.insInfoList[this.cLeftIndex]
+      let arry = []
+      this.qualityList.forEach((value) => {
+        let f = true
+        for (let i = 0; i < info.listRPI.length; i++) {
+          if (value.value === info.listRPI[0]) {
+            f = false
+            break
+          }
+        }
+        f && arry.push(value)
+      })
+      info.listRPI[index].qualityRequirement = info.listRPI[index].qrArry[0]
+      info.qualityList = arry
     }
   },
   components: {
