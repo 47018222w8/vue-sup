@@ -8,14 +8,13 @@ import App from './App'
 import { ToastPlugin, LoadingPlugin, AlertPlugin } from 'vux'
 import axios from 'axios'
 import constant from './components/constant'
-import cookies from 'cookiesjs'
 Vue.use(LoadingPlugin)
 Vue.use(ToastPlugin)
 Vue.use(AlertPlugin)
 Vue.use(router)
 FastClick.attach(document.body)
 axios.defaults.baseURL = constant.BASE_URL
-axios.defaults.headers.common[constant.JWT_HEADER] = cookies(constant.JWT_HEADER)
+axios.defaults.headers.common[constant.JWT_HEADER] = localStorage.getItem(constant.JWT_HEADER)
 axios.defaults.timeout = 10000
 Vue.prototype.$http = axios
 Vue.config.productionTip = false

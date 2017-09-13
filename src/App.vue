@@ -1,26 +1,20 @@
 <template>
   <div id="app">
-    <s-header v-show="showHeader" :title="'找件儿'">车益佰找件</s-header>
-    <div v-show="showHeader" style="padding-top: 40px;"></div>
+    <loading :show="isLoading"></loading>
     <router-view></router-view>
   </div>
 </template>
 
 <script>
-import { Tabbar, TabbarItem, XHeader } from 'vux'
-import sHeader from './components/header'
+import { Loading } from 'vux'
+import { mapState } from 'vuex'
 export default {
   name: 'app',
   components: {
-    XHeader,
-    Tabbar,
-    TabbarItem,
-    sHeader
+    Loading
   },
   computed: {
-    showHeader() {
-      return this.$route.name !== 'login'
-    }
+    ...mapState(['isLoading'])
   }
 }
 </script>

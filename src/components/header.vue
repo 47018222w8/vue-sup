@@ -1,6 +1,6 @@
 <template>
   <div class="s-header">
-    <div class="h-left">
+    <div class="h-left" @click="back">
       <i class="fa fa-angle-left fa-lg"></i>
     </div>
     <div class="h-middle">{{title}}</div>
@@ -14,7 +14,15 @@
 export default {
   name: 's-header',
   props: {
-    title: ''
+    title: '',
+    returnName: ''
+  },
+  methods: {
+    back() {
+      this.$router.push({
+        name: this.returnName
+      })
+    }
   }
 }
 </script>
@@ -22,7 +30,6 @@ export default {
 <style scoped lang="less">
 .s-header {
   display: flex;
-  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
