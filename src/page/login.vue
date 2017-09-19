@@ -48,12 +48,6 @@ export default {
               })
             }, 1000)
           } else { }
-        }).catch((error) => {
-          console.log(error)
-          this.$vux.alert.show({
-            title: '错误',
-            content: '未知错误,请联系管理员'
-          })
         })
       }
     },
