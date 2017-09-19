@@ -91,7 +91,7 @@ export default {
       if (this.pulldown) {
         this.scroll.on('touchend', (pos) => {
           // 下拉动作
-          if (pos.y > 75) {
+          if (pos.y > 50) {
             this.$emit('pulldown')
           }
         })
