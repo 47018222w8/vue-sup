@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import constant from '../components/constant'
-import cookies from 'cookiesjs'
 import store from '../store/state'
 Vue.use(Router)
 const home = r => require.ensure([], () => r(require('../page/home')), 'home')
@@ -9,6 +8,7 @@ const login = r => require.ensure([], () => r(require('../page/login')), 'login'
 const quote = r => require.ensure([], () => r(require('../page/quote')), 'quote')
 const quoteList = r => require.ensure([], () => r(require('../page/quote-list')), 'quoteList')
 const userCenter = r => require.ensure([], () => r(require('../page/user-center')), 'userCenter')
+const error = r => require.ensure([], () => r(require('../page/error')), 'userCenter')
 const router = new Router({
   routes: [{
     path: '',
@@ -18,7 +18,8 @@ const router = new Router({
     name: 'home',
     component: home,
     beforeEnter: (to, from, next) => {
-      if (cookies(constant.JWT_HEADER)) {
+      let a = localStorage.getItem(constant.JWT_HEADER)
+      if (a) {
         next()
       } else {
         next('/login')
@@ -40,6 +41,10 @@ const router = new Router({
     path: '/user/center',
     name: 'userCenter',
     component: userCenter
+  }, {
+    path: '/error',
+    name: 'error',
+    component: error
   }]
 })
 router.beforeEach(function (to, from, next) {
