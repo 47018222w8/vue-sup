@@ -30,10 +30,8 @@ export default {
 <style scoped lang="less">
 .s-header {
   display: flex;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: 40px;
+  height: @s-header-height;
   color: white;
   background: @s-primary-color;
 }
