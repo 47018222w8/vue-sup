@@ -12,6 +12,7 @@
 <script>
 import constant from '../components/constant'
 import { XInput, Group, XButton, Cell } from 'vux'
+import cookies from 'cookiesjs'
 export default {
   name: 'Login',
   components: {
@@ -40,7 +41,7 @@ export default {
         this.$http.post('/login/validate', this.formData).then((response) => {
           let result = response.data
           if (result.code === 200) {
-            localStorage.setItem(constant.JWT_HEADER, constant.JWT_TOKEN_HEAD + result.data)
+            cookies({ Authorization: constant.JWT_TOKEN_HEAD + result.data })
             this.$http.defaults.headers.common[constant.JWT_HEADER] = constant.JWT_TOKEN_HEAD + result.data
             setTimeout(() => {
               this.$router.push({
