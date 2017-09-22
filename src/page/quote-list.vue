@@ -2,14 +2,17 @@
   <div class="c-part-list">
     <s-header class="c-cell" :returnName="'home'" :title="'找件儿'"></s-header>
     <tab class="c-cell" active-color="#2196f3" v-model="tabIndex">
-      <tab-item index="0" selected>报价</tab-item>
+      <tab-item index="0" selected>报价
+        <badge v-if="notReadCount!==0" :text="notReadCount"></badge>
+      </tab-item>
       <tab-item index="1">整单</tab-item>
     </tab>
     <div class="quote-list">
       <scroll class="wrapper" :pullup="true" @scrollToEnd="loadMore" v-show="tabIndex===0" :data="quoteList" style="flex: 1;">
         <group gutter="0">
-          <cell v-for="quote in quoteList" :key="quote.insId" :title="quote.title" @click.native="toQuotePage(quote.insId)" :inline-desc='quote.desc+quote.askTimeStr'>
-            <img slot="icon" width="30" style="display:block;margin-right:5px;" :src="quote.src">
+          <cell is-link v-for="(quote, index) in quoteList" :key="index" :title="quote.carMark" @click.native="toQuotePage(index)" :inline-desc="quote.partName+'等'+quote.partCount+'个零件'+quote.askTimeStr">
+            <img slot="icon" width="30" style="display:block;margin-right:5px;" :src="quote.brandLogo">
+            <badge v-if="quote.isRead===0"></badge>
           </cell>
           <load-more :show-loading="loadingMore" :tip="tipShow" background-color="#fbf9fe"></load-more>
         </group>
@@ -19,17 +22,14 @@
   </div>
 </template>
 <script>
-import { LoadMore, Divider, Tabbar, TabbarItem, XHeader, Cell, Group, Tab, TabItem, Badge } from 'vux'
+import { LoadMore, Divider, Cell, Group, Tab, TabItem, Badge } from 'vux'
 import sHeader from '../components/header'
 import sFooter from '../components/footer'
 import scroll from '../components/scroll'
 export default {
   components: {
-    XHeader,
     Cell,
     Group,
-    Tabbar,
-    TabbarItem,
     Tab,
     TabItem,
     scroll,
@@ -45,7 +45,8 @@ export default {
       pageNum: 1,
       refreshing: false,
       tabIndex: 0,
-      loadingMore: false
+      loadingMore: false,
+      notReadCount: 0
     }
   },
   created() {
@@ -69,41 +70,48 @@ export default {
       await this.$http.get('/quote/list?pageNum=' + this.pageNum).then((response) => {
         let result = response.data
         if (result.code === 200) {
-          this.quoteList.push(...result.data.list)
+          this.quoteList.push(...result.data.insurancePage.list)
+          this.notReadCount = result.data.notReadCount
           this.pageNum++
-        } else if (result.code === 1) {
-          let vue = this
-          this.$vux.alert.show({
-            title: '错误',
-            content: result.msg,
-            onHide() {
-              vue.$router.push({
-                name: 'login'
-              })
-            }
-          })
         } else {
           this.$vux.alert.show({
             title: '错误',
             content: result.msg
           })
         }
-      }).catch((error) => {
-        console.log(error)
-        this.$vux.alert.show({
-          title: '错误',
-          content: '未知错误,请联系管理员'
-        })
       })
       this.loadingMore = false
     },
-    toQuotePage(insId) {
-      this.$router.push({
-        name: 'quote',
-        params: {
-          insId: insId
+    toQuotePage(index) {
+      if (!this.quoteList[index].isRead) {
+        let rpe = {
+          insId: this.quoteList[index].id,
+          isRead: 1
         }
-      })
+        this.$http.put('/quote', rpe).then((response) => {
+          let result = response.data
+          if (result.code === 200) {
+            this.$router.push({
+              name: 'quote',
+              params: {
+                insId: this.quoteList[index].id
+              }
+            })
+          } else {
+            this.$vux.alert.show({
+              title: '错误',
+              content: result.msg
+            })
+          }
+        })
+      } else {
+        this.$router.push({
+          name: 'quote',
+          params: {
+            insId: this.quoteList[index].id
+          }
+        })
+      }
     },
     loadMore() {
       this._initData()
