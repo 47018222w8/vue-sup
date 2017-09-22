@@ -2,12 +2,14 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import constant from '../components/constant'
 import store from '../store/state'
+import cookies from 'cookiesjs'
 Vue.use(Router)
 const home = r => require.ensure([], () => r(require('../page/home')), 'home')
 const login = r => require.ensure([], () => r(require('../page/login')), 'login')
 const quote = r => require.ensure([], () => r(require('../page/quote')), 'quote')
 const quoteList = r => require.ensure([], () => r(require('../page/quote-list')), 'quoteList')
 const userCenter = r => require.ensure([], () => r(require('../page/user-center')), 'userCenter')
+const userOperate = r => require.ensure([], () => r(require('../page/user-operate')), 'userOperate')
 const error = r => require.ensure([], () => r(require('../page/error')), 'userCenter')
 const router = new Router({
   routes: [{
@@ -18,7 +20,7 @@ const router = new Router({
     name: 'home',
     component: home,
     beforeEnter: (to, from, next) => {
-      let a = localStorage.getItem(constant.JWT_HEADER)
+      let a = cookies(constant.JWT_HEADER)
       if (a) {
         next()
       } else {
@@ -41,6 +43,10 @@ const router = new Router({
     path: '/user/center',
     name: 'userCenter',
     component: userCenter
+  }, {
+    path: '/user/operate',
+    name: 'userOperate',
+    component: userOperate
   }, {
     path: '/error',
     name: 'error',
