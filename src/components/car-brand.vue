@@ -8,18 +8,17 @@
         <search @on-focus="showIndex = 1" @on-cancel="showIndex = 0" @on-change="search" :autoFixed="false">
         </search>
       </div>
-      <div class="c-icon"></div>
+      <div class="c-done" @click="done">完成</div>
     </div>
     <div class="c-body" v-show="showIndex===0">
       <scroll class="c-left" ref="scrollLeft" :click="true" :data="letterList">
         <div ref="brandDiv">
-          <checklist class="brandHeight" v-for="(letter, lIndex) in letterList" :title="letter.character" :key="lIndex" :options="letter.carBrandList"></checklist>
-          <!--
-                          <group v-for="(letter, lIndex) in letterList" :title="letter.character" :key="lIndex" class="brandHeight">
-                            <cell is-link v-for="(carBrand, index) in letter.carBrandList" :key="index" :title="carBrand.carBrandName" @click.native="toQuotePage(index)">
-                              <img slot="icon" height="30" style="display:block;margin-right:5px;" :src="carBrand.brandLogo">
-                            </cell>
-                          </group> -->
+          <group v-for="(letter, lIndex) in letterList" :title="letter.character" :key="lIndex" class="brandHeight">
+            <cell is-link v-for="(carBrand, index) in letter.carBrandList" :key="index" :title="carBrand.carBrandName">
+              <!-- <img slot="icon" height="30" style="display:block;margin-right:5px;" :src="carBrand.brandLogo"> -->
+              <check-icon slot="icon" :value.sync="carBrand.check"></check-icon>
+            </cell>
+          </group>
         </div>
       </scroll>
       <div class="c-right">
@@ -29,9 +28,13 @@
       </div>
     </div>
     <div class="c-body" v-show="showIndex===1">
-      <scroll :data="searchList">
-        <div ref="brandDiv">
-          <checklist :options="searchList"></checklist>
+      <scroll class="c-left" :data="searchList">
+        <div>
+          <group>
+            <cell v-for="(carBrand, index) in searchList" :key="index" :title="carBrand.carBrandName">
+              <check-icon @click="test" slot="icon" :value.sync="carBrand.check"></check-icon>
+            </cell>
+          </group>
         </div>
       </scroll>
     </div>
@@ -40,7 +43,7 @@
 
 <script>
 import constant from '../components/constant'
-import { Divider, Cell, Group, Tab, TabItem, Search, Checklist } from 'vux'
+import { Divider, Cell, Group, Tab, TabItem, Search, Checklist, CheckIcon } from 'vux'
 import scroll from '../components/scroll'
 export default {
   data() {
@@ -48,7 +51,8 @@ export default {
       letterList: [],
       brandHeights: [],
       showIndex: 0,
-      searchList: []
+      searchList: [],
+      brandsResult: []
     }
   },
   components: {
@@ -60,7 +64,8 @@ export default {
     Tab,
     TabItem,
     scroll,
-    Checklist
+    Checklist,
+    CheckIcon
   },
   created() {
     this._initData()
@@ -81,16 +86,29 @@ export default {
         }, 200)
       })
     },
+    done() {
+      this.letterList.forEach((letter) => {
+        letter.carBrandList.forEach((carBrand) => {
+          carBrand.check && this.brandsResult.push(carBrand.carBrandId)
+        })
+      })
+      console.log(this.brandsResult)
+    },
+    test() {
+      console.log(111)
+    },
     search(value) {
       this.searchList = []
       value && this.letterList.forEach((letter) => {
         letter.carBrandList.forEach((carBrand) => {
-          carBrand.value.indexOf(value) !== -1 && this.searchList.push(carBrand)
+          // 由于引用相同,所以结算时可以值计算letterList即可
+          carBrand.carBrandName.indexOf(value) !== -1 && this.searchList.push(carBrand)
         })
       })
     },
-    change() {
-      console.log(111)
+    chooseBrand(index) {
+      console.log(index)
+      this.brandsResult.push(this.letterList[index].carBrandList)
     },
     goToLetter(index) {
       this.$vux.toast.text(this.letterList[index].character, 'middle')
@@ -114,36 +132,44 @@ export default {
 </script>
 
 <style scoped lang="less">
+@import '../styles/sup.less';
 .c-car-brand {
-  display: flex;
-  flex-direction: column;
+  .display-flex;
+  .flex-direction(column);
   .c-header {
-    flex: none;
-    display: flex;
+    .flex(none);
+    .display-flex;
     background-color: @search-bg-color;
     .c-cell {
-      flex: auto;
+      .flex(auto);
     }
     .c-icon {
-      display: flex;
-      flex: 0 0 5%;
-      align-items: center;
-      justify-content: center;
+      .display-flex;
+      .flex(0 0 5%);
+      .align-items(center);
+      .justify-content(center);
       color: @search-placeholder-font-color;
+    }
+    .c-done {
+      .display-flex;
+      .flex(0 0 10%);
+      .align-items(center);
+      .justify-content(center);
+      color: @s-primary-color;
     }
   }
   .c-body {
-    flex: none;
-    display: flex;
+    .flex(none);
+    .display-flex;
     overflow: hidden;
     .c-left {
-      flex: 1;
+      .flex(1);
     }
     .c-right {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 10px;
+      .display-flex;
+      .align-items(center);
+      .justify-content(center);
+      .flex(0 0 10px);
       ul {
         list-style: none;
         li {
