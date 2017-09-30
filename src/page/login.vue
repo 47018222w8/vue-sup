@@ -3,7 +3,7 @@
     <group>
       <x-input title="账号" type="text" v-model="formData.uname"></x-input>
       <x-input title="密码" type="password" v-model="formData.password"></x-input>
-      <x-button class="blue" text="登录" :disabled="disabled" @click.native="submitForm" :show-loading="loading" type="primary"></x-button>
+      <x-button :text="loading?'登录中...':'登录'" :disabled="loading" @click.native="submitForm" :show-loading="loading" type="primary"></x-button>
     </group>
 
   </div>
@@ -12,7 +12,6 @@
 <script>
 import constant from '../components/constant'
 import { XInput, Group, XButton, Cell } from 'vux'
-import cookies from 'cookiesjs'
 export default {
   name: 'Login',
   components: {
@@ -27,7 +26,6 @@ export default {
         uname: '',
         password: ''
       },
-      disabled: false,
       loading: false,
       message: '',
       toast: false
@@ -37,12 +35,10 @@ export default {
     submitForm() {
       if (this.validate()) {
         this.loading = true
-        this.disabled = true
         this.$http.post('/login/validate', this.formData).then((response) => {
           let result = response.data
           if (result.code === 200) {
-            cookies({ Authorization: constant.JWT_TOKEN_HEAD + result.data })
-            this.$http.defaults.headers.common[constant.JWT_HEADER] = constant.JWT_TOKEN_HEAD + result.data
+            localStorage.setItem(constant.JWT_HEADER, constant.JWT_TOKEN_HEAD + result.data)
             setTimeout(() => {
               this.$router.push({
                 name: 'quoteList'
