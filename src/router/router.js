@@ -2,7 +2,6 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import constant from '../components/constant'
 import store from '../store/state'
-import cookies from 'cookiesjs'
 Vue.use(Router)
 const home = r => require.ensure([], () => r(require('../page/home')), 'home')
 const login = r => require.ensure([], () => r(require('../page/login')), 'login')
@@ -20,7 +19,7 @@ const router = new Router({
     name: 'home',
     component: home,
     beforeEnter: (to, from, next) => {
-      let a = cookies(constant.JWT_HEADER)
+      let a = localStorage.getItem(constant.JWT_HEADER)
       if (a) {
         next()
       } else {
