@@ -22,7 +22,7 @@
     </card>
     <card :header="{title:'设置'}">
       <div slot="content" class="card-demo-flex card-demo-content01">
-        <div @click="toPage('userOperate')">
+        <div @click="toPage('supplierList')">
           <i class="fa fa-automobile fa-2x"></i>
           <br/> 经营范围
         </div>
@@ -61,8 +61,9 @@ export default {
 </script>
 
 <style lang="less">
+@import '../styles/sup.less';
 .card-demo-flex {
-  display: flex;
+  .display-flex;
   >div {
     flex: 1;
     text-align: center;

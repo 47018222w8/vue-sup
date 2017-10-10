@@ -1,20 +1,25 @@
 <template>
   <div class="c-home">
-    <s-header class="c-cell" :returnName="'quoteList'" :title="'找件儿'"></s-header>
-    <p>我是错误页</p>
-    <s-footer></s-footer>
+    <msg title="服务器错误,请联系管理员" icon="warn" :buttons="buttons"></msg>
   </div>
 </template>
 
 <script>
-import sFooter from '../components/footer'
-import sHeader from '../components/header'
 import constant from '../components/constant'
+import { Msg } from 'vux'
 export default {
   components: {
-    sFooter,
-    sHeader,
-    constant
+    constant,
+    Msg
+  },
+  data() {
+    return {
+      buttons: [{
+        type: 'default',
+        text: '返回首页',
+        link: '/home'
+      }]
+    }
   }
 }
 </script>

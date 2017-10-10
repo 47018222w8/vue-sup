@@ -8,7 +8,6 @@ import App from './App'
 import { ToastPlugin, LoadingPlugin, AlertPlugin, ConfirmPlugin } from 'vux'
 import axios from 'axios'
 import constant from './components/constant'
-import statusCode from './components/status-code'
 Vue.use(LoadingPlugin)
 Vue.use(ToastPlugin)
 Vue.use(AlertPlugin)
@@ -18,23 +17,32 @@ axios.defaults.baseURL = constant.BASE_URL
 axios.defaults.headers.common[constant.JWT_HEADER] = localStorage.getItem(constant.JWT_HEADER)
 axios.defaults.timeout = 10000
 axios.interceptors.response.use(function (response) {
-  let result = response.data
-  if (result.code === statusCode.LOGIN_EXPIRED) {
-    Vue.$vux.toast.text('登录超时,即将返回登录页', 'middle')
-    setTimeout((e) => {
+  return response
+}, function (error) {
+  if (error.response) {
+    let result = error.response
+    if (result.status === 500) {
       router.push({
-        name: 'login'
+        name: 'error'
       })
-    }, 1900)
+      throw error
+    } else if (result.status === 401 && result.data.code === 'AUTHORIZATION_EXPIRED') {
+      Vue.prototype.toast.text('hello', 'bottom')
+      setTimeout(() => {
+        router.push({
+          name: 'login'
+        })
+      }, 1500)
+      throw error
+    } else {
+      return Promise.reject(error)
+    }
   } else {
-    return response
+    router.push({
+      name: 'error'
+    })
+    throw error
   }
-}, function (err) {
-  router.push({
-    name: 'error'
-  })
-  throw err
-  // return Promise.reject(err)
 })
 Vue.prototype.$http = axios
 Vue.config.productionTip = false

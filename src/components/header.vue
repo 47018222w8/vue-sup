@@ -1,7 +1,7 @@
 <template>
   <div class="s-header">
-    <div class="h-left" @click="back">
-      <i class="fa fa-angle-left fa-lg"></i>
+    <div  class="h-left" >
+      <i v-if="leftIcon" @click="back" class="fa fa-angle-left fa-lg"></i>
     </div>
     <div class="h-middle">{{title}}</div>
     <div class="h-right">
@@ -14,8 +14,15 @@
 export default {
   name: 's-header',
   props: {
-    title: '',
-    returnName: ''
+    title: {
+      type: String,
+      default: '找件儿'
+    },
+    returnName: '',
+    leftIcon: {
+      type: Boolean,
+      default: true
+    }
   },
   methods: {
     back() {

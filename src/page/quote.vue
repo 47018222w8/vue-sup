@@ -70,7 +70,6 @@ import { Spinner, XButton, Step, StepItem, GroupTitle, Badge, Swiper, TransferDo
 import sHeader from '../components/header'
 import constant from '../components/constant'
 import scroll from '../components/scroll'
-import statusCode from '../components/status-code'
 export default {
   directives: {
     TransferDom
@@ -117,95 +116,80 @@ export default {
   methods: {
     // 初始化数据
     async _initData() {
-      await this.$http.get('/quote/' + this.irpe.insId).then((response) => {
-        let result = response.data
-        if (result.code === statusCode.SUCCESS) {
-          let quote = result.data
-          // 零件品质
-          let qualityList = quote.qualityList
-          for (let i = 0; i < qualityList.length; i++) {
-            this.qualityList.push({
-              value: String(qualityList[i].id), // 沃日,show-name只能用string
-              name: qualityList[i].propertyName,
-              parent: 0
-            })
-          }
-          // 零件列表
-          let reportPriceList = localStorage.getItem(this.iilKey)
-          if (reportPriceList) {
-            reportPriceList = JSON.parse(reportPriceList)
-          } else {
-            reportPriceList = quote.reportPriceList
-            for (let i = 0; i < reportPriceList.length; i++) {
-              let listRPI = [{
-                canShipDateBsStr: null,
-                reportPrice: null,
-                qrArry: [this.qualityList[0].value], // 坑爹的数组 vmodel的是数组,需要自己在转为要提交的格式
-                qualityRequirement: this.qualityList[0].value,
-                remark: null
-              }]
-              reportPriceList[i].imgPriviewList = []
-              reportPriceList[i].img && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img, w: 600, h: 400 })
-              reportPriceList[i].img1 && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img1, w: 600, h: 400 })
-              reportPriceList[i].img2 && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img2, w: 600, h: 400 })
-              reportPriceList[i].img3 && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img3, w: 600, h: 400 })
-              reportPriceList[i].img4 && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img4, w: 600, h: 400 })
-              reportPriceList[i].qualityList = this.qualityList
-              reportPriceList[i].iopArry = [this.isOperProdList[0].value]
-              reportPriceList[i].isOperProd = this.isOperProdList[0].value
-              reportPriceList[i].done = false // 未完成状态
-              reportPriceList[i].listRPI = listRPI
-            }
-          }
-          this.reportPriceList = reportPriceList
-          // 询价单信息
-          let ins = quote.ins
-          ins.rearImg && this.insImgList.push({
-            img: quote.domain + ins.rearImg,
-            title: '车尾照片'
-          })
-          ins.frontImg && this.insImgList.push({
-            img: quote.domain + ins.frontImg,
-            title: '车头照片'
-          })
-          ins.driveLicense && this.insImgList.push({
-            img: quote.domain + ins.driveLicense,
-            title: '行车证照片'
-          })
-          this.carInfoTitle = ins.carBrandName
-          this.carInfo.splice(0, 0, { label: '车型', value: ins.carMark },
-            {
-              label: '车牌号',
-              value: ins.carNo ? ins.carNo : '无'
-            }, {
-              label: 'vin',
-              value: ins.vin === '00000000000000000' ? '无' : ins.vin
-            }, {
-              label: '到货时间',
-              value: ins.arriveTime
-            }, {
-              label: '修理厂',
-              value: ins.entMemberName
-            }, {
-              label: '地址',
-              value: ins.address
-            }, {
-              label: '是否需要发票',
-              value: ins.invoice === 1 ? '需要' : '不需要'
-            })
-        } else if (result.code === statusCode.REPORT_PRICE_NULL) {
-          this.$vux.toast.text('此单已报价,即将返回报价列表', 'middle')
-          setTimeout((e) => {
-            this.$router.push({
-              name: 'quoteList'
-            })
-          }, 1900)
-        } else {
-          this.$vux.alert.show({
-            title: '错误',
-            content: result.msg
+      await this.$http.get('/insruances/' + this.irpe.insId, { params: { state: '0' } }).then((response) => {
+        let quote = response.data
+        // 零件品质
+        let qualityList = quote.qualityList
+        for (let i = 0; i < qualityList.length; i++) {
+          this.qualityList.push({
+            value: String(qualityList[i].id), // 沃日,show-name只能用string
+            name: qualityList[i].propertyName,
+            parent: 0
           })
         }
+        // 零件列表
+        let reportPriceList = localStorage.getItem(this.iilKey)
+        if (reportPriceList) {
+          reportPriceList = JSON.parse(reportPriceList)
+        } else {
+          reportPriceList = quote.reportPriceList
+          for (let i = 0; i < reportPriceList.length; i++) {
+            let listRPI = [{
+              canShipDateBsStr: null,
+              reportPrice: null,
+              qrArry: [this.qualityList[0].value], // 坑爹的数组 vmodel的是数组,需要自己在转为要提交的格式
+              qualityRequirement: this.qualityList[0].value,
+              remark: null
+            }]
+            reportPriceList[i].imgPriviewList = []
+            reportPriceList[i].img && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img, w: 600, h: 400 })
+            reportPriceList[i].img1 && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img1, w: 600, h: 400 })
+            reportPriceList[i].img2 && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img2, w: 600, h: 400 })
+            reportPriceList[i].img3 && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img3, w: 600, h: 400 })
+            reportPriceList[i].img4 && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img4, w: 600, h: 400 })
+            reportPriceList[i].qualityList = this.qualityList
+            reportPriceList[i].iopArry = [this.isOperProdList[0].value]
+            reportPriceList[i].isOperProd = this.isOperProdList[0].value
+            reportPriceList[i].done = false // 未完成状态
+            reportPriceList[i].listRPI = listRPI
+          }
+        }
+        this.reportPriceList = reportPriceList
+        // 询价单信息
+        let ins = quote.ins
+        ins.rearImg && this.insImgList.push({
+          img: quote.domain + ins.rearImg,
+          title: '车尾照片'
+        })
+        ins.frontImg && this.insImgList.push({
+          img: quote.domain + ins.frontImg,
+          title: '车头照片'
+        })
+        ins.driveLicense && this.insImgList.push({
+          img: quote.domain + ins.driveLicense,
+          title: '行车证照片'
+        })
+        this.carInfoTitle = ins.carBrandName
+        this.carInfo.splice(0, 0, { label: '车型', value: ins.carMark },
+          {
+            label: '车牌号',
+            value: ins.carNo ? ins.carNo : '无'
+          }, {
+            label: 'vin',
+            value: ins.vin === '00000000000000000' ? '无' : ins.vin
+          }, {
+            label: '到货时间',
+            value: ins.arriveTime
+          }, {
+            label: '修理厂',
+            value: ins.entMemberName
+          }, {
+            label: '地址',
+            value: ins.address
+          }, {
+            label: '是否需要发票',
+            value: ins.invoice === 1 ? '需要' : '不需要'
+          })
       })
       this._calculateHeight()
     },
@@ -303,20 +287,17 @@ export default {
       if (this.irpe.taxRate === null) {
         this.irpe.taxRate = 0
       }
-      this.$http.post('/quote', this.irpe).then((response) => {
-        let result = response.data
-        if (result.code === 200) {
-          this.$vux.toast.show({
-            text: '报价成功',
-            time: 1500,
-            position: 'middle'
+      this.$http.post('/reportPriceInfos', this.irpe).then((response) => {
+        this.$vux.toast.show({
+          text: '报价成功',
+          time: 1500,
+          position: 'middle'
+        })
+        setTimeout((e) => {
+          this.$router.push({
+            name: 'quoteList'
           })
-          setTimeout((e) => {
-            this.$router.push({
-              name: 'quoteList'
-            })
-          }, 1400)
-        } else { }
+        }, 1400)
       })
     },
     // 计算高度
@@ -388,35 +369,36 @@ export default {
 </script>
 
 <style lang="less">
+@import '../styles/sup.less';
 .c-part {
-  display: flex;
+  .display-flex;
   flex-direction: column;
   .c-cell {
-    flex: 0 0 auto;
+    .flex(0 0 auto);
   }
   .parts {
-    display: flex;
+    .display-flex;
     position: absolute;
     top: 94px;
     bottom: 42px;
     width: 100%;
-    flex-direction: column;
+    .flex-direction(column);
     .c-header {
       display: flex;
-      justify-content: center;
+      .justify-content(center);
     }
     .c-footer {
       display: flex;
-      flex: 0 0 auto;
+      .flex(0 0 auto);
       .c-cell {
-        flex: 0 0 45%;
+        .flex(0 0 45);
       }
     }
     .c-body {
       display: flex;
-      flex: auto;
+      .flex(auto);
       .c-left {
-        flex: 0 0 80px;
+        .flex(0 0 80px);
         width: 80px;
         background: #fff;
         margin-top: 2px;
@@ -438,10 +420,10 @@ export default {
         }
       }
       .c-middle {
-        flex: 0 0 3%;
+        .flex(0 0 3%);
       }
       .c-right {
-        flex: 1;
+        .flex(1);
         margin-top: 2px;
         overflow: hidden;
       }

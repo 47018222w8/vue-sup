@@ -12,6 +12,7 @@
 <script>
 import constant from '../components/constant'
 import { XInput, Group, XButton, Cell } from 'vux'
+import axios from 'axios'
 export default {
   name: 'Login',
   components: {
@@ -32,19 +33,31 @@ export default {
     }
   },
   methods: {
-    submitForm() {
+    async submitForm() {
       if (this.validate()) {
         this.loading = true
-        this.$http.post('/login/validate', this.formData).then((response) => {
-          let result = response.data
-          if (result.code === 200) {
-            localStorage.setItem(constant.JWT_HEADER, constant.JWT_TOKEN_HEAD + result.data)
-            setTimeout(() => {
-              this.$router.push({
-                name: 'quoteList'
-              })
-            }, 1000)
-          } else { }
+        await this.$http.post('/sessions', this.formData).then((response) => {
+          localStorage.setItem(constant.JWT_HEADER, constant.JWT_TOKEN_HEAD + response.data)
+          axios.defaults.headers.common[constant.JWT_HEADER] = constant.JWT_TOKEN_HEAD + response.data
+          this.$vux.toast.show({
+            text: '登录成功',
+            position: 'middle',
+            time: '1500'
+          })
+          setTimeout(() => {
+            this.$router.push({
+              name: 'quoteList'
+            })
+          }, 1400)
+        }).catch((error) => {
+          let result = error.response
+          result.status === 400 && this.$vux.toast.show({
+            text: result.data.message,
+            type: 'warn',
+            position: 'middle',
+            time: '1500'
+          })
+          this.loading = false
         })
       }
     },

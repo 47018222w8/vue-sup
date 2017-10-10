@@ -8,7 +8,7 @@ const login = r => require.ensure([], () => r(require('../page/login')), 'login'
 const quote = r => require.ensure([], () => r(require('../page/quote')), 'quote')
 const quoteList = r => require.ensure([], () => r(require('../page/quote-list')), 'quoteList')
 const userCenter = r => require.ensure([], () => r(require('../page/user-center')), 'userCenter')
-const userOperate = r => require.ensure([], () => r(require('../page/user-operate')), 'userOperate')
+const supplierList = r => require.ensure([], () => r(require('../page/supplier-list')), 'supplierList')
 const error = r => require.ensure([], () => r(require('../page/error')), 'userCenter')
 const router = new Router({
   routes: [{
@@ -43,9 +43,9 @@ const router = new Router({
     name: 'userCenter',
     component: userCenter
   }, {
-    path: '/user/operate',
-    name: 'userOperate',
-    component: userOperate
+    path: '/supplier/list',
+    name: 'supplierList',
+    component: supplierList
   }, {
     path: '/error',
     name: 'error',

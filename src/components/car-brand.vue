@@ -1,22 +1,20 @@
 <template>
-  <div class="c-car-brand">
+  <div class="c-car-brand" v-if="letterList">
     <div class="c-header">
       <div class="c-icon">
-        <i class="fa fa-angle-left fa-2x"></i>
+        <slot name="leftIcon"></slot>
       </div>
       <div class="c-cell">
         <search @on-focus="showIndex = 1" @on-cancel="showIndex = 0" @on-change="search" :autoFixed="false">
         </search>
       </div>
-      <div class="c-done" @click="done">完成</div>
     </div>
     <div class="c-body" v-show="showIndex===0">
       <scroll class="c-left" ref="scrollLeft" :click="true" :data="letterList">
         <div ref="brandDiv">
           <group v-for="(letter, lIndex) in letterList" :title="letter.character" :key="lIndex" class="brandHeight">
-            <cell is-link v-for="(carBrand, index) in letter.carBrandList" :key="index" :title="carBrand.carBrandName">
-              <!-- <img slot="icon" height="30" style="display:block;margin-right:5px;" :src="carBrand.brandLogo"> -->
-              <check-icon slot="icon" :value.sync="carBrand.check"></check-icon>
+            <cell v-for="(carBrand, index) in letter.carBrandList" :key="index">
+              <check-icon style="width:100%" slot="title" :value.sync="carBrand.check">{{carBrand.carBrandName}}</check-icon>
             </cell>
           </group>
         </div>
@@ -31,24 +29,30 @@
       <scroll class="c-left" :data="searchList">
         <div>
           <group>
-            <cell v-for="(carBrand, index) in searchList" :key="index" :title="carBrand.carBrandName">
-              <check-icon @click="test" slot="icon" :value.sync="carBrand.check"></check-icon>
+            <cell v-for="(carBrand, index) in searchList" :key="index">
+              <check-icon style="width:100%" slot="title" :value.sync="carBrand.check">{{carBrand.carBrandName}}</check-icon>
             </cell>
           </group>
         </div>
       </scroll>
     </div>
+    <slot name="doneBtn"></slot>
   </div>
 </template>
 
 <script>
 import constant from '../components/constant'
-import { Divider, Cell, Group, Tab, TabItem, Search, Checklist, CheckIcon } from 'vux'
+import { Divider, XButton, Cell, Group, Tab, TabItem, Search, Checklist, CheckIcon } from 'vux'
 import scroll from '../components/scroll'
 export default {
+  props: {
+    letterList: {
+      type: Array,
+      default: null
+    }
+  },
   data() {
     return {
-      letterList: [],
       brandHeights: [],
       showIndex: 0,
       searchList: [],
@@ -65,37 +69,26 @@ export default {
     TabItem,
     scroll,
     Checklist,
-    CheckIcon
+    CheckIcon,
+    XButton
   },
-  created() {
-    this._initData()
+  mounted() {
+    setTimeout(() => {
+      this._calculateHeight
+    }, 20)
   },
   methods: {
-    async _initData() {
-      await this.$http.get('/user/car/brand').then((response) => {
-        let result = response.data
-        if (result.code === 200) {
-          this.letterList = result.data
-        } else {
-          this.$router.push({
-            name: 'error'
-          })
-        }
-        setTimeout((e) => {
-          this._calculateHeight()
-        }, 200)
-      })
-    },
     done() {
       this.letterList.forEach((letter) => {
         letter.carBrandList.forEach((carBrand) => {
           carBrand.check && this.brandsResult.push(carBrand.carBrandId)
         })
       })
-      console.log(this.brandsResult)
-    },
-    test() {
-      console.log(111)
+      if (this.brandsResult.length) {
+        return this.brandsResult
+      } else {
+        this.$vux.toast.text('请至少选择一个品牌', 'middle')
+      }
     },
     search(value) {
       this.searchList = []
@@ -106,10 +99,7 @@ export default {
         })
       })
     },
-    chooseBrand(index) {
-      console.log(index)
-      this.brandsResult.push(this.letterList[index].carBrandList)
-    },
+    // 定位
     goToLetter(index) {
       this.$vux.toast.text(this.letterList[index].character, 'middle')
       this.$refs.scrollLeft.scrollTo(0, -this.brandHeights[index], 100)
@@ -126,6 +116,14 @@ export default {
         brandHeights.push(height)
       }
       this.brandHeights = brandHeights
+    }
+  },
+  watch: {
+    // 监听数据的变化，延时refreshDelay时间后调用refresh方法重新计算，保证滚动效果正常
+    letterList() {
+      setTimeout(() => {
+        this._calculateHeight()
+      }, 30)
     }
   }
 }
@@ -163,6 +161,7 @@ export default {
     .display-flex;
     overflow: hidden;
     .c-left {
+      max-height: 85vh;
       .flex(1);
     }
     .c-right {

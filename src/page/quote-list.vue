@@ -1,6 +1,6 @@
 <template>
   <div class="c-part-list">
-    <s-header class="c-cell" :returnName="'home'" :title="'找件儿'"></s-header>
+    <s-header class="c-cell" :returnName="'home'" :leftIcon="false"></s-header>
     <tab class="c-cell" active-color="#2196f3" v-model="tabIndex">
       <tab-item index="0" selected>报价
         <badge v-if="notReadCount!==0" :text="notReadCount"></badge>
@@ -46,7 +46,8 @@ export default {
       refreshing: false,
       tabIndex: 0,
       loadingMore: false,
-      notReadCount: 0
+      notReadCount: 0,
+      maxPage: 0
     }
   },
   created() {
@@ -57,28 +58,34 @@ export default {
     tipShow() {
       if (this.loadingMore) {
         return '加载中'
-      } else if (!this.loadingMore && this.quoteList.length) {
-        return '下拉刷新'
-      } else {
+      }
+      if (!this.loadingMore && !this.quoteList.length) {
         return '暂无询价'
+      }
+      if (this.pageNum > this.maxPage) {
+        return '没有更多数据了'
+      }
+      if (!this.loadingMore && this.quoteList.length) {
+        return '下拉刷新'
       }
     }
   },
   methods: {
     async _initData() {
       this.loadingMore = true
-      await this.$http.get('/quote/list?pageNum=' + this.pageNum).then((response) => {
-        let result = response.data
-        if (result.code === 200) {
-          this.quoteList.push(...result.data.insurancePage.list)
-          this.notReadCount = result.data.notReadCount
-          this.pageNum++
-        } else {
-          this.$vux.alert.show({
-            title: '错误',
-            content: result.msg
-          })
-        }
+      let params = {
+        pageNum: this.pageNum,
+        pageSize: 10,
+        reportState: 0,
+        insReportStatesStr: '1,2',
+        mark: 1,
+        isRead: 0
+      }
+      await this.$http.get('/insruances', { params }).then((response) => {
+        this.quoteList.push(...response.data.insurancePage.list)
+        this.notReadCount = response.data.notReadCount
+        this.maxPage = response.data.insurancePage.pages
+        this.pageNum++
       })
       this.loadingMore = false
     },
@@ -88,21 +95,13 @@ export default {
           insId: this.quoteList[index].id,
           isRead: 1
         }
-        this.$http.put('/quote', rpe).then((response) => {
-          let result = response.data
-          if (result.code === 200) {
-            this.$router.push({
-              name: 'quote',
-              params: {
-                insId: this.quoteList[index].id
-              }
-            })
-          } else {
-            this.$vux.alert.show({
-              title: '错误',
-              content: result.msg
-            })
-          }
+        this.$http.put('/reportPriceExtends', rpe).then((response) => {
+          this.$router.push({
+            name: 'quote',
+            params: {
+              insId: this.quoteList[index].id
+            }
+          })
         })
       } else {
         this.$router.push({
@@ -114,21 +113,22 @@ export default {
       }
     },
     loadMore() {
-      this._initData()
+      this.pageNum <= this.maxPage && this._initData()
     }
   }
 }
 </script>
 
 <style scoped lang="less">
+@import '../styles/sup.less';
 .c-part-list {
-  display: flex;
-  flex-direction: column;
+  .display-flex;
+  .flex-direction(column);
   .c-cell {
-    flex: 0 0 auto;
+    .flex(0 0 auto);
   }
   .quote-list {
-    display: flex;
+    .display-flex;
     position: absolute;
     top: 84px;
     bottom: 40px;
