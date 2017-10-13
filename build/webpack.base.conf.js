@@ -13,7 +13,8 @@ function resolve(dir) {
 
 let webpackConfig = {
 	entry: {
-		app: './src/main.js'
+    app: './src/main.js',
+    vendors: './build/stomp.min.js'
 	},
 	output: {
 		path: config.build.assetsRoot,

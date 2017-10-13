@@ -6,8 +6,8 @@
     <div class="f-cell" @click="toPage('quoteList')" :class="{'f-active':selectedTabBar('quoteList')}">
       <i class="fa fa-rocket fa-lg"></i>报价
     </div>
-    <div class="f-cell">
-      <i slot="icon" class="fa fa-comment-o fa-lg"></i>消息
+    <div class="f-cell" @click="toPage('chat')" :class="{'f-active':selectedTabBar('chat')}">
+      <i slot="icon" class="fa fa-comment-o fa-lg" ></i>消息
     </div>
     <div class="f-cell" @click="toPage('userCenter')" :class="{'f-active':selectedTabBar('userCenter')}">
       <i slot="icon" class="fa fa-user-o fa-lg"></i>我的

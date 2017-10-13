@@ -9,7 +9,8 @@ const quote = r => require.ensure([], () => r(require('../page/quote')), 'quote'
 const quoteList = r => require.ensure([], () => r(require('../page/quote-list')), 'quoteList')
 const userCenter = r => require.ensure([], () => r(require('../page/user-center')), 'userCenter')
 const supplierList = r => require.ensure([], () => r(require('../page/supplier-list')), 'supplierList')
-const error = r => require.ensure([], () => r(require('../page/error')), 'userCenter')
+const error = r => require.ensure([], () => r(require('../page/error')), 'error')
+const chat = r => require.ensure([], () => r(require('../page/chat')), 'chat')
 const router = new Router({
   routes: [{
     path: '',
@@ -50,6 +51,10 @@ const router = new Router({
     path: '/error',
     name: 'error',
     component: error
+  }, {
+    path: '/chat',
+    name: 'chat',
+    component: chat
   }]
 })
 router.beforeEach(function (to, from, next) {

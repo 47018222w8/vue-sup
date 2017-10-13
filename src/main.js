@@ -27,7 +27,8 @@ axios.interceptors.response.use(function (response) {
       })
       throw error
     } else if (result.status === 401 && result.data.code === 'AUTHORIZATION_EXPIRED') {
-      Vue.prototype.toast.text('hello', 'bottom')
+      console.log()
+      Vue.$vux.toast.text('登录超时,即将返回登录页', 'bottom')
       setTimeout(() => {
         router.push({
           name: 'login'

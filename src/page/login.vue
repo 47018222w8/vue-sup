@@ -42,7 +42,7 @@ export default {
           this.$vux.toast.show({
             text: '登录成功',
             position: 'middle',
-            time: '1500'
+            time: '1200'
           })
           setTimeout(() => {
             this.$router.push({
