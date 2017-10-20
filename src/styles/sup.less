@@ -6,53 +6,16 @@ body {
     height: 100%;
 }
 
-.s-btn {
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 1.42;
-    position: relative;
-    display: inline-block;
-    margin-bottom: 0;
-    padding: 6px 12px;
-    cursor: pointer;
-    transition: all;
-    transition-timing-function: linear;
-    transition-duration: .2s;
-    text-align: center;
-    vertical-align: top;
-    white-space: nowrap;
-    border-radius: 3px;
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
-    border-bottom-right-radius: 3px;
-    border-bottom-left-radius: 3px;
-    background-clip: padding-box;
-}
-
-.s-btn-primary {
-    color: #fff;
-    border: 1px solid @s-primary-color;
-    background-color: @s-primary-color;
-}
-
-.s-btn-primary.s-btn-outline {
-    color: @s-primary-color;
-    background-color: transparent;
-}
-
-.s-btn-danger {
-    color: #fff;
-    border: 1px solid @s-danger-color;
-    background-color: @s-danger-color;
-}
-.s-btn-danger.s-btn-outline {
-    color: @s-danger-color;
-    background-color: transparent;
-}
 .fa-primary{
     color:@s-primary-color;
 }
-//-----------------flex布局兼容开始
+@vux-header-height:43px;
+@s-footer-height:40px;
+@vux-tab-height:44px;
+@vux-button-height:44px;
+@s-primary-color:#2196f3;//默认色
+@s-danger-color:#dd524d;//
+//-----------------flex begin
 .display-flex(@display: flex) {
     & when (@display =flex) {
         display: -webkit-box;
@@ -144,4 +107,4 @@ body {
     -webkit-flex: @flex;
     flex: @flex;
 }
-//-----------------flex布局结束
+//-----------------flex end

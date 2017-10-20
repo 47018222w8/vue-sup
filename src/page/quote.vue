@@ -1,6 +1,6 @@
 <template>
   <div ref="part" class="c-part">
-    <s-header class="c-cell" :returnName="'quoteList'" :title="'找件儿'"></s-header>
+    <x-header on-click-back="$router.push({name: 'quoteList'}}" :right-options="{showMore:false}"  title="找件儿"></x-header>
     <tab class="c-cell" active-color="#2196f3" v-model="tabIndex">
       <tab-item index="0" selected>零件</tab-item>
       <tab-item index="1">车辆信息</tab-item>
@@ -33,11 +33,11 @@
                 <x-input @on-focus="onFocus(index)" title="金额" v-model="rpi.reportPrice" type="number"></x-input>
                 <x-textarea style="padding-bottom: 0;" title="备注" v-model="rpi.remark" :show-counter="false" :rows="3" :max="100"></x-textarea>
                 <div style="text-align: center;padding-top: 5px;padding-bottom:5px;">
-                  <button v-if="index!==0" @click="delMoreQuality(index)" class="s-btn s-btn-danger s-btn-outline">删除此品质报价</button>
+                  <x-button mini v-if="index!==0" @click.native="delMoreQuality(index)" type="warn">Delete</x-button>
                 </div>
               </group>
               <div style="text-align: center;margin: 5px 0 10px 0;">
-                <button @click="addMoreQuality" class="s-btn s-btn-primary s-btn-outline">提供更多品质报价</button>
+                <x-button @click.native="addMoreQuality" plain mini>提供更多品质报价</x-button>
               </div>
               <br>
             </div>
@@ -47,15 +47,13 @@
           <group gutter="0" class="c-cell">
             <x-input title="运费" type="number" v-model="irpe.expressMoney"></x-input>
           </group>
-          <group gutter="0">
+          <group gutter="0" >
             <x-input title="税率" type="number" v-model="irpe.taxRate">
               <span slot="right">%</span>
             </x-input>
           </group>
         </div>
-        <div v-show="tabIndex===0" ref="subBtn" style="text-align: center;position: fixed;bottom: 0;width: 100%;">
-          <x-button :disabled="subLoading" :show-loading="subLoading" @click.native="subForm" type="primary">提交报价</x-button>
-        </div>
+        <x-button v-show="tabIndex===0" :disabled="subLoading" :show-loading="subLoading" @click.native="subForm" type="primary">提交报价</x-button>
       </template>
     </div>
     <!--零件图片预览-->
@@ -66,9 +64,8 @@
 </template>
 
 <script>
-import { Spinner, XButton, Step, StepItem, GroupTitle, Badge, Swiper, TransferDom, CellFormPreview, Flexbox, FlexboxItem, XTextarea, XInput, Datetime, Selector, PopupPicker, Cell, Group, Tab, TabItem, Previewer } from 'vux'
-import sHeader from '../components/header'
-import constant from '../components/constant'
+import { XHeader, Spinner, XButton, Step, StepItem, GroupTitle, Badge, Swiper, TransferDom, CellFormPreview, Flexbox, FlexboxItem, XTextarea, XInput, Datetime, Selector, PopupPicker, Cell, Group, Tab, TabItem, Previewer } from 'vux'
+import { RE_MONEY } from '../components/constant'
 import scroll from '../components/scroll'
 export default {
   directives: {
@@ -211,7 +208,7 @@ export default {
       let f = true
       if (this.reportPriceList[index].isOperProd === '0') {
         for (let i = 0; i < rpi.length; i++) {
-          if (!constant.MONEY_TEST.test(rpi[i].reportPrice) || !rpi[i].qualityRequirement || !rpi[i].canShipDateBsStr) {
+          if (!RE_MONEY.test(rpi[i].reportPrice) || !rpi[i].qualityRequirement || !rpi[i].canShipDateBsStr) {
             f = false
             break
           }
@@ -341,6 +338,7 @@ export default {
     }
   },
   components: {
+    XHeader,
     Cell,
     Group,
     GroupTitle,
@@ -361,28 +359,26 @@ export default {
     scroll,
     Step,
     StepItem,
-    sHeader,
     XButton,
     Spinner
   }
 }
 </script>
 
-<style lang="less">
+<style  lang="less">
 @import '../styles/sup.less';
 .c-part {
   .display-flex;
   flex-direction: column;
   .c-cell {
-    .flex(0 0 auto);
+    .flex(none);
   }
+  overflow: hidden;
   .parts {
     .display-flex;
-    position: absolute;
-    top: 94px;
-    bottom: 42px;
-    width: 100%;
+    .flex(none);
     .flex-direction(column);
+    overflow: hidden;
     .c-header {
       display: flex;
       .justify-content(center);
@@ -391,12 +387,14 @@ export default {
       display: flex;
       .flex(0 0 auto);
       .c-cell {
-        .flex(0 0 45);
+        .flex(0 0 45%);
       }
     }
     .c-body {
-      display: flex;
+      overflow: hidden;
+      .display-flex;
       .flex(auto);
+      height: calc(~"100vh - @{vux-header-height} - @{vux-tab-height} - @{vux-button-height} - 44px");
       .c-left {
         .flex(0 0 80px);
         width: 80px;
@@ -423,7 +421,7 @@ export default {
         .flex(0 0 3%);
       }
       .c-right {
-        .flex(1);
+        .flex(auto);
         margin-top: 2px;
         overflow: hidden;
       }

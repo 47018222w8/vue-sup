@@ -1,32 +1,32 @@
 <template>
   <div class="c-part-list">
-    <s-header class="c-cell" :returnName="'home'" :leftIcon="false"></s-header>
-    <tab class="c-cell" active-color="#2196f3" v-model="tabIndex">
-      <tab-item index="0" selected>报价
-        <badge v-if="notReadCount!==0" :text="notReadCount"></badge>
-      </tab-item>
-      <tab-item index="1">整单</tab-item>
-    </tab>
-    <div class="quote-list">
-      <scroll class="wrapper" :pullup="true" @scrollToEnd="loadMore" v-show="tabIndex===0" :data="quoteList" style="flex: 1;">
-        <group gutter="0">
-          <cell is-link v-for="(quote, index) in quoteList" :key="index" :title="quote.carMark" @click.native="toQuotePage(index)" :inline-desc="quote.partName+'等'+quote.partCount+'个零件'+quote.askTimeStr">
+    <x-header :left-options="{showBack:false}" :right-options="{showMore:false}" @on-click-more="showMenus = true" title="找件儿"></x-header>
+    <scroll :pullup="true" @scrollToEnd="loadMore" v-show="tabIndex===0" :data="quoteList" class="quote-list">
+      <div>
+        <group gutter="0" v-for="(quote, index) in quoteList" :key="index">
+          <cell is-link @click.native="toQuotePage(index)" :title="quote.carMark" :inline-desc="quote.partName+'等'+quote.partCount+'个零件'+quote.askTimeStr">
             <img slot="icon" width="30" style="display:block;margin-right:5px;" :src="quote.brandLogo">
             <badge v-if="quote.isRead===0"></badge>
           </cell>
-          <load-more :show-loading="loadingMore" :tip="tipShow" background-color="#fbf9fe"></load-more>
         </group>
-      </scroll>
-    </div>
+        <load-more :show-loading="loadingMore" :tip="tipShow" background-color="#fbf9fe"></load-more>
+      </div>
+    </scroll>
     <s-footer></s-footer>
+    <!-- <div v-transfer-dom>
+      <actionsheet on-click-menu="clickMenu" :menus="xHeaderData.menus" v-model="showMenus" show-cancel></actionsheet>
+    </div> -->
   </div>
 </template>
 <script>
-import { LoadMore, Divider, Cell, Group, Tab, TabItem, Badge } from 'vux'
-import sHeader from '../components/header'
+import { LoadMore, Divider, Cell, Group, Tab, TabItem, Badge, Actionsheet, TransferDom, XHeader } from 'vux'
 import sFooter from '../components/footer'
 import scroll from '../components/scroll'
 export default {
+  name: 'quoteList',
+  directives: {
+    TransferDom
+  },
   components: {
     Cell,
     Group,
@@ -37,10 +37,16 @@ export default {
     LoadMore,
     Badge,
     sFooter,
-    sHeader
+    Actionsheet,
+    XHeader
   },
   data() {
     return {
+      menus: {
+        menu1: 'Take Photo',
+        menu2: 'Choose from photos'
+      },
+      showMenus: false,
       quoteList: [],
       pageNum: 1,
       refreshing: false,
@@ -124,15 +130,15 @@ export default {
 .c-part-list {
   .display-flex;
   .flex-direction(column);
+  overflow: hidden;
   .c-cell {
-    .flex(0 0 auto);
+    .flex(none);
   }
   .quote-list {
     .display-flex;
-    position: absolute;
-    top: 84px;
-    bottom: 40px;
-    width: 100%;
+    .flex(none);
+    .flex-direction(column);
+    max-height: calc(~"100vh - @{vux-header-height} - @{s-footer-height}");
     overflow: hidden;
   }
 }

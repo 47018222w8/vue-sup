@@ -1,10 +1,7 @@
 <template>
   <div class="s-footer">
-    <div class="f-cell" @click="toPage('home')" :class="{'f-active':selectedTabBar('home')}">
-      <i class="fa fa-home fa-lg"></i>首页
-    </div>
     <div class="f-cell" @click="toPage('quoteList')" :class="{'f-active':selectedTabBar('quoteList')}">
-      <i class="fa fa-rocket fa-lg"></i>报价
+      <i class="fa fa-home fa-lg"></i>首页
     </div>
     <div class="f-cell" @click="toPage('chat')" :class="{'f-active':selectedTabBar('chat')}">
       <i slot="icon" class="fa fa-comment-o fa-lg" ></i>消息
@@ -32,12 +29,13 @@ export default {
 </script>
 
 <style scoped lang="less">
+@import '../styles/sup.less';
 .s-footer {
   display: flex;
   position: fixed;
   bottom: 0;
   width: 100%;
-  height: 40px;
+  height: @s-footer-height;
   background: #FFFFFF;
   z-index: 100;
   font-size: 12px;

@@ -1,23 +1,23 @@
 <template>
-  <div class="c-home">
+  <div>
     <msg title="服务器错误,请联系管理员" icon="warn" :buttons="buttons"></msg>
   </div>
 </template>
 
 <script>
-import constant from '../components/constant'
-import { Msg } from 'vux'
+import { Msg, Divider, XButton } from 'vux'
 export default {
   components: {
-    constant,
-    Msg
+    Msg,
+    XButton,
+    Divider
   },
   data() {
     return {
       buttons: [{
         type: 'default',
         text: '返回首页',
-        link: '/home'
+        link: '/quote/list'
       }]
     }
   }
@@ -25,11 +25,5 @@ export default {
 </script>
 
 <style lang="less">
-.c-home {
-  display: flex;
-  flex-direction: column;
-  .c-cell {
-    flex: 0 0 auto;
-  }
-}
+
 </style>

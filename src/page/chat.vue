@@ -5,6 +5,7 @@
 </template>
 <script>
 import sHeader from '../components/header'
+import Stomp from 'stompjs'
 export default {
   components: {
     sHeader
@@ -15,6 +16,7 @@ export default {
   methods: {
     init() {
       let url = 'http://localhost:9091/sup/marcopolo'
+      /* eslint-disable */
       let socket = new SockJS(url)
       let stomp = Stomp.over(socket)
       let payload = JSON.stringify({ message: 'hello world' })

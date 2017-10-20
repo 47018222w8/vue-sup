@@ -1,15 +1,21 @@
 <template>
-  <div class="c-car-brand" v-if="letterList">
+  <div class="c-car-brand">
     <div class="c-header">
-      <div class="c-icon">
-        <slot name="leftIcon"></slot>
+      <div class="c-icon" @click="$router.push(backParam)">
+        <i class="fa fa-angle-left fa-2x" slot="leftIcon"></i>
       </div>
       <div class="c-cell">
         <search @on-focus="showIndex = 1" @on-cancel="showIndex = 0" @on-change="search" :autoFixed="false">
         </search>
       </div>
+      <div class="c-icon">
+        <slot name="rightIcon"></slot>
+      </div>
     </div>
-    <div class="c-body" v-show="showIndex===0">
+    <div style="text-align:center;" v-if="!letterList.length">
+      <inline-loading></inline-loading><span style="vertical-align:middle;display:inline-block;font-size:14px;">&nbsp;&nbsp;{{ '加载中...' }}</span>
+    </div>
+    <div class="c-body"  v-show="showIndex===0">
       <scroll class="c-left" ref="scrollLeft" :click="true" :data="letterList">
         <div ref="brandDiv">
           <group v-for="(letter, lIndex) in letterList" :title="letter.character" :key="lIndex" class="brandHeight">
@@ -36,32 +42,29 @@
         </div>
       </scroll>
     </div>
-    <slot name="doneBtn"></slot>
+    <x-button slot="doneBtn" v-if="letterList.length" :disabled="doneDisabled" :show-loading="doneDisabled" @click.native="done" type="primary" :text="doneDisabled?'添加中...':'确认添加'"></x-button>
   </div>
 </template>
 
 <script>
-import constant from '../components/constant'
-import { Divider, XButton, Cell, Group, Tab, TabItem, Search, Checklist, CheckIcon } from 'vux'
+import { Divider, XButton, Cell, Group, Tab, TabItem, Search, Checklist, CheckIcon, InlineLoading } from 'vux'
 import scroll from '../components/scroll'
 export default {
-  props: {
-    letterList: {
-      type: Array,
-      default: null
-    }
-  },
   data() {
     return {
+      letterList: [],
       brandHeights: [],
       showIndex: 0,
       searchList: [],
-      brandsResult: []
+      brandsResult: [],
+      doneDisabled: false,
+      // '0':个人中心添加品牌 '1':注册添加经营品牌
+      type: +this.$route.params.type,
+      backParam: {}
     }
   },
   components: {
     Search,
-    constant,
     Divider,
     Cell,
     Group,
@@ -70,31 +73,59 @@ export default {
     scroll,
     Checklist,
     CheckIcon,
-    XButton
+    XButton,
+    InlineLoading
   },
-  mounted() {
+  created() {
+    if (this.type === 0) {
+      this.backParam.name = 'supplierList'
+    }
+    this._initData()
     setTimeout(() => {
       this._calculateHeight
     }, 20)
   },
   methods: {
+    async _initData() {
+      await this.$http.get('/stores/0/carBrands').then((response) => {
+        this.letterList = response.data
+      })
+    },
+    // 添加完成
     done() {
       this.letterList.forEach((letter) => {
         letter.carBrandList.forEach((carBrand) => {
           carBrand.check && this.brandsResult.push(carBrand.carBrandId)
         })
       })
-      if (this.brandsResult.length) {
-        return this.brandsResult
+      if (this.brandsResult.length && !this.doneDisabled) {
+        this.type === 0 && this.doneType0()
       } else {
         this.$vux.toast.text('请至少选择一个品牌', 'middle')
       }
+    },
+    // 个人中心添加品牌
+    async doneType0() {
+      this.doneDisabled = true
+      let parm = {
+        carBrandIdList: this.brandsResult
+      }
+      await this.$http.post('/suppliers', parm).then((response) => {
+      })
+      this.$vux.toast.show({
+        text: '添加成功',
+        position: 'middle',
+        time: '1500'
+      })
+      setTimeout(() => {
+        this.$router.push(this.backParam)
+      }, 1450)
     },
     search(value) {
       this.searchList = []
       value && this.letterList.forEach((letter) => {
         letter.carBrandList.forEach((carBrand) => {
-          // 由于引用相同,所以结算时可以值计算letterList即可
+          // 由于引用相同,所以结算时可以只计算letterList即可
           carBrand.carBrandName.indexOf(value) !== -1 && this.searchList.push(carBrand)
         })
       })
@@ -161,8 +192,8 @@ export default {
     .display-flex;
     overflow: hidden;
     .c-left {
-      max-height: 85vh;
-      .flex(1);
+      height: calc(~"100vh - @{vux-header-height} - @{vux-button-height}");
+      .flex(auto);
     }
     .c-right {
       .display-flex;

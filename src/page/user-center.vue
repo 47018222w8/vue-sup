@@ -1,5 +1,6 @@
 <template>
   <div>
+    <x-header :left-options="{showBack:false}" :right-options="{showMore:false}" title="用户中心"></x-header>
     <card :header="{title:'我的订单'}">
       <div slot="content" class="card-demo-flex card-demo-content01">
         <div>
@@ -36,24 +37,37 @@
         </div>
       </div>
     </card>
-    <divider>我是有底线的</divider>
+    <x-button :disabled="subLoading" :show-loading="subLoading" @click.native="logout">退出登录</x-button>
     <s-footer></s-footer>
   </div>
 </template>
 
 <script>
-import { Divider, Card } from 'vux'
+import { Divider, Card, XHeader, XButton } from 'vux'
 import sFooter from '../components/footer'
 export default {
   components: {
     Card,
     Divider,
-    sFooter
+    sFooter,
+    XHeader,
+    XButton
+  },
+  data() {
+    return {
+      subLoading: false
+    }
   },
   methods: {
     toPage(name) {
       this.$router.push({
         name: name
+      })
+    },
+    logout() {
+      localStorage.removeItem('Authorization')
+      this.$router.push({
+        name: 'login'
       })
     }
   }
@@ -73,7 +87,7 @@ export default {
     color: #f74c31;
   }
   i {
-    color:#A1A1A1;
+    color: #A1A1A1;
   }
 }
 

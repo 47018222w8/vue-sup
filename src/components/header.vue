@@ -38,9 +38,9 @@ export default {
 .s-header {
   display: flex;
   width: 100%;
-  height: @s-header-height;
+  height: 40px;
   color: white;
-  background: @s-primary-color;
+  background: #badfaf;
 }
 
 .s-header .h-middle {

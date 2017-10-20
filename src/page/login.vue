@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import constant from '../components/constant'
+import { JWT_TOKEN_HEAD, JWT_HEADER } from '../components/constant'
 import { XInput, Group, XButton, Cell } from 'vux'
 import axios from 'axios'
 export default {
@@ -37,8 +37,8 @@ export default {
       if (this.validate()) {
         this.loading = true
         await this.$http.post('/sessions', this.formData).then((response) => {
-          localStorage.setItem(constant.JWT_HEADER, constant.JWT_TOKEN_HEAD + response.data)
-          axios.defaults.headers.common[constant.JWT_HEADER] = constant.JWT_TOKEN_HEAD + response.data
+          localStorage.setItem(JWT_HEADER, JWT_TOKEN_HEAD + response.data)
+          axios.defaults.headers.common[JWT_HEADER] = JWT_TOKEN_HEAD + response.data
           this.$vux.toast.show({
             text: '登录成功',
             position: 'middle',
@@ -51,7 +51,7 @@ export default {
           }, 1400)
         }).catch((error) => {
           let result = error.response
-          result.status === 400 && this.$vux.toast.show({
+          result.status === 401 && this.$vux.toast.show({
             text: result.data.message,
             type: 'warn',
             position: 'middle',

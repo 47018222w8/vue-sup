@@ -1,12 +1,15 @@
 <template>
   <div>
     <div v-show="showIndex===0" class="c-user-operate">
-      <s-header class="c-cell" :returnName="'userCenter'" :title="'找件儿'"></s-header>
-      <!-- <car-brand class="c-body"></car-brand> -->
+      <x-header on-click-back="$router.push({name: 'userCenter'}}" :right-options="{showMore:false}" title="经营品牌"></x-header>
       <div class="c-body">
         <checklist title="经营品牌" :options="operateCarBrandList" v-model="checkList"></checklist>
       </div>
-      <div class="c-cell" v-if="operateCarBrandList.length">
+      <div style="text-align:center;" v-if="!operateCarBrandList.length">
+        <inline-loading></inline-loading>
+        <span style="vertical-align:middle;display:inline-block;font-size:14px;">&nbsp;&nbsp;{{ '加载中...' }}</span>
+      </div>
+      <div class="c-cell" v-else>
         <div class="c-btn">
           <x-button mini :disabled="delDisabled" @click.native="del" type="warn">删除选中品牌</x-button>
         </div>
@@ -15,19 +18,13 @@
         </div>
       </div>
     </div>
-    <car-brand v-show="showIndex===1" :letterList="letterList" ref="carBrand">
-      <i @click="back" class="fa fa-angle-left fa-2x" slot="leftIcon"></i>
-      <x-button slot="doneBtn" :disabled="doneDisabled" :show-loading="doneDisabled" @click.native="done" type="primary" :text="doneDisabled?'添加中...':'确认添加'"></x-button>
-    </car-brand>
   </div>
 </template>
 
 <script>
 import sFooter from '../components/footer'
 import sHeader from '../components/header'
-import constant from '../components/constant'
-import { Divider, Cell, Group, Tab, TabItem, XButton, Checklist } from 'vux'
-import carBrand from '../components/car-brand'
+import { Divider, Cell, Group, Tab, TabItem, XButton, Checklist, XHeader, Spinner, InlineLoading } from 'vux'
 export default {
   data() {
     return {
@@ -59,41 +56,11 @@ export default {
       })
     },
     // 添加品牌页
-    async add() {
-      this.$vux.loading.show({
-        text: '加载中'
+    add() {
+      this.$router.push({
+        name: 'carBrandList',
+        params: { type: 0 }
       })
-      await this.$http.get('/stores/0/carBrands').then((response) => {
-        this.letterList = response.data
-      })
-      this.showIndex = 1
-      this.$vux.loading.hide()
-    },
-    // 添加品牌
-    async done() {
-      let carBrandIdList = this.$refs.carBrand.done()
-      if (carBrandIdList && !this.doneDisabled) {
-        this.doneDisabled = true
-        let parm = {
-          carBrandIdList: carBrandIdList
-        }
-        await this.$http.post('/suppliers', parm).then((response) => {
-          this.operateCarBrandList = []
-          response.data.forEach((value) => {
-            this.operateCarBrandList.push({ key: value.carBrandId, value: value.carBrandName })
-          })
-          this.$vux.toast.show({
-            text: '添加成功',
-            position: 'middle',
-            time: '1500'
-          })
-        })
-        this.doneDisabled = false
-        this.showIndex = 0
-      }
-    },
-    back() {
-      this.showIndex = 0
     },
     del() {
       let _this = this
@@ -122,15 +89,16 @@ export default {
   components: {
     sFooter,
     sHeader,
-    constant,
     Divider,
     Cell,
     Group,
     Tab,
     TabItem,
-    carBrand,
     XButton,
-    Checklist
+    Checklist,
+    XHeader,
+    Spinner,
+    InlineLoading
   }
 }
 </script>
@@ -151,7 +119,7 @@ export default {
   }
   .c-body {
     flex: none;
-    max-height: 100-(@s-header-height+@s-footer-height);
+    max-height: calc(~"100vh - @{vux-header-height} - 40px");
     overflow: auto;
   }
 }

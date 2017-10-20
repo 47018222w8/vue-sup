@@ -9,12 +9,10 @@
 <script>
 import sFooter from '../components/footer'
 import sHeader from '../components/header'
-import constant from '../components/constant'
 export default {
   components: {
     sFooter,
-    sHeader,
-    constant
+    sHeader
   }
 }
 </script>

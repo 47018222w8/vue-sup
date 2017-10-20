@@ -3,11 +3,23 @@ import Vuex from 'vuex'
 import mutations from './mutations'
 Vue.use(Vuex)
 const state = {
-  insId: null, // 询价单id
-  insInfoId: null, // 零件id
-  scrollY: 0, // 滚动高度,
-  isLoading: false, // url跳转等待图标
-  carBrandHeights: [] // 品牌高度数组
+  // url跳转等待图标
+  isLoading: false,
+  // xheader状态 参考vux xheader
+  xHeaderData: {
+    leftOptions: {
+      showBack: false,
+      backText: '返回',
+      preventGoBack: false
+    },
+    title: '找件儿',
+    rightOptions: { showMore: false },
+    menus: [{
+      label: '刷新',
+      type: 'Default',
+      value: 'refresh'
+    }]
+  }
 }
 export default new Vuex.Store({
   state,
