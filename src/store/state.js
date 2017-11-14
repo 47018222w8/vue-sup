@@ -5,21 +5,18 @@ Vue.use(Vuex)
 const state = {
   // url跳转等待图标
   isLoading: false,
-  // xheader状态 参考vux xheader
-  xHeaderData: {
-    leftOptions: {
-      showBack: false,
-      backText: '返回',
-      preventGoBack: false
-    },
-    title: '找件儿',
-    rightOptions: { showMore: false },
-    menus: [{
-      label: '刷新',
-      type: 'Default',
-      value: 'refresh'
-    }]
-  }
+  // 缓存列表
+  quoteListKeepAlive: true,
+  // 筛选已报价列表参数
+  screen: {
+    insNo: '',
+    beginDate: '',
+    endDate: '',
+    state: [{ key: 0, value: '全部' }],
+    carBrand: [{ key: 0, value: '全部' }]
+  },
+  // 报价数据
+  quote: []
 }
 export default new Vuex.Store({
   state,

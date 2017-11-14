@@ -1,22 +1,29 @@
 <template>
-  <div class="s-header">
-    <div  class="h-left" >
+  <div class="c-header">
+    <div class="c-left">
       <i v-if="leftIcon" @click="back" class="fa fa-angle-left fa-lg"></i>
     </div>
-    <div class="h-middle">{{title}}</div>
-    <div class="h-right">
-      <i class="fa fa-ellipsis-v fa-lg"></i>
+    <div class="c-middle">
+      <template v-if="title">
+        {{title}}
+      </template>
+      <template v-else>
+        <slot name="title"></slot>
+      </template>
+    </div>
+    <div class="c-right">
+      <slot name="right"></slot>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: 's-header',
+  name: 'c-header',
   props: {
     title: {
       type: String,
-      default: '找件儿'
+      default: null
     },
     returnName: '',
     leftIcon: {
@@ -35,32 +42,30 @@ export default {
 </script>
 
 <style scoped lang="less">
-.s-header {
-  display: flex;
+@import "../styles/sup.less";
+.c-header {
+  .display-flex;
   width: 100%;
-  height: 40px;
-  color: white;
-  background: #badfaf;
-}
-
-.s-header .h-middle {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 1;
-}
-
-.s-header .h-left {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 0 0 10%;
-}
-
-.s-header .h-right {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 0 0 10%;
+  height: @s-header-height;
+  background: @s-primary-color;
+  .c-middle {
+    .display-flex;
+    .flex(auto);
+    .justify-content(center);
+    .align-items(center);
+    .flex(0 0 85%);
+  }
+  .c-left {
+    .display-flex;
+    .justify-content(center);
+    .align-items(center);
+    .flex(0 0 5%);
+  }
+  .c-right {
+    .display-flex;
+    .justify-content(center);
+    .align-items(center);
+    .flex(0 0 10%);
+  }
 }
 </style>

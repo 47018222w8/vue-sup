@@ -44,6 +44,7 @@
 
 <script>
 import { Divider, Card, XHeader, XButton } from 'vux'
+import { QUOTE_LIST_KEEP_ALIVE } from '../store/mutation-type'
 import sFooter from '../components/footer'
 export default {
   components: {
@@ -66,6 +67,7 @@ export default {
     },
     logout() {
       localStorage.removeItem('Authorization')
+      this.$store.commit(QUOTE_LIST_KEEP_ALIVE, { keepAlive: false })
       this.$router.push({
         name: 'login'
       })
@@ -75,10 +77,10 @@ export default {
 </script>
 
 <style lang="less">
-@import '../styles/sup.less';
+@import "../styles/sup.less";
 .card-demo-flex {
   .display-flex;
-  >div {
+  > div {
     flex: 1;
     text-align: center;
     font-size: 12px;
@@ -87,7 +89,7 @@ export default {
     color: #f74c31;
   }
   i {
-    color: #A1A1A1;
+    color: #a1a1a1;
   }
 }
 

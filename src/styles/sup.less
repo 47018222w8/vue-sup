@@ -1,20 +1,49 @@
+@vux-header-height:50px;
+@s-footer-height:44px;
+@s-header-height:43px;
+@vux-tab-height:44px;
+@vux-button-height:44px;
+@s-primary-color:#2196f3;//默认色
+@s-danger-color:#dd524d;//
+@s-p-font-size:14px; // 内容
+@s-p-first-size:18px;// 一级标题
+@s-p-second-size:15px;// 二级标题
+@s-p-first-font-weight:300;// 
+@s-desc-font-color:#aaa;
+@s-bottom-btn-div-height:50px;
 body {
-    background-color: #fbf9fe;
+    background-color: #EEEEEE;
 }
 
 .vux-modal-open {
     height: 100%;
 }
 
-.fa-primary{
+.fa-primary {
     color:@s-primary-color;
 }
-@vux-header-height:43px;
-@s-footer-height:40px;
-@vux-tab-height:44px;
-@vux-button-height:44px;
-@s-primary-color:#2196f3;//默认色
-@s-danger-color:#dd524d;//
+// 描述字体样式
+p {
+  font-size: @s-p-font-size;
+  padding: 5px 0 5px 0;
+}
+// 一级标题
+.s-first-title {
+  font-size: @s-p-first-size;
+  font-weight: 700;
+}
+// 二级标题
+.s-second-title {
+  font-size: @s-p-second-size;
+  font-weight: 700;
+}
+.s-p-desc {
+  color: @s-desc-font-color;
+}
+// hr虚线
+.s-hr-dashed {
+  height:1px;border:none;border-top:1px dashed #BBB;
+}
 //-----------------flex begin
 .display-flex(@display: flex) {
     & when (@display =flex) {

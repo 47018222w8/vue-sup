@@ -1,6 +1,10 @@
 <template>
   <div ref="part" class="c-part">
-    <x-header on-click-back="$router.push({name: 'quoteList'}}" :right-options="{showMore:false}"  title="找件儿"></x-header>
+    <x-header :left-options="{preventGoBack:true}" :right-options="{showMore:false}" title="报价">
+      <div slot="overwrite-left" @click="back">
+        <i slot="icon" class="fa fa-chevron-left fa-lg"></i>
+      </div>
+    </x-header>
     <tab class="c-cell" active-color="#2196f3" v-model="tabIndex">
       <tab-item index="0" selected>零件</tab-item>
       <tab-item index="1">车辆信息</tab-item>
@@ -14,7 +18,7 @@
       <template v-if="reportPriceList.length>0">
         <div class="c-body">
           <ul class="c-left">
-            <li class="c-li" :class="cLeftIndex===index?'c-active':''" v-for="(info,index) in reportPriceList" :key="info.id" @click="choosePart(index)">
+            <li class="c-li" :class="cLeftIndex===index?'c-active':''" v-for="(info,index) in reportPriceList" :key="info.id" @click="savePart(index)">
               <p>
                 <i v-show="info.done" class="fa fa-check fa-primary"></i>
                 <badge v-show="!info.done"></badge>{{info.name}}</p>
@@ -47,7 +51,7 @@
           <group gutter="0" class="c-cell">
             <x-input title="运费" type="number" v-model="irpe.expressMoney"></x-input>
           </group>
-          <group gutter="0" >
+          <group gutter="0">
             <x-input title="税率" type="number" v-model="irpe.taxRate">
               <span slot="right">%</span>
             </x-input>
@@ -65,8 +69,9 @@
 
 <script>
 import { XHeader, Spinner, XButton, Step, StepItem, GroupTitle, Badge, Swiper, TransferDom, CellFormPreview, Flexbox, FlexboxItem, XTextarea, XInput, Datetime, Selector, PopupPicker, Cell, Group, Tab, TabItem, Previewer } from 'vux'
-import { RE_MONEY } from '../components/constant'
-import scroll from '../components/scroll'
+import { RE_MONEY } from '@/components/constant'
+import { REPORT_PRICE_LIST } from '@/store/mutation-type'
+import scroll from '@/components/scroll'
 export default {
   directives: {
     TransferDom
@@ -89,6 +94,7 @@ export default {
       insImgList: [], // 询价单图片信息\
       partInfosHeight: [], // 右边零件高度
       subLoading: false, // 提交等待
+      isAndroid: null, // 是否是安卓
       isOperProdList: [
         {
           value: '0', // 沃日,show-name只能用string
@@ -103,6 +109,8 @@ export default {
   },
   created() {
     this._initData()
+    let u = navigator.userAgent
+    this.isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1
   },
   mounted() {
 
@@ -166,17 +174,25 @@ export default {
           img: quote.domain + ins.driveLicense,
           title: '行车证照片'
         })
+        this.irpe.insNo = ins.insNo
+        this.irpe.repairName = ins.entMemberName
+        this.irpe.carNo = ins.carNo
+        this.irpe.carMark = ins.carMark
+        this.irpe.arriveTimeStr = ins.arriveTimeStr
         this.carInfoTitle = ins.carBrandName
         this.carInfo.splice(0, 0, { label: '车型', value: ins.carMark },
           {
             label: '车牌号',
             value: ins.carNo ? ins.carNo : '无'
           }, {
+            label: '单号',
+            value: ins.insNo
+          }, {
             label: 'vin',
             value: ins.vin === '00000000000000000' ? '无' : ins.vin
           }, {
             label: '到货时间',
-            value: ins.arriveTime
+            value: ins.arriveTimeStr
           }, {
             label: '修理厂',
             value: ins.entMemberName
@@ -222,12 +238,16 @@ export default {
         this.reportPriceList[index].done = false
       }
     },
-    // 选择零件
-    choosePart(index) {
+    // 选择零件时保存数据
+    savePart(index) {
       this.validateDone(this.cLeftIndex)
       this._calculateHeight()
       this.cLeftIndex = index
       localStorage.setItem(this.iilKey, JSON.stringify(this.reportPriceList))
+    },
+    // 返回
+    back() {
+      this.$router.push({ name: 'quoteList' })
     },
     // 提供更多品质报价
     addMoreQuality() {
@@ -262,19 +282,21 @@ export default {
           return
         }
       }
-      if (this.subLoading) {
-        return
-      }
-      this.subLoading = true
       let listRP = []
       for (let i = 0; i < reportPriceList.length; i++) {
         for (let j = 0; j < reportPriceList[i].listRPI.length; j++) {
           reportPriceList[i].listRPI[j].qualityRequirement = reportPriceList[i].listRPI[j].qrArry[0]
+          for (let k = 0; k < this.qualityList.length; k++) {
+            if (this.qualityList[i].value === reportPriceList[i].listRPI[j].qualityRequirement) {
+              reportPriceList[i].listRPI[j].qualityRequirementName = this.qualityList[i].name
+            }
+          }
         }
         listRP.push({
           id: reportPriceList[i].id,
-          isOperProd: reportPriceList[i].iopArry[0],
-          listRPI: reportPriceList[i].listRPI
+          isOperProd: reportPriceList[i].iopArry[0], // 是否经营
+          name: reportPriceList[i].name, // 名称
+          listRPI: reportPriceList[i].listRPI // 报价结果
         })
       }
       this.irpe.listRP = listRP
@@ -284,18 +306,21 @@ export default {
       if (this.irpe.taxRate === null) {
         this.irpe.taxRate = 0
       }
-      this.$http.post('/reportPriceInfos', this.irpe).then((response) => {
-        this.$vux.toast.show({
-          text: '报价成功',
-          time: 1500,
-          position: 'middle'
-        })
-        setTimeout((e) => {
-          this.$router.push({
-            name: 'quoteList'
-          })
-        }, 1400)
-      })
+      this.$store.commit(REPORT_PRICE_LIST, this.irpe)
+      localStorage.setItem(this.iilKey, JSON.stringify(this.reportPriceList))
+      this.$router.push({ name: 'quoteInfo', params: { insId: this.irpe.insId } })
+      // this.$http.post('/reportPriceInfos', this.irpe).then((response) => {
+      //   this.$vux.toast.show({
+      //     text: '报价成功',
+      //     time: 1500,
+      //     position: 'middle'
+      //   })
+      //   setTimeout((e) => {
+      //     this.$router.push({
+      //       name: 'quoteList'
+      //     })
+      //   }, 1400)
+      // })
     },
     // 计算高度
     _calculateHeight() {
@@ -311,7 +336,7 @@ export default {
     // 哔了狗的虚拟键盘遮挡
     onFocus(index) {
       // 键盘弹出需要时间
-      setTimeout((e) => {
+      this.isAndroid && setTimeout((e) => {
         this.$refs.scrollRight.scrollTo(0, -this.partInfosHeight[index], 300)
       }, 200)
     },
@@ -366,7 +391,7 @@ export default {
 </script>
 
 <style  lang="less">
-@import '../styles/sup.less';
+@import "../../styles/sup.less";
 .c-part {
   .display-flex;
   flex-direction: column;
@@ -394,7 +419,9 @@ export default {
       overflow: hidden;
       .display-flex;
       .flex(auto);
-      height: calc(~"100vh - @{vux-header-height} - @{vux-tab-height} - @{vux-button-height} - 44px");
+      height: calc(
+        ~"100vh - @{vux-header-height} - @{vux-tab-height} - @{vux-button-height} - 44px"
+      );
       .c-left {
         .flex(0 0 80px);
         width: 80px;
@@ -429,7 +456,6 @@ export default {
   }
 }
 
-
 .c-checker {
   width: 100px;
   height: 26px;
@@ -443,7 +469,9 @@ export default {
 }
 
 .c-checker-selected {
-  background: #ffffff url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAMAAACecocUAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoV2luZG93cykiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QTZDOEJBQ0E3NkIxMTFFNEE3MzJFOUJCMEU5QUM0QkIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QTZDOEJBQ0I3NkIxMTFFNEE3MzJFOUJCMEU5QUM0QkIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpBNkM4QkFDODc2QjExMUU0QTczMkU5QkIwRTlBQzRCQiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpBNkM4QkFDOTc2QjExMUU0QTczMkU5QkIwRTlBQzRCQiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PnMGp3kAAAAJUExURf9KAP///////4Jqdw0AAAADdFJOU///ANfKDUEAAAAuSURBVHjaTMpBDgAABAPB5f+PlhLUpZMWuQcYMWLEyDN4ymqa5KS4+3G+KAEGACQmAGlKzr56AAAAAElFTkSuQmCC) no-repeat right bottom;
+  background: #ffffff
+    url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAMAAACecocUAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoV2luZG93cykiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QTZDOEJBQ0E3NkIxMTFFNEE3MzJFOUJCMEU5QUM0QkIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QTZDOEJBQ0I3NkIxMTFFNEE3MzJFOUJCMEU5QUM0QkIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpBNkM4QkFDODc2QjExMUU0QTczMkU5QkIwRTlBQzRCQiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpBNkM4QkFDOTc2QjExMUU0QTczMkU5QkIwRTlBQzRCQiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PnMGp3kAAAAJUExURf9KAP///////4Jqdw0AAAADdFJOU///ANfKDUEAAAAuSURBVHjaTMpBDgAABAPB5f+PlhLUpZMWuQcYMWLEyDN4ymqa5KS4+3g+KAEGACQmAGlKzr56AAAAAElFTkSuQmCC)
+    no-repeat right bottom;
   border-color: #ff4a00;
 }
 </style>

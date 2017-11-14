@@ -1,16 +1,25 @@
 <template>
-  <div style="text-align: center;">
-    <group>
-      <x-input title="账号" type="text" v-model="formData.uname"></x-input>
-      <x-input title="密码" type="password" v-model="formData.password"></x-input>
-      <x-button :text="loading?'登录中...':'登录'" :disabled="loading" @click.native="submitForm" :show-loading="loading" type="primary"></x-button>
-    </group>
-
+  <div class="c-login">
+    <div class="c-input">
+      <group>
+        <x-input title="账号" type="text" v-model="formData.uname"></x-input>
+        <x-input title="密码" :type="pwdShow?'text':'password'" v-model="formData.password">
+          <i @click="showPwd" slot="right" :class="pwdShow?'fa fa-eye-slash fa-lg':'fa fa-eye fa-lg'"></i>
+        </x-input>
+        <br>
+        <x-button :text="loading?'登录中...':'登录'" :disabled="loading" @click.native="submitForm" :show-loading="loading" type="primary"></x-button>
+        <div class="c-small-desc">
+          <p @click="$router.push({name: 'register'})">快速注册</p>
+          <p @click="$router.push({name: 'pwdFind'})">忘记密码?</p>
+        </div>
+      </group>
+    </div>
+    <p>登录遇到问题?</p>
   </div>
 </template>
 
 <script>
-import { JWT_TOKEN_HEAD, JWT_HEADER } from '../components/constant'
+import { JWT_TOKEN_HEAD, JWT_HEADER } from '@/components/constant'
 import { XInput, Group, XButton, Cell } from 'vux'
 import axios from 'axios'
 export default {
@@ -28,13 +37,14 @@ export default {
         password: ''
       },
       loading: false,
+      pwdShow: false,
       message: '',
       toast: false
     }
   },
   methods: {
     async submitForm() {
-      if (this.validate()) {
+      if (this.validate() && !this.loading) {
         this.loading = true
         await this.$http.post('/sessions', this.formData).then((response) => {
           localStorage.setItem(JWT_HEADER, JWT_TOKEN_HEAD + response.data)
@@ -61,6 +71,9 @@ export default {
         })
       }
     },
+    showPwd() {
+      this.pwdShow ? this.pwdShow = false : this.pwdShow = true
+    },
     validate() {
       if (this.formData.uname.trim() === '') {
         this.$vux.toast.show({
@@ -83,6 +96,25 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang="less">
+@import "../../styles/sup.less";
+.c-login {
+  .display-flex;
+  .flex-direction(column);
+  .align-items(center);
+  .justify-content(space-between);
+  height: 100vh;
+  .c-input {
+    margin-top: 20%;
+    width: 90%;
+    .c-small-desc {
+      .display-flex;
+      .justify-content(space-between);
+      p {
+        color: @s-primary-color;
+        margin: 5px 5px;
+      }
+    }
+  }
+}
 </style>

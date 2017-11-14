@@ -1,0 +1,160 @@
+<template>
+  <div class="c-sail-analysis">
+    <x-header :left-options="{preventGoBack:true}" :right-options="{showMore:false}" title="销售分析">
+      <div slot="overwrite-left" @click="$router.push({name: 'shop'})">
+        <i slot="icon" class="fa fa-chevron-left fa-lg"></i>
+      </div>
+    </x-header>
+    <div class="c-body">
+      <card class="c-data">
+        <div slot="header">
+          <p class="s-second-title" style="padding-top:10px;">经营数据</p>
+          <hr>
+        </div>
+        <div class="c-content" slot="content">
+          <flexbox>
+            <flexbox-item>
+              <p class="s-p-desc">近7天报价</p>
+              <p class="s-second-title">161</p>
+              <p class="s-p-desc">历史 549</p>
+            </flexbox-item>
+            <flexbox-item>
+              <p class="s-p-desc">近7天成交</p>
+              <p class="s-second-title">161</p>
+              <p class="s-p-desc">历史 300</p>
+            </flexbox-item>
+            <flexbox-item>
+              <p class="s-p-desc">近7天战败</p>
+              <p class="s-second-title">161</p>
+              <p class="s-p-desc">历史 249</p>
+            </flexbox-item>
+          </flexbox>
+        </div>
+      </card>
+      <card class="c-count">
+        <div slot="header">
+          <p class="s-second-title">报价率统计</p>
+        </div>
+        <div class="c-content" slot="content">
+          <flexbox>
+            <flexbox-item>
+              <div style="width:150px;height:150px;margin: 0 auto;">
+                <x-circle :percent="38.91" :stroke-width="3" stroke-color="#04BE02">
+                  <span>38.91%</span>
+                </x-circle>
+              </div>
+              <p>总报价率</p>
+            </flexbox-item>
+            <flexbox-item>
+              <div style="width:70px;height:70px;margin: 0 auto;">
+                <x-circle :percent="16.00" :stroke-width="3" stroke-color="#04BE02">
+                  <span>16.00%</span>
+                </x-circle>
+              </div>
+              <p>5分钟报价率</p>
+              <div style="width:70px;height:70px;margin: 0 auto;">
+                <x-circle :percent="22.90" :stroke-width="3" stroke-color="#04BE02">
+                  <span>22.90%</span>
+                </x-circle>
+              </div>
+              <p>30分钟报价率</p>
+            </flexbox-item>
+          </flexbox>
+        </div>
+      </card>
+      <card class="c-list">
+        <div slot="header">
+          <p>最近30天战败报价单列表</p>
+        </div>
+        <div slot="content">
+          <flexbox>
+            <flexbox-item :span="2">
+              <p>10.24</p>
+            </flexbox-item>
+            <flexbox-item>
+              <p>一汽大众速腾</p>
+            </flexbox-item>
+            <flexbox-item>
+              <p style="text-align:right;" class="s-p-desc">查看原因</p>
+            </flexbox-item>
+          </flexbox>
+          <hr>
+        </div>
+      </card>
+    </div>
+  </div>
+</template>
+
+<script>
+import { XHeader, XButton, Flexbox, FlexboxItem, CheckIcon, Card, XCircle } from 'vux'
+export default {
+  data() {
+    return {
+      ins: {},
+      reportList: {},
+      showPart: true,
+      demo1: true
+    }
+  },
+  created() {
+    // this._initData()
+  },
+  methods: {
+    async _initData() {
+      await this.$http.get('/insruances/' + this.$route.params.insId, { params: { state: '0' } }).then((response) => {
+        let quote = response.data
+        this.ins = quote.ins
+        this.reportList = quote.reportPriceList
+      })
+    },
+    changeShowPart() {
+      this.showPart ? this.showPart = false : this.showPart = true
+    },
+    toQuotePage() {
+      this.$router.push({
+        name: 'quote',
+        params: {
+          insId: this.$route.params.insId
+        }
+      })
+    }
+  },
+  components: {
+    scroll,
+    XHeader,
+    XButton,
+    Flexbox,
+    FlexboxItem,
+    CheckIcon,
+    Card,
+    XCircle
+  }
+}
+</script>
+
+<style lang="less">
+@import "../../styles/sup.less";
+.c-sail-analysis {
+  overflow: hidden;
+  .c-body {
+    overflow: auto;
+    height: calc(~"100vh - @{vux-header-height}");
+    background-color: #ffffff;
+    padding-left: 10px;
+    padding-right: 10px;
+    .c-data {
+      .c-content {
+        p {
+          text-align: center;
+        }
+      }
+    }
+    .c-count {
+      p {
+        text-align: center;
+        color: @s-desc-font-color;
+      }
+    }
+  }
+}
+</style>

@@ -1,7 +1,11 @@
 <template>
   <div>
     <div v-show="showIndex===0" class="c-user-operate">
-      <x-header on-click-back="$router.push({name: 'userCenter'}}" :right-options="{showMore:false}" title="经营品牌"></x-header>
+      <x-header :left-options="{preventGoBack:true}" :right-options="{showMore:false}" title="经营品牌">
+        <div slot="overwrite-left" @click="back">
+          <i slot="icon" class="fa fa-chevron-left fa-lg"></i>
+        </div>
+      </x-header>
       <div class="c-body">
         <checklist title="经营品牌" :options="operateCarBrandList" v-model="checkList"></checklist>
       </div>
@@ -62,6 +66,11 @@ export default {
         params: { type: 0 }
       })
     },
+    back() {
+      this.$router.push({
+        name: 'userCenter'
+      })
+    },
     del() {
       let _this = this
       this.$vux.confirm.show({
@@ -105,7 +114,7 @@ export default {
 
 <style lang="less">
 .c-user-operate {
-  @import '../styles/sup.less';
+  @import "../styles/sup.less";
   .display-flex;
   .flex-direction(column);
   .c-cell {

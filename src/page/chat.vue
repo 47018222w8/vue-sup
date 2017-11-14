@@ -1,28 +1,39 @@
 <template>
   <div>
-    <s-header class="c-cell" :returnName="'home'" :leftIcon="false"></s-header>
+    <x-header :left-options="{showBack:false}" :right-options="{showMore:false}" @on-click-more="showMenus = true" title="找件儿"></x-header>
   </div>
 </template>
 <script>
-import sHeader from '../components/header'
-import Stomp from 'stompjs'
+import { XHeader } from 'vux'
 export default {
   components: {
-    sHeader
+    XHeader
   },
   created() {
     this.init()
   },
   methods: {
     init() {
-      let url = 'http://localhost:9091/sup/marcopolo'
-      /* eslint-disable */
-      let socket = new SockJS(url)
-      let stomp = Stomp.over(socket)
-      let payload = JSON.stringify({ message: 'hello world' })
-      stomp.connect('guest', 'guest', function(frame) {
-        stomp.send('/app/marco', {}, payload)
-      })
+      let url = 'ws://localhost:9091/sup/v1/websocket'
+      // 打开websocket
+      let sock = new WebSocket(url)
+      // 处理连接事件
+      sock.onopen = function () {
+        console.log('连接')
+        sock.send('开始连接')
+      }
+      // 处理信息
+      sock.onmessage = function (e) {
+        console.log('接收信息')
+        console.log(e)
+        setTimeout(function () {
+          sock.send('发送信息')
+        }, 100000)
+      }
+      // 处理关闭事件
+      sock.onclose = function () {
+        console.log('关闭连接')
+      }
     }
   }
 }

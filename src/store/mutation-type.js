@@ -1,2 +1,4 @@
 export const CHANGE_LOADING = 'a'
-export const X_HEADER_DATA = 'b'
+export const QUOTE_LIST_KEEP_ALIVE = 'b'
+export const SCREEN = 'c'
+export const REPORT_PRICE_LIST = 'd'

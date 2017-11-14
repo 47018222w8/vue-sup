@@ -25,5 +25,8 @@
         ]
     },
     "editor.fontFamily": "Source Code Pro, 'Courier New', monospace",
-    "files.autoSave": "off"
-}
+    "files.autoSave": "off",
+    "vetur.format.defaultFormatter.js": "vscode-typescript",
+    "vetur.format.defaultFormatter.ts": "vscode-typescript",
+    "vetur.format.defaultFormatter.html": "js-beautify-html"
+  }
