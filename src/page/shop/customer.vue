@@ -18,7 +18,46 @@
             <swipeout-button>禁用</swipeout-button>
             <swipeout-button type="warn">删除</swipeout-button>
           </div>
-          <div slot="content" class="vux-1px-t">
+          <div slot="content">
+            <flexbox>
+              <flexbox-item :span="1">
+                <p style="text-align:center;">
+                  <i class="fa fa-user" style="color:red;"></i>
+                </p>
+                <p>&nbsp;</p>
+                <p>&nbsp;</p>
+              </flexbox-item>
+              <flexbox-item>
+                <p class="s-div-bottom-border">车益佰车管家·益达店</p>
+                <flexbox>
+                  <flexbox-item :span="8">
+                    <p class="s-p-desc">最近一次采购时间</p>
+                  </flexbox-item>
+                  <flexbox-item>
+                    <p>2017-11-8</p>
+                  </flexbox-item>
+                </flexbox>
+                <flexbox>
+                  <flexbox-item :span="8">
+                    <p class="s-p-desc">最近一次采购金额</p>
+                  </flexbox-item>
+                  <flexbox-item>
+                    <p>¥3900.00</p>
+                  </flexbox-item>
+                </flexbox>
+              </flexbox-item>
+              <flexbox-item :span="1">
+                <i class="fa fa-angle-right fa-lg"></i>
+              </flexbox-item>
+            </flexbox>
+          </div>
+        </swipeout-item>
+        <swipeout-item class="s-div-block" transition-mode="follow">
+          <div slot="right-menu">
+            <swipeout-button>禁用</swipeout-button>
+            <swipeout-button type="warn">删除</swipeout-button>
+          </div>
+          <div slot="content">
             <br>
             <flexbox>
               <flexbox-item :span="1">
@@ -29,8 +68,7 @@
                 <p>&nbsp;</p>
               </flexbox-item>
               <flexbox-item>
-                <p>车益佰车管家·益达店</p>
-                <hr>
+                <p class="s-div-bottom-border">车益佰车管家·益达店</p>
                 <flexbox>
                   <flexbox-item :span="8">
                     <p class="s-p-desc">最近一次采购时间</p>
@@ -99,7 +137,10 @@ export default {
   overflow: hidden;
   .c-body {
     overflow: auto;
-    height: calc(~"100vh - @{vux-header-height}");
+    background-color: @s-background-color;
+    height: calc(
+      ~"100vh - @{vux-header-height} - @{vux-tab-height}"
+    );
   }
 }
 </style>

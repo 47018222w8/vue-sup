@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import { JWT_HEADER } from '../components/constant'
 import store from '../store/state'
-import { CHANGE_LOADING, QUOTE_LIST_KEEP_ALIVE } from '../store/mutation-type'
+import { QUOTE_LIST_KEEP_ALIVE } from '../store/mutation-type'
 Vue.use(Router)
 const login = r => require.ensure([], () => r(require('@/page/login/login')), 'login')
 const register = r => require.ensure([], () => r(require('@/page/login/register')), 'register')
@@ -74,13 +74,13 @@ const router = new Router({
         name: 'quoteList',
         component: quoteList,
         // 是否缓存页面
-        meta: { keepAlive: false, showTabbar: true }
+        meta: { keepAlive: true, showTabbar: true }
       }, {
         path: 'quote/history',
         name: 'quoteHistory',
         component: quoteHistory,
         // 是否缓存页面
-        meta: { keepAlive: false, showTabbar: true }
+        meta: { keepAlive: true, showTabbar: true }
       }, {
         path: 'screen',
         component: screen,
@@ -173,10 +173,10 @@ const router = new Router({
   }]
 })
 router.beforeEach(function (to, from, next) {
-  store.commit(CHANGE_LOADING, { isLoading: true })
+  // store.commit(CHANGE_LOADING, { isLoading: true })
   next()
 })
 router.afterEach(function (to) {
-  store.commit(CHANGE_LOADING, { isLoading: false })
+  // store.commit(CHANGE_LOADING, { isLoading: false })
 })
 export default router

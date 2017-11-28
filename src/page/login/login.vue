@@ -6,13 +6,13 @@
         <x-input title="密码" :type="pwdShow?'text':'password'" v-model="formData.password">
           <i @click="showPwd" slot="right" :class="pwdShow?'fa fa-eye-slash fa-lg':'fa fa-eye fa-lg'"></i>
         </x-input>
-        <br>
-        <x-button :text="loading?'登录中...':'登录'" :disabled="loading" @click.native="submitForm" :show-loading="loading" type="primary"></x-button>
-        <div class="c-small-desc">
-          <p @click="$router.push({name: 'register'})">快速注册</p>
-          <p @click="$router.push({name: 'pwdFind'})">忘记密码?</p>
-        </div>
       </group>
+      <br>
+      <x-button :text="loading?'登录中...':'登录'" :disabled="loading" @click.native="submitForm" :show-loading="loading" type="primary"></x-button>
+      <div class="c-small-desc">
+        <p @click="$router.push({name: 'register'})">快速注册</p>
+        <p @click="$router.push({name: 'pwdFind'})">忘记密码?</p>
+      </div>
     </div>
     <p>登录遇到问题?</p>
   </div>
@@ -47,8 +47,8 @@ export default {
       if (this.validate() && !this.loading) {
         this.loading = true
         await this.$http.post('/sessions', this.formData).then((response) => {
-          localStorage.setItem(JWT_HEADER, JWT_TOKEN_HEAD + response.data)
-          axios.defaults.headers.common[JWT_HEADER] = JWT_TOKEN_HEAD + response.data
+          localStorage.setItem(JWT_HEADER, JWT_TOKEN_HEAD + response.data.token)
+          axios.defaults.headers.common[JWT_HEADER] = JWT_TOKEN_HEAD + response.data.token
           this.$vux.toast.show({
             text: '登录成功',
             position: 'middle',
@@ -104,10 +104,12 @@ export default {
   .align-items(center);
   .justify-content(space-between);
   height: 100vh;
+  background-color: @s-background-color;
   .c-input {
     margin-top: 20%;
     width: 90%;
-    .c-small-desc {
+  }
+  .c-small-desc {
       .display-flex;
       .justify-content(space-between);
       p {
@@ -115,6 +117,5 @@ export default {
         margin: 5px 5px;
       }
     }
-  }
 }
 </style>

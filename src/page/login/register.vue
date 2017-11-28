@@ -244,7 +244,7 @@ export default {
 @import "../../styles/sup.less";
 .c-register {
   height: 100vh;
-  background-color: #fff;
+  background-color: @s-background-color;
   .c-account {
     padding: 0 10px 0 10px;
     .c-first {
@@ -255,6 +255,7 @@ export default {
     }
   }
   .c-code {
+    background-color: #fff;
     p {
       text-align: center;
     }
@@ -279,6 +280,7 @@ export default {
     input.weui-btn {
       width: 80%;
     }
+    background-color: #fff;
     .c-first {
       font-size: 16px;
       padding-top: 10px;
@@ -299,6 +301,7 @@ export default {
       width: 60%;
       margin: 0 auto;
     }
+    background-color: #fff;
   }
 }
 </style>

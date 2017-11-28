@@ -3,11 +3,11 @@
     <x-header :left-options="{preventGoBack:true,showBack:false}" :right-options="{showMore:false}" title="设置">
     </x-header>
     <div class="c-body">
-      <group>
+      <group gutter="0">
         <cell title="账号" value="13312341234" is-link link="/account"></cell>
         <cell title="提醒通知设置" value="部分开启" is-link link="/remind"></cell>
       </group>
-      <group>
+      <group :gutter="10">
         <cell title="呼叫客服">
           <div slot="default">
             <i style="color:#2196F3" class="fa fa-user-circle fa-lg"></i>
@@ -16,7 +16,7 @@
         <cell title="投诉建议" is-link></cell>
         <cell title="关于我们" is-link></cell>
       </group>
-      <group>
+      <group :gutter="10">
         <flexbox>
           <flexbox-item :span="1" style="text-align:center;">
             <i style="color:red;" class="fa fa-volume-control-phone fa-lg"></i>
@@ -67,6 +67,7 @@ export default {
   .c-body {
     overflow: auto;
     height: calc(~"100vh - @{vux-header-height}");
+    background-color: @s-background-color;
   }
 }
 </style>

@@ -1,18 +1,22 @@
-@vux-header-height:50px;
+@vux-header-height:46px;
 @s-footer-height:44px;
 @s-header-height:43px;
 @vux-tab-height:44px;
-@vux-button-height:44px;
+@vux-button-height:42px;
+@vux-button-div-height: 60px; // button外div高度
 @s-primary-color:#2196f3;//默认色
 @s-danger-color:#dd524d;//
 @s-p-font-size:14px; // 内容
 @s-p-first-size:18px;// 一级标题
-@s-p-second-size:15px;// 二级标题
+@s-p-second-size:16px;// 二级标题
 @s-p-first-font-weight:300;// 
-@s-desc-font-color:#aaa;
+@s-desc-font-color:#666;
+@s-hr-color: #E3E3E3;
 @s-bottom-btn-div-height:50px;
+@s-background-color:#eee;
+@s-block-padding-top:10px;// 块级留白
 body {
-    background-color: #EEEEEE;
+    background-color: #FFF;
 }
 
 .vux-modal-open {
@@ -22,10 +26,8 @@ body {
 .fa-primary {
     color:@s-primary-color;
 }
-// 描述字体样式
 p {
   font-size: @s-p-font-size;
-  padding: 5px 0 5px 0;
 }
 // 一级标题
 .s-first-title {
@@ -35,7 +37,19 @@ p {
 // 二级标题
 .s-second-title {
   font-size: @s-p-second-size;
-  font-weight: 700;
+  color: #000;
+  padding-top:5px;
+  padding-bottom:5px;
+}
+// 底部按钮外div
+.s-footer-btn {
+  position: absolute;
+  bottom: (@vux-button-div-height - @vux-button-height)/2;
+  width: 100%;
+}
+// 描述字体样式
+.s-badge {
+  padding-right: 3px;
 }
 .s-p-desc {
   color: @s-desc-font-color;
@@ -43,6 +57,61 @@ p {
 // hr虚线
 .s-hr-dashed {
   height:1px;border:none;border-top:1px dashed #BBB;
+}
+// div实线
+.s-div-bottom-border {
+  border-bottom: 1px solid @s-hr-color;
+}
+.s-div-top-border {
+  border-top: 1px solid @s-hr-color;
+}
+.s-div-right-border {
+  border-right: 1px solid @s-hr-color;
+}
+.s-div-left-border {
+  border-right: 1px solid @s-hr-color;
+}
+// div虚线
+.s-div-bottom-border-dashed {
+  border-bottom: 1px dashed @s-hr-color;
+}
+// div区域块
+.s-div-block() {
+  background-color: #fff;
+  padding: 10px;
+  margin-top: @s-block-padding-top;
+}
+.s-p-title {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.s-block-no-margin {
+  background-color: #fff;
+  padding: 10px;
+}
+.s-body {
+  overflow: auto;
+  height: calc(~"100vh - @{vux-header-height}");
+  background-color: @s-background-color;
+}
+.s-div-block{
+  .s-div-block;
+}
+// checker品牌
+.s-checker-brand {
+  overflow: auto;
+  background-color: #fff;
+  .s-checker-brand-default {
+    margin: 5px 2%;
+    width: 29%;
+    text-align: center;
+    font-size: 14px;
+  }
+  .s-checker-brand-selected {
+    background-color: #009688;
+    border-radius: 2px;
+    color: #fff;
+  }
 }
 //-----------------flex begin
 .display-flex(@display: flex) {
@@ -137,3 +206,57 @@ p {
     flex: @flex;
 }
 //-----------------flex end
+//-----------------动画效果
+// 渐变透明度0到1
+.s-opacity-0to1(@second) {
+  animation: @second s-opacity-0to1;
+  -webkit-animation: @second s-opacity-0to1;
+}
+@keyframes s-opacity-0to1 {
+  0% {
+    opacity: 0;
+  }
+}
+
+@-moz-keyframes s-opacity-0to1 {
+  0% {
+    opacity: 0;
+  }
+}
+
+@-webkit-keyframes s-opacity-0to1 {
+  0% {
+    opacity: 0;
+  }
+}
+// 渐变透明度1到0
+.s-opacity-1to0(@second) {
+  animation: @second s-opacity-1to0;
+  -webkit-animation: @second s-opacity-1to0;
+}
+@keyframes s-opacity-1to0 {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@-moz-keyframes s-opacity-1to0 {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@-webkit-keyframes s-opacity-1to0 {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

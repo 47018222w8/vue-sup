@@ -1,6 +1,9 @@
 <template>
   <div class="c-part-list">
-    <scroll :pullup="true" @scrollToEnd="loadMore" v-show="tabIndex===0" :data="quoteList" class="quote-list">
+    <p v-show="this.quoteList.length" class="c-refresh">
+      上拉刷新
+    </p>
+    <scroll :listenScroll="true" @scroll="listenScroll" ref="sc" :pullup="true" :pulldown="true" @pulldown="refresh" @scrollToEnd="loadMore" v-show="tabIndex===0" :data="quoteList" class="quote-list">
       <div>
         <swipeout>
           <swipeout-item v-for="(quote, index) in quoteList" :key="index" transition-mode="follow">
@@ -8,16 +11,16 @@
               <div class="c-swipeout-item-title">
                 <p v-if="!quote.isRead">
                   <badge></badge>
-                  <span style="font-weight:700;font-size:16px;">{{quote.entMemberName}}</span>
+                  <span class="s-second-title">{{quote.entMemberName}}</span>
                 </p>
                 <p style="padding-left:10px;" v-else>
-                  <span style="font-weight:700;font-size:16px;">{{quote.entMemberName}}</span>
+                  <span class="s-second-title">{{quote.entMemberName}}</span>
                 </p>
                 <p class="s-p-desc">待报价</p>
               </div>
               <div class="c-swipeout-item-desc">
                 <div class="c-left">
-                  <img slot="icon" width="40" :src="quote.brandLogo">
+                  <img slot="icon" width="60" :src="quote.brandLogo">
                 </div>
                 <div class="c-middle">
                   <p>{{quote.carMark}}</p>
@@ -25,7 +28,7 @@
                   <p class="s-p-desc">{{quote.askTimeStr}}</p>
                 </div>
                 <div class="c-right">
-                  <x-icon type="ios-arrow-right" size="30"></x-icon>
+                  <x-icon type="ios-arrow-right" size="20"></x-icon>
                 </div>
               </div>
             </div>
@@ -34,11 +37,12 @@
         <load-more :show-loading="loadingMore" :tip="tipShow" background-color="#fbf9fe"></load-more>
       </div>
     </scroll>
+    <i v-show="toTopShow" @click="toTop" class="fa fa-arrow-circle-o-up fa-2x"></i>
   </div>
 </template>
 <script>
 import { LoadMore, Divider, XHeader, Swipeout, SwipeoutItem, SwipeoutButton, Badge } from 'vux'
-import { QUOTE_LIST_KEEP_ALIVE } from '@/store/mutation-type'
+import { QUOTE_LIST_KEEP_ALIVE, HOME_TAB_INDEX } from '@/store/mutation-type'
 import scroll from '@/components/scroll'
 export default {
   name: 'quoteList',
@@ -65,7 +69,8 @@ export default {
         insNo: '',
         beginDate: '',
         endDate: ''
-      }
+      },
+      toTopShow: false
     }
   },
   // 即便缓存此组件,也可以被加载
@@ -80,6 +85,7 @@ export default {
     })
   },
   created() {
+    this.$store.commit(HOME_TAB_INDEX, { index: 0 })
     this._initData()
   },
   mounted() { },
@@ -89,13 +95,13 @@ export default {
         return '加载中'
       }
       if (!this.loadingMore && !this.quoteList.length) {
-        return '暂无询价'
+        return '暂无询价,上拉刷新'
       }
       if (this.pageNum > this.maxPage) {
         return '没有更多数据了'
       }
       if (!this.loadingMore && this.quoteList.length) {
-        return '下拉刷新'
+        return '下拉加载更多'
       }
     }
   },
@@ -120,10 +126,30 @@ export default {
         this.loadingMore = false
       }
     },
+    listenScroll(pos) {
+      if (pos.y < -100 && !this.toTopShow) {
+        this.toTopShow = true
+      }
+      if (pos.y >= -100 && this.toTopShow) {
+        this.toTopShow = false
+      }
+    },
+    // 刷新
+    refresh() {
+      this._initParam()
+      setTimeout(() => {
+        this._initData()
+      }, 1000)
+    },
+    // 返回
+    toTop() {
+      this.$refs.sc.scrollTo(0, 0, 100)
+    },
     _initParam() {
       this.pageNum = 1
       this.maxPage = 1
       this.quoteList = []
+      this.loadingMore = true
     },
     toQuotePage(index) {
       if (!this.quoteList[index].isRead) {
@@ -158,6 +184,19 @@ export default {
 <style scoped lang="less">
 @import "../../styles/sup.less";
 .c-part-list {
+  .fa-arrow-circle-o-up {
+    position: absolute;
+    right: 10px;
+    z-index: 200;
+    color: #666;
+    bottom: @s-footer-height + 10px;
+    .s-opacity-0to1(2s)
+  }
+  .c-refresh {
+    position: absolute;
+    top: @vux-header-height + 5px;
+    margin: 0 auto;
+  }
   .display-flex;
   .flex-direction(column);
   padding: 0 12px 0 12px;
@@ -189,6 +228,9 @@ export default {
       }
       .c-right {
         .flex(0 0 5%);
+        .display-flex;
+        .align-items(center);
+        .justify-content(space-between);
         .vux-x-icon {
           fill: @s-desc-font-color;
         }

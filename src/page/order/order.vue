@@ -5,168 +5,93 @@
         <i slot="icon" class="fa fa-chevron-left fa-lg"></i>
       </div>
     </x-header>
-    <div class="c-body">
+    <div class="c-body s-div-bottom-border">
       <div class="c-first">
-        <p class="s-first-title">
+        <p class="s-second-title">
           <i class="fa fa-truck fa-lg"></i>&nbsp;&nbsp;待发货</p>
-        <p class="s-first-title">班车/上门取货/代收货款/¥3000.77</p>
+        <p class="s-second-title">班车/上门取货/代收货款/¥3000.77</p>
       </div>
-      <div class="c-second">
-        <p class="s-second-title">{{ins.entMemberName}}</p>
+      <div class="s-div-block" style="padding-top:0px;">
+        <p class="s-second-title">车益佰</p>
         <flexbox>
           <flexbox-item :span="10">
             <p class="s-p-desc">吉林省国家广告产业园907</p>
             <p class="s-p-desc">乔先生&nbsp;&nbsp;13112341234</p>
           </flexbox-item>
-          <flexbox-item style="text-align:right;">
+          <flexbox-item style="text-align:center;">
             <i style="color:#666;" class="fa fa-phone fa-lg"></i>
           </flexbox-item>
         </flexbox>
       </div>
-      <br>
-      <flexbox>
-        <flexbox-item>
-          <h5>本田思域</h5>
-        </flexbox-item>
-        <flexbox-item>
-          <p style="text-align:right" class="s-p-desc">查看原始报价单&nbsp;
-            <i class="fa fa-angle-right fa-lg"></i>
-          </p>
-        </flexbox-item>
-      </flexbox>
-      <br>
-      <div>
-        <flexbox>
+      <group :gutter="10">
+        <cell title="本田思域" value="查看原始报价单" is-link></cell>
+      </group>
+      <div class="s-div-block">
+        <flexbox style="padding-bottom:5px;">
           <flexbox-item>
             <p class="s-second-title">零部件(2个)</p>
           </flexbox-item>
           <flexbox-item>
-            <p @click="changeShowPart" style="text-align:right" class="s-p-desc">{{showPart?'收起':'展开'}}&nbsp;
+            <p @click="changeShowPart" class="s-p-desc c-p-right">{{showPart?'收起':'展开'}}&nbsp;
               <i :class="showPart?'fa fa-angle-up fa-lg':'fa fa-angle-down fa-lg'"></i>
             </p>
           </flexbox-item>
         </flexbox>
-        <div v-show="showPart">
+        <div class="s-div-top-border" style="padding-top:5px;" v-show="showPart">
+          <p>我是备注信息</p>
           <flexbox>
             <flexbox-item>
               <p>保险杠</p>
             </flexbox-item>
-            <flexbox-item>
+            <flexbox-item :span="1">
               <p>*1</p>
             </flexbox-item>
-            <flexbox-item>
+            <flexbox-item :span="3">
               <p>同质件</p>
             </flexbox-item>
-            <flexbox-item>
-              <p>¥3000</p>
-            </flexbox-item>
-          </flexbox>
-          <flexbox>
-            <flexbox-item>
-              <p>保险杠</p>
-            </flexbox-item>
-            <flexbox-item>
-              <p>*1</p>
-            </flexbox-item>
-            <flexbox-item>
-              <p>同质件</p>
-            </flexbox-item>
-            <flexbox-item>
-              <p>¥3000</p>
-            </flexbox-item>
-          </flexbox>
-          <flexbox>
-            <flexbox-item>
-              <p>保险杠</p>
-            </flexbox-item>
-            <flexbox-item>
-              <p>*1</p>
-            </flexbox-item>
-            <flexbox-item>
-              <p>同质件</p>
-            </flexbox-item>
-            <flexbox-item>
+            <flexbox-item :span="2">
               <p>¥3000</p>
             </flexbox-item>
           </flexbox>
         </div>
-        <br>
-        <flexbox>
-          <flexbox-item>
-            <p>零件总额:</p>
-          </flexbox-item>
-          <flexbox-item>
-            <p style="text-align:right">¥3000</p>
-          </flexbox-item>
-        </flexbox>
-        <flexbox>
-          <flexbox-item>
-            <p>+运费:</p>
-          </flexbox-item>
-          <flexbox-item>
-            <p style="text-align:right">¥0.00</p>
-          </flexbox-item>
-        </flexbox>
-        <flexbox>
-          <flexbox-item>
-            <p>+税:</p>
-          </flexbox-item>
-          <flexbox-item>
-            <p style="text-align:right">¥0.00</p>
-          </flexbox-item>
-        </flexbox>
-        <hr>
-        <p style="text-align:right">合计金额:¥3000.89</p>
-        <div class="c-ins">
-          <flexbox>
-            <flexbox-item>
-              <p>订单编号:</p>
-            </flexbox-item>
-            <flexbox-item>
-              <p class="s-p-desc" style="text-align:right">dewqewqewqewq</p>
-            </flexbox-item>
-          </flexbox>
-          <flexbox>
-            <flexbox-item>
-              <p>下单时间:</p>
-            </flexbox-item>
-            <flexbox-item>
-              <p class="s-p-desc" style="text-align:right">2017-11-6 17:48:04</p>
-            </flexbox-item>
-          </flexbox>
-          <flexbox>
-            <flexbox-item>
-              <p>支付方式:</p>
-            </flexbox-item>
-            <flexbox-item>
-              <p class="s-p-desc" style="text-align:right">货到付款</p>
-            </flexbox-item>
-          </flexbox>
-          <flexbox>
-            <flexbox-item>
-              <p>发票信息</p>
-            </flexbox-item>
-            <flexbox-item>
-              <p class="s-p-desc" style="text-align:right">不需要</p>
-            </flexbox-item>
-          </flexbox>
-        </div>
-
       </div>
-      <br>
+      <group :gutter="10">
+        <cell title="零件总额:">
+          <p>¥&nbsp;
+            <span style="color:red;">3000</span>
+          </p>
+        </cell>
+        <cell title="+运费:">
+          <p>¥&nbsp;
+            <span style="color:red;">3</span>
+          </p>
+        </cell>
+        <cell title="+税:">
+          <p>¥&nbsp;
+            <span style="color:red;">30</span>
+          </p>
+        </cell>
+        <cell title="合计金额">
+          <p>¥&nbsp;
+            <span style="color:red;">3030</span>
+          </p>
+        </cell>
+      </group>
+      <group :gutter="10">
+        <cell title="订单编号:" value="dewqewqewqewq"></cell>
+        <cell title="下单时间:" value="2017-11-6 17:48:04"></cell>
+        <cell title="支付方式:" value="货到付款"></cell>
+        <cell title="发票信息:" value="不需要"></cell>
+      </group>
     </div>
-    <flexbox>
-      <flexbox-item :span="6">
-      </flexbox-item>
-      <flexbox-item>
-        <x-button type="primary" @click.native="$router.push({name: 'send'})">去发货</x-button>
-      </flexbox-item>
-    </flexbox>
+    <div class="s-footer-btn">
+      <x-button style="width:80%" type="primary" @click.native="$router.push({name: 'send'})">确认接单并开始备货</x-button>
+    </div>
   </div>
 </template>
 
 <script>
-import { XHeader, XButton, Flexbox, FlexboxItem } from 'vux'
+import { XHeader, XButton, Flexbox, FlexboxItem, Group, Cell, CellBox } from 'vux'
 export default {
   data() {
     return {
@@ -203,7 +128,10 @@ export default {
     XHeader,
     XButton,
     Flexbox,
-    FlexboxItem
+    FlexboxItem,
+    Group,
+    Cell,
+    CellBox
   }
 }
 </script>
@@ -212,26 +140,29 @@ export default {
 @import "../../styles/sup.less";
 .c-order {
   overflow: hidden;
+  p {
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
   .c-body {
     overflow: auto;
-    height: calc(~"100vh - @{vux-header-height} - @{vux-button-height} - 25px");
-    background-color: #ffffff;
-    margin: 10px;
+    height: calc(~"100vh - @{vux-header-height} - @{vux-button-div-height}");
+    background-color: @s-background-color;
+    .c-p-right {
+      text-align: right;
+    }
     .c-first {
+      .s-div-block;
+      margin-top: 0;
       .s-first-title {
         text-align: center;
       }
       .fa {
         color: @s-primary-color;
       }
-    }
-    .c-second-title {
-      margin: 5px 0;
-    }
-    .hr0 {
-      height: 1px;
-      border: none;
-      border-top: 1px dashed #bbb;
+      p {
+        text-align: center;
+      }
     }
   }
 }

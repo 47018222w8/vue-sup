@@ -16,7 +16,7 @@
       <tab-item @on-item-click="changTab">全部</tab-item>
     </tab>
     <div class="c-part-list">
-      <p class="s-first-title">您尚有9张询价单未处理</p>
+      <p class="s-second-title">您尚有9张询价单未处理</p>
       <scroll :pullup="true" @scrollToEnd="loadMore" v-show="tabIndex===0" :data="quoteList" class="quote-list">
         <div>
           <swipeout>
@@ -25,10 +25,10 @@
                 <div class="c-swipeout-item-title">
                   <p v-if="!quote.isRead">
                     <badge></badge>
-                    <span style="font-weight:700;font-size:16px;">{{quote.entMemberName}}</span>
+                    <span  class="s-second-title">{{quote.entMemberName}}</span>
                   </p>
                   <p style="padding-left:10px;" v-else>
-                    <span style="font-weight:700;font-size:16px;">{{quote.entMemberName}}</span>
+                    <span class="s-second-title">{{quote.entMemberName}}</span>
                   </p>
                   <p class="s-p-desc">待备货</p>
                 </div>
@@ -42,7 +42,7 @@
                     <p class="s-p-desc">{{quote.askTimeStr}}</p>
                   </div>
                   <div class="c-right">
-                    <x-icon type="ios-arrow-right" size="30"></x-icon>
+                    <x-icon type="ios-arrow-right" size="20"></x-icon>
                   </div>
                 </div>
               </div>
@@ -183,6 +183,9 @@ export default {
       }
       .c-right {
         .flex(0 0 5%);
+        .display-flex;
+        .align-items(center);
+        .justify-content(space-between);
         .vux-x-icon {
           fill: @s-desc-font-color;
         }

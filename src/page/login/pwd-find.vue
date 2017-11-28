@@ -5,63 +5,65 @@
         <i slot="icon" class="fa fa-times fa-lg"></i>
       </div>
     </x-header>
-    <div v-show="showIndex===0" class="c-account">
-      <p class="c-first">请输入您要找回密码的账号</p>
-      <p class="c-second s-p-desc">账号为您注册时的手机号码</p>
-      <group>
-        <x-input :max="11" ref="phone" v-model="uname">
-          <div slot="label">
-            <i class="fa fa-mobile fa-lg" style="padding-right:10px;"></i>&nbsp;
+    <div class="c-body">
+      <div v-show="showIndex===0" class="c-account">
+        <p class="c-first">请输入您要找回密码的账号</p>
+        <p class="c-second s-p-desc">账号为您注册时的手机号码</p>
+        <group gutter="0">
+          <x-input :max="11" ref="phone" v-model="uname">
+            <div slot="label">
+              <i class="fa fa-mobile fa-lg" style="padding-right:10px;"></i>&nbsp;
+            </div>
+          </x-input>
+        </group>
+        <br>
+        <div class="c-btn">
+          <div style="width:80%">
+            <x-button :disabled="uname.length===11?false:true" :show-loading="findPhoneLoading" @click.native="findPhone" type="primary">{{findPhoneLoading?'加载中...':'开始找回密码'}}</x-button>
           </div>
-        </x-input>
-      </group>
-      <br>
-      <div class="c-btn">
-        <div style="width:80%">
-          <x-button :disabled="uname.length===11?false:true" :show-loading="findPhoneLoading" @click.native="findPhone" type="primary">{{findPhoneLoading?'加载中...':'开始找回密码'}}</x-button>
         </div>
       </div>
+      <div v-show="showIndex===1" class="c-code">
+        <p class="c-first">我们已发送
+          <span style="font-weight:700;color:#000;">验证码</span>短信到您的手机</p>
+        <h4 style="text-align:center;">{{uname.substr(0, 3)+'****'+uname.substr(7)}}</h4>
+        <flexbox>
+          <flexbox-item>
+            <x-input text-align="center" type="tel" ref="a" :max="1" :show-clear="false" v-model="a"></x-input>
+            <hr style="margin:0 auto;" width="70%">
+          </flexbox-item>
+          <flexbox-item>
+            <x-input text-align="center" ref="b" type="tel" :max="1" :show-clear="false" v-model="b"></x-input>
+            <hr style="margin:0 auto;" width="70%">
+          </flexbox-item>
+          <flexbox-item>
+            <x-input text-align="center" ref="c" :max="1" type="tel" :show-clear="false" v-model="c"></x-input>
+            <hr style="margin:0 auto;" width="70%">
+          </flexbox-item>
+          <flexbox-item>
+            <x-input text-align="center" ref="d" :max="1" type="tel" :show-clear="false" v-model="d"></x-input>
+            <hr style="margin:0 auto;" width="70%">
+          </flexbox-item>
+        </flexbox>
+        <br><br>
+        <p class="c-code-p" @click="changeShowCode">收不到短信验证码?</p>
+      </div>
+      <div v-show="showIndex===2" class="c-pwd">
+        <p class="c-first">请为您的账号
+          <span>{{uname.substr(0, 3)+'****'+uname.substr(7)}}</span>设置一个新密码</p>
+        <br>
+        <group>
+          <x-input ref="pwd" title="密码" :max="12" :type="pwdShow?'text':'password'" v-model="password">
+            <i @click="showPwd" slot="right" :class="pwdShow?'fa fa-eye-slash fa-lg':'fa fa-eye fa-lg'"></i>
+          </x-input>
+        </group>
+        <br>
+        <x-button :text="loading?'保存中...':'保存新密码'" :disabled="loading" @click.native="subPwd" :show-loading="loading" type="primary"></x-button>
+        <br>
+        <p style="color:#0091ea;">暂不设置,先进入找件儿</p>
+      </div>
+      <actionsheet v-model="showCode" :menus="menus2" show-cancel></actionsheet>
     </div>
-    <div v-show="showIndex===1" class="c-code">
-      <p class="c-first">我们已发送
-        <span style="font-weight:700;color:#000;">验证码</span>短信到您的手机</p>
-      <h4 style="text-align:center;">{{uname.substr(0, 3)+'****'+uname.substr(7)}}</h4>
-      <flexbox>
-        <flexbox-item>
-          <x-input text-align="center" type="tel" ref="a" :max="1" :show-clear="false" v-model="a"></x-input>
-          <hr style="margin:0 auto;" width="70%">
-        </flexbox-item>
-        <flexbox-item>
-          <x-input text-align="center" ref="b" type="tel" :max="1" :show-clear="false" v-model="b"></x-input>
-          <hr style="margin:0 auto;" width="70%">
-        </flexbox-item>
-        <flexbox-item>
-          <x-input text-align="center" ref="c" :max="1" type="tel" :show-clear="false" v-model="c"></x-input>
-          <hr style="margin:0 auto;" width="70%">
-        </flexbox-item>
-        <flexbox-item>
-          <x-input text-align="center" ref="d" :max="1" type="tel" :show-clear="false" v-model="d"></x-input>
-          <hr style="margin:0 auto;" width="70%">
-        </flexbox-item>
-      </flexbox>
-      <br><br>
-      <p class="c-code-p" @click="changeShowCode">收不到短信验证码?</p>
-    </div>
-    <div v-show="showIndex===2" class="c-pwd">
-      <p class="c-first">请为您的账号
-        <span>{{uname.substr(0, 3)+'****'+uname.substr(7)}}</span>设置一个新密码</p>
-      <br>
-      <group>
-        <x-input ref="pwd" title="密码" :max="12" :type="pwdShow?'text':'password'" v-model="password">
-          <i @click="showPwd" slot="right" :class="pwdShow?'fa fa-eye-slash fa-lg':'fa fa-eye fa-lg'"></i>
-        </x-input>
-      </group>
-      <br>
-      <x-button :text="loading?'保存中...':'保存新密码'" :disabled="loading" @click.native="subPwd" :show-loading="loading" type="primary"></x-button>
-      <br>
-      <p style="color:#0091ea;">暂不设置,先进入找件儿</p>
-    </div>
-    <actionsheet v-model="showCode" :menus="menus2" show-cancel></actionsheet>
   </div>
 </template>
 
@@ -169,54 +171,60 @@ export default {
 <style lang="less">
 @import "../../styles/sup.less";
 .c-pwd-find {
-  height: 100vh;
-  background-color: #fff;
-  p {
-    text-align: center;
-  }
-  .c-account {
-    .c-first {
-      font-size: @s-p-first-size;
-      padding-top: 10px;
+  overflow: hidden;
+  .c-body {
+    overflow: auto;
+    height: calc(~"100vh - @{vux-header-height}");
+    background-color: @s-background-color;
+    p {
+      text-align: center;
     }
-    .c-second {
-      font-size: @s-p-second-size;
-    }
-    .c-btn {
-      .display-flex;
-      .justify-content(center);
-    }
-  }
-  .c-code {
-    .weui-cell {
-      padding-top: 0;
-      padding-bottom: 0;
-      .weui-input {
-        font-size: 30px;
+    .c-account {
+      .c-first {
+        font-size: @s-p-first-size;
+        padding-top: 10px;
+      }
+      .c-second {
+        font-size: @s-p-second-size;
+      }
+      .c-btn {
+        .display-flex;
+        .justify-content(center);
       }
     }
-    .c-code-p {
-      color: #0091ea;
-    }
-    .c-first {
-      padding: 15px 0 10px 0;
-      color: @s-desc-font-color;
-      font-size: 16px;
-    }
-  }
-  .c-pwd {
-    button.weui-btn,
-    input.weui-btn {
-      width: 80%;
-    }
-    .c-first {
-      font-size: 16px;
-      padding-top: 10px;
-      color: @s-desc-font-color;
-      span {
-        font-weight: 700;
-        color: #000;
+    .c-code {
+      .weui-cell {
+        padding-top: 0;
+        padding-bottom: 0;
+        .weui-input {
+          font-size: 30px;
+        }
       }
+      .c-code-p {
+        color: #0091ea;
+      }
+      .c-first {
+        padding: 15px 0 10px 0;
+        color: @s-desc-font-color;
+        font-size: 16px;
+      }
+      background-color: #fff;
+    }
+    .c-pwd {
+      button.weui-btn,
+      input.weui-btn {
+        width: 80%;
+      }
+      .c-first {
+        font-size: 16px;
+        padding-top: 10px;
+        color: @s-desc-font-color;
+        span {
+          font-weight: 700;
+          color: #000;
+        }
+      }
+      background-color: #fff;
     }
   }
 }

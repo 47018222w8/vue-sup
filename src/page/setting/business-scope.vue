@@ -9,9 +9,9 @@
       </div>
     </x-header>
     <div class="c-body">
-      <p class="s-p-desc">绿色为选中,点击可取消</p>
-      <div class="c-brand">
-        <checker v-model="formData.carBrand" @on-change="changeBrand" type="checkbox" default-item-class="c-checker-brand" selected-item-class="c-checker-brand-selected">
+      <p class="s-p-desc" style="padding-left:10px;">绿色为选中,点击可取消</p>
+      <div class="s-checker-brand">
+        <checker v-model="formData.carBrand" @on-change="changeBrand" type="checkbox" default-item-class="s-checker-brand-default" selected-item-class="s-checker-brand-selected">
           <checker-item :value="item" @on-item-click="changeBrandItem" v-for="(item, index) in carBrandList" :key="index">{{item.value}}</checker-item>
         </checker>
       </div>
@@ -73,19 +73,7 @@ export default {
   .c-body {
     overflow: auto;
     height: calc(~"100vh - @{vux-header-height}");
-    .c-brand {
-      overflow: auto;
-      .c-checker-brand {
-        margin: 5px 2%;
-        width: 20%;
-        text-align: center;
-      }
-      .c-checker-brand-selected {
-        background-color: #009688;
-        border-radius: 2px;
-        color: #fff;
-      }
-    }
+    background-color: @s-background-color;
   }
 }
 </style>

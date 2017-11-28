@@ -16,7 +16,9 @@ const state = {
     carBrand: [{ key: 0, value: '全部' }]
   },
   // 报价数据
-  quote: []
+  quote: null,
+  // 首页tabindex
+  homeTabIndex: 0
 }
 export default new Vuex.Store({
   state,

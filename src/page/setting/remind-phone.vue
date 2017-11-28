@@ -8,9 +8,11 @@
         完成
       </div>
     </x-header>
-    <group>
+    <div class="c-body">
+    <group gutter="0">
       <x-input ref="phone" title="新电话号码" :max="11" type="tel" v-model="tel"></x-input>
     </group>
+    </div>
   </div>
 </template>
 
@@ -60,6 +62,7 @@ export default {
   .c-body {
     overflow: auto;
     height: calc(~"100vh - @{vux-header-height}");
+    background-color: @s-background-color;
   }
 }
 </style>

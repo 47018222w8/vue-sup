@@ -57,7 +57,6 @@ export default {
     setTimeout(() => {
       this._initScroll()
     }, 20)
-    // console.log(this.$refs.wrapper.querySelectorAll('.cRightList'))
   },
   methods: {
     _initScroll() {
@@ -74,7 +73,6 @@ export default {
       if (this.listenScroll) {
         let me = this
         this.scroll.on('scroll', (pos) => {
-          this.$store.commit('SCROLL_Y', { scrollY: pos.y })
           me.$emit('scroll', pos)
         })
       }
@@ -89,7 +87,7 @@ export default {
       }
       // 是否派发顶部下拉事件，用于下拉刷新
       if (this.pulldown) {
-        this.scroll.on('touchend', (pos) => {
+        this.scroll.on('touchEnd', (pos) => {
           // 下拉动作
           if (pos.y > 50) {
             this.$emit('pulldown')

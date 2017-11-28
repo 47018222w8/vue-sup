@@ -5,8 +5,7 @@
         <swipeout>
           <swipeout-item v-for="(quote, index) in quoteList" :key="index" transition-mode="follow">
             <div slot="right-menu">
-              <swipeout-button type="primary">是的</swipeout-button>
-              <swipeout-button type="warn">不是</swipeout-button>
+              <swipeout-button type="warn">删除</swipeout-button>
             </div>
             <div slot="content" class="vux-1px-t">
               <div class="c-swipeout-item-title">
@@ -36,7 +35,7 @@
 </template>
 <script>
 import { LoadMore, Divider, Cell, Group, Tab, TabItem, XHeader, Swipeout, SwipeoutItem, SwipeoutButton, Datetime, XInput } from 'vux'
-import { QUOTE_LIST_KEEP_ALIVE } from '@/store/mutation-type'
+import { QUOTE_LIST_KEEP_ALIVE, HOME_TAB_INDEX } from '@/store/mutation-type'
 import scroll from '@/components/scroll'
 export default {
   name: 'quoteList',
@@ -83,6 +82,7 @@ export default {
     })
   },
   created() {
+    this.$store.commit(HOME_TAB_INDEX, {index: 1})
     this._initData()
   },
   mounted() { },

@@ -1,6 +1,6 @@
 <template>
   <div ref="part" class="c-part">
-    <x-header :left-options="{preventGoBack:true}" :right-options="{showMore:false}" title="报价">
+    <x-header :left-options="{preventGoBack:true,showBack:false}" :right-options="{showMore:false}" title="报价">
       <div slot="overwrite-left" @click="back">
         <i slot="icon" class="fa fa-chevron-left fa-lg"></i>
       </div>
@@ -9,35 +9,38 @@
       <tab-item index="0" selected>零件</tab-item>
       <tab-item index="1">车辆信息</tab-item>
     </tab>
-    <group class="c-cell" v-show="tabIndex===1">
-      <swiper v-if="insImgList.length>0" :list="insImgList" height="180px" dots-class="custom-bottom" dots-position="center"></swiper>
+    <group gutter="0" class="c-cell" v-show="tabIndex===1">
+      <!-- <swiper v-if="insImgList.length>0" :list="insImgList" height="180px" dots-class="custom-bottom" dots-position="center"></swiper> -->
       <cell title="品牌" :value="carInfoTitle"></cell>
       <cell-form-preview :list="carInfo"></cell-form-preview>
+      <img v-for="(item, index) in insImgList" :src="item.img" width="100" :key="index" @click="showInsImg">
     </group>
     <div class="parts" v-show="tabIndex===0" ref="parts">
       <template v-if="reportPriceList.length>0">
         <div class="c-body">
           <ul class="c-left">
             <li class="c-li" :class="cLeftIndex===index?'c-active':''" v-for="(info,index) in reportPriceList" :key="info.id" @click="savePart(index)">
-              <p>
-                <i v-show="info.done" class="fa fa-check fa-primary"></i>
-                <badge v-show="!info.done"></badge>{{info.name}}</p>
+              <p style="padding-right:4px;">
+                <i v-show="info.done === 1" class="fa fa-check fa-primary s-badge"></i>
+                <i v-show="info.done === 2" class="fa fa-check fa-times s-badge"></i>
+                <badge v-show="info.done === 0"></badge>
+                <span style="padding-left:5px;">{{info.name}}</span>
+              </p>
             </li>
           </ul>
-          <div class="c-middle"></div>
           <scroll ref="scrollRight" class="c-right" :data="reportPriceList[cLeftIndex].listRPI">
             <div>
-              <group :title="reportPriceList[cLeftIndex].name" label-width="4.5em" label-margin-right="2em" label-align="right">
+              <!-- <group :title="reportPriceList[cLeftIndex].name" label-width="4.5em" label-margin-right="2em" label-align="right">
                 <cell title="相关图片" is-link @click.native="showPartImg(cLeftIndex)"></cell>
-                <popup-picker @on-show="blur" :data="isOperProdList" v-model="reportPriceList[cLeftIndex].iopArry" :columns="1" title="是否经营" value-text-align="left" show-name></popup-picker>
-              </group>
-              <group class="groupClass" v-for="(rpi,index) in reportPriceList[cLeftIndex].listRPI" :key="index" label-width="4.5em" label-margin-right="2em" label-align="right">
-                <popup-picker @on-show="blur" :data="reportPriceList[cLeftIndex].qualityList" v-model="rpi.qrArry" :columns="1" title="零件品质" value-text-align="left" show-name></popup-picker>
-                <datetime @click.native="blur" v-model="rpi.canShipDateBsStr" format="YYYY-MM-DD HH" title="发货时间" value-text-align="left"></datetime>
+              </group> -->
+              <group gutter="0" class="groupClass" v-for="(rpi,index) in reportPriceList[cLeftIndex].listRPI" :key="index" label-width="4.5em" label-margin-right="2em" label-align="right">
+                <popup-picker @on-show="qualityShow(index)" @on-change="changeQuality(index)" :data="qualityList" v-model="rpi.qrArry" :columns="1" title="零件品质" value-text-align="left" show-name></popup-picker>
+                <!-- <datetime @click.native="blur" v-model="rpi.canShipDateBsStr" format="YYYY-MM-DD HH" title="发货时间" value-text-align="left"></datetime> -->
+                <cell title="相关图片" is-link @click.native="showPartImg(cLeftIndex)"></cell>
                 <x-input @on-focus="onFocus(index)" title="金额" v-model="rpi.reportPrice" type="number"></x-input>
                 <x-textarea style="padding-bottom: 0;" title="备注" v-model="rpi.remark" :show-counter="false" :rows="3" :max="100"></x-textarea>
                 <div style="text-align: center;padding-top: 5px;padding-bottom:5px;">
-                  <x-button mini v-if="index!==0" @click.native="delMoreQuality(index)" type="warn">Delete</x-button>
+                  <x-button mini v-if="index!==0" @click.native="delMoreQuality(index)" type="warn">删除此品质报价</x-button>
                 </div>
               </group>
               <div style="text-align: center;margin: 5px 0 10px 0;">
@@ -47,17 +50,9 @@
             </div>
           </scroll>
         </div>
-        <div class="c-footer">
-          <group gutter="0" class="c-cell">
-            <x-input title="运费" type="number" v-model="irpe.expressMoney"></x-input>
-          </group>
-          <group gutter="0">
-            <x-input title="税率" type="number" v-model="irpe.taxRate">
-              <span slot="right">%</span>
-            </x-input>
-          </group>
+        <div class="s-footer-btn">
+          <x-button style="width:80%" v-show="tabIndex===0" :disabled="subLoading" :show-loading="subLoading" @click.native="subForm" type="primary">核对报价</x-button>
         </div>
-        <x-button v-show="tabIndex===0" :disabled="subLoading" :show-loading="subLoading" @click.native="subForm" type="primary">提交报价</x-button>
       </template>
     </div>
     <!--零件图片预览-->
@@ -81,7 +76,8 @@ export default {
       irpe: {
         insId: this.$route.params.insId,
         expressMoney: null,
-        taxRate: null
+        taxRate: null,
+        canShipDateBsStr: null
       },
       reportPriceList: [], // 零件信息
       iilKey: 'reportPriceList' + this.$route.params.insId, // 本地存储key
@@ -89,12 +85,15 @@ export default {
       carInfo: [], // 车辆信息
       tabIndex: 0, // tab索引
       cLeftIndex: 0, // menu索引
-      imgPriviewList: [], // 零件图预览
+      imgPriviewList: [{ src: 'http://img1.gamersky.com/image2017/11/20171111_zy_164_2/image003.jpg', w: 600, h: 400 },
+      { src: 'http://img1.gamersky.com/image2017/11/20171111_zy_164_2/image006.jpg', w: 600, h: 400 }], // 零件图预览
       carInfoTitle: '', //
-      insImgList: [], // 询价单图片信息\
+      insImgList: [{img: 'http://img1.gamersky.com/image2017/11/20171111_zy_164_2/image006.jpg'},
+      {img: 'http://img1.gamersky.com/image2017/11/20171111_zy_164_2/image003.jpg '}], // 询价单图片信息\
       partInfosHeight: [], // 右边零件高度
       subLoading: false, // 提交等待
       isAndroid: null, // 是否是安卓
+      qualityC: null, // 弹出时零件品质
       isOperProdList: [
         {
           value: '0', // 沃日,show-name只能用string
@@ -140,7 +139,7 @@ export default {
           reportPriceList = quote.reportPriceList
           for (let i = 0; i < reportPriceList.length; i++) {
             let listRPI = [{
-              canShipDateBsStr: null,
+              canShipDateBsStr: '2017-01-01 01',
               reportPrice: null,
               qrArry: [this.qualityList[0].value], // 坑爹的数组 vmodel的是数组,需要自己在转为要提交的格式
               qualityRequirement: this.qualityList[0].value,
@@ -152,10 +151,9 @@ export default {
             reportPriceList[i].img2 && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img2, w: 600, h: 400 })
             reportPriceList[i].img3 && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img3, w: 600, h: 400 })
             reportPriceList[i].img4 && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img4, w: 600, h: 400 })
-            reportPriceList[i].qualityList = this.qualityList
-            reportPriceList[i].iopArry = [this.isOperProdList[0].value]
+            reportPriceList[i].iopArry = [1] // 1为不经营
             reportPriceList[i].isOperProd = this.isOperProdList[0].value
-            reportPriceList[i].done = false // 未完成状态
+            reportPriceList[i].done = 0 // 0:不经营 1:已完成 2:格式错误
             reportPriceList[i].listRPI = listRPI
           }
         }
@@ -218,24 +216,24 @@ export default {
         this.$vux.toast.text('此零件没有图片', 'bottom')
       }
     },
+    showInsImg() {
+      this.$refs.previewer.show(0)
+    },
     // 验证是否完成
     validateDone(index) {
       let rpi = this.reportPriceList[index].listRPI
-      let f = true
-      if (this.reportPriceList[index].isOperProd === '0') {
+      if (rpi.length === 1 && !rpi[0].reportPrice) {
+        this.reportPriceList[index].isOperProd = '1'
+        this.reportPriceList[index].done = 0
+      } else {
+        this.reportPriceList[index].isOperProd = '0'
+        this.reportPriceList[index].done = 1
         for (let i = 0; i < rpi.length; i++) {
-          if (!RE_MONEY.test(rpi[i].reportPrice) || !rpi[i].qualityRequirement || !rpi[i].canShipDateBsStr) {
-            f = false
+          if (!RE_MONEY.test(rpi[i].reportPrice) || !rpi[i].qualityRequirement) {
+            this.reportPriceList[index].done = 2
             break
           }
         }
-      } else {
-        f = true
-      }
-      if (f) {
-        this.reportPriceList[index].done = true
-      } else {
-        this.reportPriceList[index].done = false
       }
     },
     // 选择零件时保存数据
@@ -247,17 +245,34 @@ export default {
     },
     // 返回
     back() {
-      this.$router.push({ name: 'quoteList' })
+      this.$router.go(-1)
     },
     // 提供更多品质报价
     addMoreQuality() {
-      this.reportPriceList[this.cLeftIndex].listRPI.push({
-        canShipDateBsStr: null,
-        reportPrice: null,
-        qrArry: [this.qualityList[0].value],
-        qualityRequirement: this.qualityList[0].value,
-        remark: null
-      })
+      if (this.reportPriceList[this.cLeftIndex].listRPI.length < this.qualityList.length) {
+        let qrValue = null
+        for (let i = 0; i < this.qualityList.length; i++) {
+          let f = true
+          this.reportPriceList[this.cLeftIndex].listRPI.forEach((item) => {
+            if (item.qrArry[0] === this.qualityList[i].value) {
+              f = false
+            }
+          })
+          if (f) {
+            qrValue = this.qualityList[i].value
+            break
+          }
+        }
+        this.reportPriceList[this.cLeftIndex].listRPI.push({
+          canShipDateBsStr: null,
+          reportPrice: null,
+          qrArry: [qrValue],
+          qualityRequirement: this.qualityList[0].value,
+          remark: null
+        })
+      } else {
+        this.$vux.toast.text('无法添加更多品质', 'bottom')
+      }
       setTimeout((e) => {
         this._calculateHeight()
       }, 150)
@@ -269,20 +284,42 @@ export default {
         this._calculateHeight()
       }, 150)
     },
+    // 修改一个品质时,检查是否其它品质已有此品质,如有,则提示,并不修改
+    changeQuality(index) {
+      for (let i = 0; i < this.reportPriceList[this.cLeftIndex].listRPI.length; i++) {
+        let item = this.reportPriceList[this.cLeftIndex].listRPI[i]
+        if (i !== index && item.qrArry[0] === this.reportPriceList[this.cLeftIndex].listRPI[index].qrArry[0]) {
+          this.reportPriceList[this.cLeftIndex].listRPI[index].qrArry[0] = this.qualityC
+          this.$vux.toast.text('已含有该品质', 'bottom')
+          break
+        }
+      }
+    },
+    qualityShow(index) {
+      this.blur()
+      // 更换品质必弹出,记住此时的零件品质,用以更新零件品质
+      for (let i = 0; i < this.qualityList.length; i++) {
+        if (this.qualityList[i].value === this.reportPriceList[this.cLeftIndex].listRPI[index].qrArry[0]) {
+          this.qualityC = this.reportPriceList[this.cLeftIndex].listRPI[index].qrArry[0]
+          break
+        }
+      }
+    },
     // 提交报价
     subForm() {
       this.validateDone(this.cLeftIndex)
       let reportPriceList = this.reportPriceList
       for (let i = 0; i < reportPriceList.length; i++) {
-        if (!reportPriceList[i].done) {
+        if (reportPriceList[i].done === 2) {
           this.$vux.alert.show({
             title: '提示',
-            content: '带红点零件为需要完善信息的零件,请仔细核对'
+            content: '带x的零件请输入正确的金额'
           })
           return
         }
       }
-      let listRP = []
+      let listRP = [] // 提交的集合
+      let listRPShow = [] // 展示的集合
       for (let i = 0; i < reportPriceList.length; i++) {
         for (let j = 0; j < reportPriceList[i].listRPI.length; j++) {
           reportPriceList[i].listRPI[j].qualityRequirement = reportPriceList[i].listRPI[j].qrArry[0]
@@ -298,14 +335,15 @@ export default {
           name: reportPriceList[i].name, // 名称
           listRPI: reportPriceList[i].listRPI // 报价结果
         })
+        reportPriceList[i].done === 1 && listRPShow.push({
+          id: reportPriceList[i].id,
+          isOperProd: reportPriceList[i].iopArry[0], // 是否经营
+          name: reportPriceList[i].name, // 名称
+          listRPI: reportPriceList[i].listRPI // 报价结果
+        })
       }
       this.irpe.listRP = listRP
-      if (this.irpe.expressMoney === null) {
-        this.irpe.expressMoney = 0
-      }
-      if (this.irpe.taxRate === null) {
-        this.irpe.taxRate = 0
-      }
+      this.irpe.listRPShow = listRPShow
       this.$store.commit(REPORT_PRICE_LIST, this.irpe)
       localStorage.setItem(this.iilKey, JSON.stringify(this.reportPriceList))
       this.$router.push({ name: 'quoteInfo', params: { insId: this.irpe.insId } })
@@ -343,23 +381,6 @@ export default {
     // 失去全部焦点
     blur() {
       document.activeElement.blur()
-    },
-    // 零件品质不可重复
-    resetQualityList(index) {
-      let info = this.reportPriceList[this.cLeftIndex]
-      let arry = []
-      this.qualityList.forEach((value) => {
-        let f = true
-        for (let i = 0; i < info.listRPI.length; i++) {
-          if (value.value === info.listRPI[0]) {
-            f = false
-            break
-          }
-        }
-        f && arry.push(value)
-      })
-      info.listRPI[index].qualityRequirement = info.listRPI[index].qrArry[0]
-      info.qualityList = arry
     }
   },
   components: {
@@ -398,6 +419,9 @@ export default {
   .c-cell {
     .flex(none);
   }
+  p {
+    padding: 0px;
+  }
   overflow: hidden;
   .parts {
     .display-flex;
@@ -408,30 +432,24 @@ export default {
       display: flex;
       .justify-content(center);
     }
-    .c-footer {
-      display: flex;
-      .flex(0 0 auto);
-      .c-cell {
-        .flex(0 0 45%);
-      }
-    }
     .c-body {
       overflow: hidden;
       .display-flex;
       .flex(auto);
+      border-bottom: 1px solid @s-hr-color;
       height: calc(
-        ~"100vh - @{vux-header-height} - @{vux-tab-height} - @{vux-button-height} - 44px"
+        ~"100vh - @{vux-header-height} - @{vux-tab-height} - @{vux-button-div-height}"
       );
       .c-left {
         .flex(0 0 80px);
         width: 80px;
         background: #fff;
-        margin-top: 2px;
         overflow: auto;
+        border-right: 1px solid @s-hr-color;
         .c-active {
           background-color: @popup-picker-header-bg-color;
           color: @s-primary-color;
-          border-left: 5px solid @s-primary-color;
+          border-left: 2px solid @s-primary-color;
           font-size: 16px;
         }
         li {
@@ -449,10 +467,12 @@ export default {
       }
       .c-right {
         .flex(auto);
-        margin-top: 2px;
         overflow: hidden;
       }
     }
+  }
+  .vux-tab .vux-tab-item {
+    background-size: 100% 0px;
   }
 }
 

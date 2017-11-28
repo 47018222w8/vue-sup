@@ -5,9 +5,9 @@
         <i slot="icon" class="fa fa-chevron-left fa-lg"></i>
       </div>
     </x-header>
-    <div class="c-body">
-      <p class="s-first-title">本次发货零配件清单(8)</p>
-      <div v-show="showPart">
+    <div class="c-body s-div-bottom-border">
+      <div class="s-div-block" style="margin-top:0px;">
+        <p class="s-second-title">本次发货零配件清单(8)</p>
         <flexbox>
           <flexbox-item>
             <p>保险杠</p>
@@ -32,80 +32,52 @@
           </flexbox-item>
         </flexbox>
         <hr class="s-hr-dashed">
-        
+
       </div>
-      <br>
-      <p class="s-first-title">物流配送</p>
-      <flexbox>
-        <flexbox-item>
-          <p>配送方式</p>
-        </flexbox-item>
-        <flexbox-item>
-          <p style="text-align:right">班车</p>
-        </flexbox-item>
-      </flexbox>
-      <flexbox>
-        <flexbox-item>
-          <p>物流电话</p>
-        </flexbox-item>
-        <flexbox-item>
-          <p style="text-align:right">15604314441</p>
-        </flexbox-item>
-      </flexbox>
-      <br>
-      <p class="s-first-title">收货信息</p>
-      <flexbox>
-        <flexbox-item>
-          <p>收货地址</p>
-        </flexbox-item>
-        <flexbox-item>
-          <p style="text-align:right">吉林省 长春市 二道区自由大路与郑州街交汇东行100米</p>
-        </flexbox-item>
-      </flexbox>
-      <flexbox>
-        <flexbox-item>
-          <p>维修厂名称</p>
-        </flexbox-item>
-        <flexbox-item>
-          <p style="text-align:right">车益佰豪车管家豪泰店</p>
-        </flexbox-item>
-      </flexbox>
-      <flexbox>
-        <flexbox-item>
-          <p>联系电话</p>
-        </flexbox-item>
-        <flexbox-item>
-          <p style="text-align:right">15604316789</p>
-        </flexbox-item>
-      </flexbox>
-      <flexbox>
-        <flexbox-item>
-          <p>发货地址</p>
-        </flexbox-item>
-        <flexbox-item>
-          <p style="text-align:right">吉林省 长春市 朝阳区 高丽汽贸城1楼908室 中兴汽配</p>
-        </flexbox-item>
-      </flexbox>
-      <br>
+      <group title="物流配送">
+        <cell title="配送方式" value="班车"></cell>
+        <cell title="物流电话" value="13312341234"></cell>
+      </group>
+      <group title="收货信息">
+        <cell-box>
+          <flexbox align="start">
+            <flexbox-item :span="3">
+              <p>收货地址</p>
+            </flexbox-item>
+            <flexbox-item>
+              <p class="s-p-desc">吉林省 长春市 二道区自由大路与郑州街交汇东行100米</p>
+            </flexbox-item>
+          </flexbox>
+          </cell-box>
+          <cell title="维修厂名称" value="车益佰豪车管家豪泰店"></cell>
+          <cell title="联系电话" value="13344445555"></cell>
+      </group>
+      <group :gutter="10">
+        <cell-box>
+          <flexbox align="start">
+            <flexbox-item :span="3">
+              <p>发货地址</p>
+            </flexbox-item>
+            <flexbox-item>
+              <p class="s-p-desc">吉林省 长春市 二道区自由大路与郑州街交汇东行100米</p>
+            </flexbox-item>
+          </flexbox>
+          </cell-box>
+      </group>
     </div>
-    <flexbox>
-      <flexbox-item :span="5">
-      </flexbox-item>
-      <flexbox-item>
-        <x-button type="primary">确认发货并通知物流</x-button>
-      </flexbox-item>
-    </flexbox>
+    <div class="s-footer-btn">
+      <x-button style="width:80%" type="primary">确认发货并通知物流</x-button>
+    </div>
   </div>
 </template>
 
 <script>
-import { XHeader, XButton, Flexbox, FlexboxItem, CheckIcon } from 'vux'
+import { XHeader, XButton, Flexbox, FlexboxItem, CheckIcon, Group, Cell, CellBox } from 'vux'
 export default {
   data() {
     return {
       ins: {},
       reportList: {},
-      showPart: true,
       demo1: true
     }
   },
@@ -119,9 +91,6 @@ export default {
         this.ins = quote.ins
         this.reportList = quote.reportPriceList
       })
-    },
-    changeShowPart() {
-      this.showPart ? this.showPart = false : this.showPart = true
     },
     toQuotePage() {
       this.$router.push({
@@ -138,7 +107,10 @@ export default {
     XButton,
     Flexbox,
     FlexboxItem,
-    CheckIcon
+    CheckIcon,
+    Group,
+    Cell,
+    CellBox
   }
 }
 </script>
@@ -147,20 +119,16 @@ export default {
 @import "../../styles/sup.less";
 .c-send {
   overflow: hidden;
+  .weui-icon-success {
+    font-size: 18px;
+  }
+  .weui-icon-circle {
+    font-size: 18px;
+  }
   .c-body {
     overflow: auto;
-    height: calc(~"100vh - @{vux-header-height} - @{vux-button-height} - 25px");
-    background-color: #ffffff;
-    margin: 7px;
-    padding: 5px;
-    .c-second-title {
-      margin: 5px 0;
-    }
-    .hr0 {
-      height: 1px;
-      border: none;
-      border-top: 1px dashed #bbb;
-    }
+    height: calc(~"100vh - @{vux-header-height} - @{vux-button-div-height}");
+    background-color: @s-background-color;
   }
 }
 </style>

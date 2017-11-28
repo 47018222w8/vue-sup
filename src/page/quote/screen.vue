@@ -1,28 +1,31 @@
 <template>
   <div class="c-screen">
-    <group>
-      <x-input text-align="right" title="单号" type="text" placeholder="请输入单号(支持模糊查询)" v-model="formData.insNo"></x-input>
-      <flexbox :gutter="0">
-        <flexbox-item>
-          <datetime v-model="formData.beginDate" @on-change="changeDate" title="日期" placeholder="选择开始日期"></datetime>
-        </flexbox-item>
-        <flexbox-item>
-          <datetime v-model="formData.endDate" @on-change="changeDate" title="至" placeholder="选择截止日期"></datetime>
-        </flexbox-item>
-      </flexbox>
-      <p style="padding-left:15px;">状态</p>
-      <checker v-model="formData.state" @on-change="changeState" type="checkbox" default-item-class="c-checker-state" selected-item-class="c-checker-state-selected">
-        <checker-item @on-item-click="changeStateItem" :value="item" v-for="(item, index) in state" :key="index">{{item.value}}</checker-item>
-      </checker>
-      <p style="padding-left:15px;">品牌</p>
-      <div class="c-brand">
-        <checker v-model="formData.carBrand" @on-change="changeBrand" type="checkbox" default-item-class="c-checker-brand" selected-item-class="c-checker-brand-selected">
-          <checker-item :value="item" @on-item-click="changeBrandItem" v-for="(item, index) in carBrandList" :key="index">{{item.value}}</checker-item>
+    <div class="c-body s-div-bottom-border">
+      <group :gutter="0">
+        <x-input text-align="right" title="单号" type="text" placeholder="请输入单号(支持模糊查询)" v-model="formData.insNo"></x-input>
+        <flexbox :gutter="0">
+          <flexbox-item>
+            <datetime v-model="formData.beginDate" @on-change="changeDate" title="日期" placeholder="开始日期"></datetime>
+          </flexbox-item>
+          <flexbox-item>
+            <datetime v-model="formData.endDate" @on-change="changeDate" title="至" placeholder="截止日期"></datetime>
+          </flexbox-item>
+        </flexbox>
+        <p style="padding-left:15px;">状态</p>
+        <checker v-model="formData.state" @on-change="changeState" type="checkbox" default-item-class="c-checker-state" selected-item-class="c-checker-state-selected">
+          <checker-item @on-item-click="changeStateItem" :value="item" v-for="(item, index) in state" :key="index">{{item.value}}</checker-item>
         </checker>
-      </div>
-      <br>
-      <x-button text="确定" @click.native="sub" type="primary"></x-button>
-    </group>
+        <p style="padding-left:15px;">品牌</p>
+        <div class="s-checker-brand">
+          <checker v-model="formData.carBrand" @on-change="changeBrand" type="checkbox" default-item-class="s-checker-brand-default" selected-item-class="s-checker-brand-selected">
+            <checker-item :value="item" @on-item-click="changeBrandItem" v-for="(item, index) in carBrandList" :key="index">{{item.value}}</checker-item>
+          </checker>
+        </div>
+      </group>
+    </div>
+    <div class="s-footer-btn">
+      <x-button text="确定" style="width:80%;" @click.native="sub" type="primary"></x-button>
+    </div>
   </div>
 </template>
 <script>
@@ -122,29 +125,17 @@ export default {
 <style lang="less">
 @import "../../styles/sup.less";
 .c-screen {
-  .display-flex;
-  .flex-direction(column);
-  padding: 0 8px 0 8px;
-  background-color: #fff;
-  .c-checker-state {
-    margin: 5px 2%;
-    width: 16%;
-    text-align: center;
-  }
-  .c-checker-state-selected {
-    background-color: #009688;
-    border-radius: 2px;
-    color: #fff;
-  }
-  .c-brand {
-    max-height: 200px;
+  overflow: hidden;
+  .c-body {
     overflow: auto;
-    .c-checker-brand {
+    background-color: @s-background-color;
+    height: calc(~"100vh - @{vux-header-height} - @{vux-button-div-height}");
+    .c-checker-state {
       margin: 5px 2%;
-      width: 20%;
+      width: 16%;
       text-align: center;
     }
-    .c-checker-brand-selected {
+    .c-checker-state-selected {
       background-color: #009688;
       border-radius: 2px;
       color: #fff;

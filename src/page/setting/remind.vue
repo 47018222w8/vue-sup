@@ -1,12 +1,12 @@
 <template>
   <div class="c-remind">
-    <x-header :left-options="{preventGoBack:true,showBack:false}" :right-options="{showMore:false}" title="设置">
+    <x-header :left-options="{preventGoBack:true,showBack:false}" :right-options="{showMore:false}" title="提醒通知设置">
       <div slot="overwrite-left" @click="$router.push({name: 'setting'})">
         <i slot="icon" class="fa fa-chevron-left fa-lg"></i>
       </div>
     </x-header>
     <div class="c-body">
-      <group>
+      <group gutter="0">
         <x-switch title="开启提醒通知" v-model="remind.all"></x-switch>
       </group>
       <group title="收到询价/有新订单时">
@@ -63,6 +63,7 @@ export default {
   .c-body {
     overflow: auto;
     height: calc(~"100vh - @{vux-header-height}");
+    background-color: @s-background-color;
   }
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="c-sail-analysis">
-    <x-header :left-options="{preventGoBack:true}" :right-options="{showMore:false}" title="销售分析">
+    <x-header :left-options="{preventGoBack:true, showBack: false}" :right-options="{showMore:false}" title="销售分析">
       <div slot="overwrite-left" @click="$router.push({name: 'shop'})">
         <i slot="icon" class="fa fa-chevron-left fa-lg"></i>
       </div>
@@ -8,25 +8,24 @@
     <div class="c-body">
       <card class="c-data">
         <div slot="header">
-          <p class="s-second-title" style="padding-top:10px;">经营数据</p>
-          <hr>
+          <p class="s-second-title s-div-bottom-border">经营数据</p>
         </div>
         <div class="c-content" slot="content">
           <flexbox>
             <flexbox-item>
-              <p class="s-p-desc">近7天报价</p>
-              <p class="s-second-title">161</p>
-              <p class="s-p-desc">历史 549</p>
+              <p class="s-p-desc" style="padding-top:8px;">近7天报价</p>
+              <p class="c-second-title">161</p>
+              <p class="s-p-desc" style="padding-bottom:8px;">历史 549</p>
             </flexbox-item>
             <flexbox-item>
-              <p class="s-p-desc">近7天成交</p>
-              <p class="s-second-title">161</p>
-              <p class="s-p-desc">历史 300</p>
+              <p class="s-p-desc" style="padding-top:8px;">近7天成交</p>
+              <p class="c-second-title">161</p>
+              <p class="s-p-desc" style="padding-bottom:8px;">历史 300</p>
             </flexbox-item>
             <flexbox-item>
-              <p class="s-p-desc">近7天战败</p>
-              <p class="s-second-title">161</p>
-              <p class="s-p-desc">历史 249</p>
+              <p class="s-p-desc" style="padding-top:8px;">近7天战败</p>
+              <p class="c-second-title">161</p>
+              <p class="s-p-desc" style="padding-bottom:8px;">历史 249</p>
             </flexbox-item>
           </flexbox>
         </div>
@@ -67,7 +66,7 @@
           <p>最近30天战败报价单列表</p>
         </div>
         <div slot="content">
-          <flexbox>
+          <flexbox class="s-div-bottom-border">
             <flexbox-item :span="2">
               <p>10.24</p>
             </flexbox-item>
@@ -75,10 +74,9 @@
               <p>一汽大众速腾</p>
             </flexbox-item>
             <flexbox-item>
-              <p style="text-align:right;" class="s-p-desc">查看原因</p>
+              <p style="text-align:right;" class="s-p-desc ">查看原因</p>
             </flexbox-item>
           </flexbox>
-          <hr>
         </div>
       </card>
     </div>
@@ -139,10 +137,13 @@ export default {
   .c-body {
     overflow: auto;
     height: calc(~"100vh - @{vux-header-height}");
-    background-color: #ffffff;
-    padding-left: 10px;
-    padding-right: 10px;
+    background-color: @s-background-color;
     .c-data {
+      padding: 0 10px 0 10px;
+      .c-second-title {
+        font-size: 18px;
+        color: #000;
+      }
       .c-content {
         p {
           text-align: center;
@@ -150,9 +151,17 @@ export default {
       }
     }
     .c-count {
+      padding: 0 10px 0 10px;
       p {
         text-align: center;
         color: @s-desc-font-color;
+        padding: 5px 0px;
+      }
+    }
+    .c-list {
+      padding: 0 10px 0 10px;
+      p {
+        padding: 5px 0px;
       }
     }
   }

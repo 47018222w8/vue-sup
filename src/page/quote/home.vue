@@ -3,7 +3,7 @@
     <x-header :left-options="{showBack:false}" :right-options="{showMore:false}" @on-click-more="showMenus = true" title="报价">
       <div style="margin-top: 5px;" slot="overwrite-title">
         <button-tab v-model="tabIndex">
-          <button-tab-item @on-item-click="changeTab">新询价单</button-tab-item>
+          <button-tab-item @on-item-click="changeTab" selected>新询价单</button-tab-item>
           <button-tab-item @on-item-click="changeTab">历史询价单</button-tab-item>
         </button-tab>
       </div>
@@ -26,8 +26,12 @@ export default {
   },
   created() {
   },
+  beforeRouteLeave (to, from, next) {
+    this.tabIndex = 0
+    next()
+  },
   methods: {
-    changeTab() {
+    changeTab(index) {
       this.tabIndex === 0 && this.$router.push({ name: 'quoteList' })
       this.tabIndex === 1 && this.$router.push({ name: 'quoteHistory' })
     },
@@ -49,5 +53,4 @@ export default {
 
 <style lang="less">
 @import "../../styles/sup.less";
-
 </style>
