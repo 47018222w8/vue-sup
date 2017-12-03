@@ -17,7 +17,7 @@ export default {
       buttons: [{
         type: 'default',
         text: '返回首页',
-        link: '/quote/list'
+        link: '/home/quote/list'
       }]
     }
   }

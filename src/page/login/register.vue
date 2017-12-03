@@ -81,7 +81,7 @@
           <p class="s-p-desc" style="padding-top:10px;">请上传您的营业执照正面</p>
           <i slot="icon" v-show="!imgShow" class="fa fa-camera fa-4x s-p-desc" style="padding-bottom:20px;"></i>
           <img v-show="imgShow" :src="imgSrc" width="80px" alt="">
-          <input id="img0" style="display:none;" type="file" ref="img" accept="image/*" @change="uploadImg">
+          <input id="img0" type="file" ref="img" accept="image/*" @change="uploadImg">
         </label>
       </div>
       <br>
@@ -158,17 +158,33 @@ export default {
     }
   },
   methods: {
-    subPhone() {
+    async subPhone() {
       this.findPhoneLoading = true
       if (RE_PHONE.test(this.uname)) {
-        this.showIndex = 1
-        setTimeout(() => {
-          this.$refs.a.focus()
-        }, 50)
+        await this.$http.get('/supplier/check/' + this.uname, this.formData).then((response) => {
+          if (response.data) {
+            this.sendMsg()
+            this.showIndex = 1
+            setTimeout(() => {
+              this.$refs.a.focus()
+            }, 50)
+          } else {
+            this.$vux.toast.text('该手机号已注册过,请直接登录', 'middle')
+          }
+        })
       } else {
         this.$vux.toast.text('请输入正确的手机号', 'bottom')
       }
       this.findPhoneLoading = false
+    },
+    // 发送短信验证码
+    async sendMsg() {
+      let params = {
+        uname: this.uname,
+        text: '注册验证码'
+      }
+      await this.$http.get('/noIntercept/shortMsgs/4', { params }).then((response) => {
+      })
     },
     changeShowCode() {
       this.showCode ? this.showCode = false : this.showCode = true
@@ -193,10 +209,11 @@ export default {
     },
     uploadImg() {
       /* eslint-disable no-undef */
-      lrz(this.$refs.img.files[0], { width: 1024 })
+      lrz(this.$refs.img.files[0], { quality: 0.3 })
         .then((rst) => {
-          this.imgSrc = rst.base64
-          this.imgShow = true
+          this.$http.post('/noIntercept/imgs', rst.formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then((response) => {
+            console.log(response.data)
+          })
           return rst
         })
     },
@@ -216,10 +233,25 @@ export default {
     },
     d() {
       if (this.a && this.b && this.c && this.d) {
-        this.showIndex = 2
-        setTimeout(() => {
-          this.$refs.pwd.focus()
-        }, 50)
+        let params = {
+          uname: this.uname,
+          code: this.a + this.b + this.c + this.d
+        }
+        this.$http.get('/noIntercept/shortMsgs/actions/validate', { params }).then((response) => {
+          this.showIndex = 2
+          setTimeout(() => {
+            this.$refs.pwd.focus()
+          }, 50)
+        }).catch((error) => {
+          let result = error.response
+          result.status === 400 && this.$vux.toast.show({
+            text: result.data.message,
+            type: 'warn',
+            position: 'middle',
+            time: '1500'
+          })
+          this.loading = false
+        })
       }
     }
   },

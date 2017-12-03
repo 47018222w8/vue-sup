@@ -2,19 +2,19 @@
   <div class="c-shop">
     <div class="c-body">
       <div class="c-title s-div-block" style="padding-right:0;">
-        <flexbox style="padding:10px 0 10px 0">
-          <flexbox-item :span="3">
+        <flexbox style="padding:15px 0">
+          <flexbox-item style="margin-left: 0;" :span="3">
             <div class="c-img">
-              <img width="60px;" src="http://img1.gamersky.com/image2017/10/20171028_zl_91_4/gamersky_02small_04_201710282218322.jpg" alt="">
+              <img width="50px;" height="50px;" src="http://img1.gamersky.com/image2017/10/20171028_zl_91_4/gamersky_02small_04_201710282218322.jpg" alt="">
             </div>
           </flexbox-item>
-          <flexbox-item>
+          <flexbox-item style="margin-left: 0px;">
             <p style="font-size:16px;">长春众联安顺&nbsp;&nbsp;
               <i class="fa fa-angle-right fa-lg"></i>
             </p>
             <p>查看门店基本信息</p>
           </flexbox-item>
-          <flexbox-item :span="2">
+          <flexbox-item style="margin-left: 0px;" :span="2">
             <br>
             <p class="c-shop-state">营业中</p>
           </flexbox-item>
@@ -96,12 +96,16 @@
           <p class="s-second-title" style="padding:10px 0;">为您推荐</p>
         </div>
         <div slot="content">
-          <flexbox>
+          <flexbox style="padding-bottom:10px;">
             <flexbox-item style="text-align:center;">
-              <img src="http://img1.gamersky.com/image2017/10/20171028_zl_91_4/gamersky_03small_06_201710282218808.jpg" width="90%" alt="">
+              <div class="c-img">
+                <img src="http://192.168.1.109:9008/rfq/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20171128163621.jpg" width="60%" alt="">
+              </div>
             </flexbox-item>
             <flexbox-item style="text-align:center;">
-              <img src="http://img1.gamersky.com/image2017/10/20171028_zl_91_4/gamersky_05small_10_2017102822186DB.jpg" width="90%" alt="">
+              <div class="c-img">
+                <img src="http://192.168.1.109:9008/rfq/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20171128163621.jpg" width="60%" alt="">
+              </div>
             </flexbox-item>
           </flexbox>
         </div>
@@ -161,21 +165,23 @@ export default {
 .c-shop {
   overflow: hidden;
   .c-body {
-    .s-body;
+    overflow: auto;
+    height: calc(~"100vh - @{s-footer-height}");
+    background-color: @s-background-color;
     .c-title {
       margin-top: 0px;
+      background-color: @s-primary-color;
+      color: #fff;
       .c-img {
-        .display-flex;
-        .align-items(center);
-        .justify-content(center);
-        height: 60px;
-        width: 80px;
+        margin: 0 auto;
+        background-color: #fff;
+        height: 50px;
+        width: 50px;
         border: 1px solid @s-hr-color;
       }
       .c-shop-state {
         text-align: center;
         background-color: #2bac38;
-        color: #fff;
         padding: 0;
       }
     }
@@ -188,10 +194,18 @@ export default {
         padding: 10px 0;
         text-align: center;
       }
+      .fa {
+        padding-bottom: 10px;
+      }
     }
     .c-data {
       padding-left: 10px;
       padding-right: 10px;
+      .c-img {
+        border: 1px solid @s-hr-color;
+        margin: 0 auto;
+        width: 85%;
+      }
       .c-header {
         p {
           padding: 10px 0;
@@ -200,7 +214,7 @@ export default {
       .c-content {
         .c-second-title {
           font-size: 18px;
-          color: #000;
+          color: red;
         }
         p {
           text-align: center;

@@ -137,6 +137,7 @@ export default {
           reportPriceList = JSON.parse(reportPriceList)
         } else {
           reportPriceList = quote.reportPriceList
+          console.log(reportPriceList)
           for (let i = 0; i < reportPriceList.length; i++) {
             let listRPI = [{
               canShipDateBsStr: '2017-01-01 01',

@@ -11,10 +11,11 @@ const quote = r => require.ensure([], () => r(require('@/page/quote/quote')), 'q
 const quoteInfo = r => require.ensure([], () => r(require('@/page/quote/quote-info')), 'quoteInfo')
 const quoteList = r => require.ensure([], () => r(require('@/page/quote/quote-list')), 'quoteList')
 const quoteHistory = r => require.ensure([], () => r(require('@/page/quote/quote-history')), 'quoteHistory')
+const quoteHistoryInfo = r => require.ensure([], () => r(require('@/page/quote/quote-history-info')), 'quoteHistoryInfo')
 const supplierList = r => require.ensure([], () => r(require('@/page/supplier-list')), 'supplierList')
 const error = r => require.ensure([], () => r(require('@/page/error')), 'error')
 const chat = r => require.ensure([], () => r(require('@/page/chat')), 'chat')
-const carBrandList = r => require.ensure([], () => r(require('@/page/car-brand-list')), 'carBrandList')
+const carBrandList = r => require.ensure([], () => r(require('@/page/shop/car-brand-list')), 'carBrandList')
 const home = r => require.ensure([], () => r(require('@/page/quote/home')), 'home')
 const newestQuote = r => require.ensure([], () => r(require('@/page/quote/quote-newest')), 'newestQuote')
 const screen = r => require.ensure([], () => r(require('@/page/quote/screen')), 'screen')
@@ -39,7 +40,15 @@ const router = new Router({
   }, {
     path: '/login',
     name: 'login',
-    component: login
+    component: login,
+    beforeEnter: (to, from, next) => {
+      let a = localStorage.getItem(JWT_HEADER)
+      if (a) {
+        next('/home/quote/list')
+      } else {
+        next()
+      }
+    }
   }, {
     path: '/register',
     name: 'register',
@@ -87,6 +96,10 @@ const router = new Router({
         name: 'screen'
       }
     ]
+  }, {
+    path: '/quote/history/:insId',
+    name: 'quoteHistoryInfo',
+    component: quoteHistoryInfo
   }, {
     path: '/quote/:insId',
     name: 'quote',

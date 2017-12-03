@@ -48,7 +48,7 @@
 
 <script>
 import { Divider, XButton, Cell, Group, Tab, TabItem, Search, Checklist, CheckIcon, InlineLoading } from 'vux'
-import scroll from '../components/scroll'
+import scroll from '@/components/scroll'
 export default {
   data() {
     return {
@@ -161,7 +161,7 @@ export default {
 </script>
 
 <style scoped lang="less">
-@import '../styles/sup.less';
+@import '../../styles/sup.less';
 .c-car-brand {
   .display-flex;
   .flex-direction(column);

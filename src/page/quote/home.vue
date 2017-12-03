@@ -7,7 +7,7 @@
           <button-tab-item @on-item-click="changeTab">历史询价单</button-tab-item>
         </button-tab>
       </div>
-      <div v-show="tabIndex===1" @click="screen" slot="right">
+      <div v-show="tabIndex===8" @click="screen" slot="right">
         <p>筛选</p>
       </div>
     </x-header>

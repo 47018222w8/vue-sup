@@ -34,12 +34,19 @@ export default {
     return {
       formData: {
         uname: '',
-        password: ''
+        password: '',
+        openId: ''
       },
       loading: false,
       pwdShow: false,
       message: '',
       toast: false
+    }
+  },
+  created() {
+    if (this.$route.query.openId) {
+      this.formData.openId = this.$route.query.openId
+      localStorage.setItem('openId', this.$route.query.openId)
     }
   },
   methods: {
@@ -110,12 +117,12 @@ export default {
     width: 90%;
   }
   .c-small-desc {
-      .display-flex;
-      .justify-content(space-between);
-      p {
-        color: @s-primary-color;
-        margin: 5px 5px;
-      }
+    .display-flex;
+    .justify-content(space-between);
+    p {
+      color: @s-primary-color;
+      margin: 5px 5px;
     }
+  }
 }
 </style>

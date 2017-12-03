@@ -38,19 +38,33 @@ export default {
   mounted() {
   },
   methods: {
-    logout() {
+    async logout() {
       this.loading = true
+      let openId = localStorage.getItem('openId')
+      if (openId) {
+        await this.$http.delete('/sessions?openId=' + openId).then((response) => {
+        })
+      }
       localStorage.removeItem(JWT_HEADER)
       this.$vux.toast.show({
         text: '注销成功',
         position: 'middle',
-        time: '1200'
+        time: '1300'
       })
-      setTimeout(() => {
-        this.$router.push({
-          name: 'login'
-        })
-      }, 1400)
+      if (openId) {
+        setTimeout(() => {
+          this.$router.push({
+            path: 'login',
+            query: { openId: openId }
+          })
+        }, 1400)
+      } else {
+        setTimeout(() => {
+          this.$router.push({
+            path: 'login'
+          })
+        }, 1400)
+      }
     }
   },
   components: {

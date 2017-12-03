@@ -5,11 +5,11 @@
         <swipeout>
           <swipeout-item v-for="(quote, index) in quoteList" :key="index" transition-mode="follow">
             <div slot="right-menu">
-              <swipeout-button type="warn">删除</swipeout-button>
+              <swipeout-button type="warn" @click.native="del(index)">删除</swipeout-button>
             </div>
-            <div slot="content" class="vux-1px-t">
+            <div @click="$router.push({name: 'quoteHistoryInfo', params:{insId: quote.id}})" slot="content" class="vux-1px-t">
               <div class="c-swipeout-item-title">
-                <p>zxczxczxczxczxczxc【吉A12345】</p>
+                <p>{{quote.insNo}}【吉A12345】</p>
                 <p class="s-p-desc">状态</p>
               </div>
               <div class="c-swipeout-item-desc">
@@ -82,7 +82,7 @@ export default {
     })
   },
   created() {
-    this.$store.commit(HOME_TAB_INDEX, {index: 1})
+    this.$store.commit(HOME_TAB_INDEX, { index: 1 })
     this._initData()
   },
   mounted() { },
@@ -111,7 +111,7 @@ export default {
           pageSize: 10,
           reportState: 0,
           insReportStatesStr: '1,2',
-          mark: 1,
+          isHistory: 1,
           isRead: 0
         }
         await this.$http.get('/insruances', { params }).then((response) => {
@@ -122,6 +122,16 @@ export default {
         })
         this.loadingMore = false
       }
+    },
+    del(index) {
+      let rpe = {
+        insId: this.quoteList[index].id,
+        isDel: 1
+      }
+      this.$http.put('/reportPriceExtends', rpe).then((response) => {
+        this.quoteList.splice(index, 1)
+        this.$vux.toast.text('删除成功', 'middle')
+      })
     },
     _initParam() {
       this.pageNum = 1
