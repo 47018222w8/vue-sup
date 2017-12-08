@@ -16,19 +16,17 @@
       <tab-item @on-item-click="changTab">全部</tab-item>
     </tab>
     <div class="c-part-list">
-      <p class="s-second-title">您尚有9张询价单未处理</p>
-      <scroll :pullup="true" @scrollToEnd="loadMore" v-show="tabIndex===0" :data="quoteList" class="quote-list">
+      <p v-show="tabIndex===0" class="s-second-title">您尚有{{total}}张新订单待备货</p>
+      <p v-show="tabIndex===2" class="s-second-title">您有{{total}}张订单在配送中</p>
+      <p v-show="tabIndex===3" class="s-second-title">您有{{total}}张订单已完成</p>
+      <scroll :pullup="true" @scrollToEnd="loadMore" :data="quoteList" class="quote-list">
         <div>
           <swipeout>
             <swipeout-item v-for="(quote, index) in quoteList" :key="index" transition-mode="follow">
               <div slot="content" class="vux-1px-t" @click="toOrderPage(quote.id)">
                 <div class="c-swipeout-item-title">
-                  <p v-if="!quote.isRead">
-                    <badge></badge>
-                    <span  class="s-second-title">{{quote.entMemberName}}</span>
-                  </p>
-                  <p style="padding-left:10px;" v-else>
-                    <span class="s-second-title">{{quote.entMemberName}}</span>
+                  <p style="padding-left:10px;">
+                    <span class="s-second-title">{{quote.repairName}}</span>
                   </p>
                   <p class="s-p-desc">待备货</p>
                 </div>
@@ -37,7 +35,7 @@
                     <img slot="icon" width="40" :src="quote.brandLogo">
                   </div>
                   <div class="c-middle">
-                    <p>{{quote.carMark}}</p>
+                    <p>{{quote.carName}}</p>
                     <p>{{quote.partCount}}个零件</p>
                     <p class="s-p-desc">{{quote.askTimeStr}}</p>
                   </div>
@@ -56,97 +54,122 @@
 </template>
 
 <script>
-import { XHeader, XButton, ButtonTab, ButtonTabItem, Tabbar, TabbarItem, Tab, TabItem, Swipeout, SwipeoutItem, LoadMore, Badge } from 'vux'
-import scroll from '@/components/scroll'
-export default {
-  data() {
-    return {
-      titleIndex: 0,
-      quoteList: [],
-      // 下一页
-      pageNum: 1,
-      tabIndex: 0,
-      loadingMore: false,
-      notReadCount: 0,
-      maxPage: 1,
-      formData: {
-        insNo: '',
-        beginDate: '',
-        endDate: ''
-      }
-    }
-  },
-  created() {
-    this._initData()
-  },
-  computed: {
-    tipShow() {
-      if (this.loadingMore) {
-        return '加载中'
-      }
-      if (!this.loadingMore && !this.quoteList.length) {
-        return '暂无询价'
-      }
-      if (this.pageNum > this.maxPage) {
-        return '没有更多数据了'
-      }
-      if (!this.loadingMore && this.quoteList.length) {
-        return '下拉刷新'
-      }
-    }
-  },
-  methods: {
-    async _initData() {
-      if (this.pageNum <= this.maxPage) {
-        this.loadingMore = true
-        let params = {
-          pageNum: this.pageNum,
-          pageSize: 10,
-          reportState: 2,
-          insReportStatesStr: '10',
-          mark: 1,
-          isRead: 0
-        }
-        await this.$http.get('/insruances', { params }).then((response) => {
-          this.quoteList.push(...response.data.insurancePage.list)
-          this.notReadCount = response.data.notReadCount
-          this.maxPage = response.data.insurancePage.pages
-          this.pageNum++
-        })
-        this.loadingMore = false
+  import { XHeader, XButton, ButtonTab, ButtonTabItem, Tabbar, TabbarItem, Tab, TabItem, Swipeout, SwipeoutItem, LoadMore, Badge } from 'vux'
+  import scroll from '@/components/scroll'
+  export default {
+    data() {
+      return {
+        titleIndex: 0,
+        quoteList: [],
+        tabIndex: 0,
+        loadingMore: false,
+        notReadCount: 0,
+        maxPage: 1,
+        total: 0,
+        // 请求参数
+        params: {
+          pageNum: 1,
+          pageSize: 10
+        },
+        // 请求url
+        url: '/orders'
       }
     },
-    toOrderPage(insId) {
-      this.$router.push({ name: 'order', params: { insId: insId } })
-    },
-    changeTitle() {
-    },
-    screen() {
-      this.$router.push({ name: 'screen' })
-    },
-    changTab(index) {
-      console.log(index)
-    },
-    loadMore() {
+    created() {
+      this.params.reportState = 2
       this._initData()
+    },
+    computed: {
+      tipShow() {
+        if (this.loadingMore) {
+          return '加载中'
+        }
+        if (!this.loadingMore && !this.quoteList.length) {
+          return '暂无询价'
+        }
+        if (this.params.pageNum > this.maxPage) {
+          return '没有更多数据了'
+        }
+        if (!this.loadingMore && this.quoteList.length) {
+          return '下拉刷新'
+        }
+      }
+    },
+    methods: {
+      async _initData() {
+        if (this.params.pageNum <= this.maxPage) {
+          this.loadingMore = true
+          let params = this.params
+          await this.$http.get('/orders', { params }).then((response) => {
+            this.quoteList.push(...response.data.insurancePage.list)
+            this.notReadCount = response.data.notReadCount
+            this.maxPage = response.data.insurancePage.pages
+            this.total = response.data.insurancePage.total
+            this.params.pageNum++
+          })
+          this.loadingMore = false
+        }
+      },
+      toOrderPage(insId) {
+        this.$router.push({ name: 'order', params: { insId: insId } })
+      },
+      changeTitle() {
+      },
+      screen() {
+        this.$router.push({ name: 'screen' })
+      },
+      changTab(index) {
+        this.tabIndex = index
+        switch (index) {
+          // 配送中
+          case 2:
+            this.url = '/orders'
+            this.params.pageNum = 1
+            this.params.reportState = 3
+            this.params.status = null
+            this.quoteList = []
+            this._initData()
+            break
+          // 已完成
+          case 3:
+            this.url = '/orders/done'
+            this.params.pageNum = 1
+            this.params.reportState = null
+            this.params.status = '7'
+            this.quoteList = []
+            this._initData()
+            break
+          // 新订单
+          default: 0
+            this.url = '/orders'
+            this.params.pageNum = 1
+            this.params.reportState = 2
+            this.params.status = null
+            this.quoteList = []
+            this._initData()
+            break
+        }
+      },
+      loadMore() {
+        this._initData()
+      }
+    },
+    components: {
+      scroll,
+      XHeader,
+      XButton,
+      ButtonTab,
+      ButtonTabItem,
+      Tabbar,
+      TabbarItem,
+      Tab,
+      TabItem,
+      Swipeout,
+      SwipeoutItem,
+      LoadMore,
+      Badge
     }
-  },
-  components: {
-    scroll,
-    XHeader,
-    XButton,
-    ButtonTab,
-    ButtonTabItem,
-    Tabbar,
-    TabbarItem,
-    Tab,
-    TabItem,
-    Swipeout,
-    SwipeoutItem,
-    LoadMore,
-    Badge
   }
-}
 </script>
 
 <style lang="less">

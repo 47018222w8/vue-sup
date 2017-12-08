@@ -1,6 +1,6 @@
 <template>
   <div class="c-order">
-    <x-header :left-options="{preventGoBack:true}" :right-options="{showMore:false}" title="订单详情">
+    <x-header :left-options="{preventGoBack:true, showBack: false}" :right-options="{showMore:false}" title="订单详情">
       <div slot="overwrite-left" @click="$router.push({name: 'orders'})">
         <i slot="icon" class="fa fa-chevron-left fa-lg"></i>
       </div>
@@ -9,14 +9,14 @@
       <div class="c-first">
         <p class="s-second-title">
           <i class="fa fa-truck fa-lg"></i>&nbsp;&nbsp;待发货</p>
-        <p class="s-second-title">班车/上门取货/代收货款/¥3000.77</p>
+        <p class="s-second-title">班车/上门取货/代收货款/¥{{ins.totalPrice}}</p>
       </div>
       <div class="s-div-block" style="padding-top:0px;">
-        <p class="s-second-title">车益佰</p>
+        <p class="s-second-title">{{ins.repairName}}</p>
         <flexbox>
           <flexbox-item :span="10">
-            <p class="s-p-desc">吉林省国家广告产业园907</p>
-            <p class="s-p-desc">乔先生&nbsp;&nbsp;13112341234</p>
+            <p class="s-p-desc">{{ins.memberAddress}}</p>
+            <p class="s-p-desc">{{ins.contacter}}&nbsp;&nbsp;{{ins.mobile}}</p>
           </flexbox-item>
           <flexbox-item style="text-align:center;">
             <i style="color:#666;" class="fa fa-phone fa-lg"></i>
@@ -24,12 +24,12 @@
         </flexbox>
       </div>
       <group :gutter="10">
-        <cell title="本田思域" value="查看原始报价单" is-link></cell>
+        <cell :title="ins.carBrandName" value="查看原始报价单" is-link></cell>
       </group>
       <div class="s-div-block">
         <flexbox style="padding-bottom:5px;">
           <flexbox-item>
-            <p class="s-second-title">零部件(2个)</p>
+            <p class="s-second-title">零部件({{partInfos.length}}个)</p>
           </flexbox-item>
           <flexbox-item>
             <p @click="changeShowPart" class="s-p-desc c-p-right">{{showPart?'收起':'展开'}}&nbsp;
@@ -39,18 +39,18 @@
         </flexbox>
         <div class="s-div-top-border" style="padding-top:5px;" v-show="showPart">
           <p>我是备注信息</p>
-          <flexbox>
+          <flexbox v-for="(item, index) in partInfos" :key="index" >
             <flexbox-item>
-              <p>保险杠</p>
+              <p>{{item.name}}</p>
             </flexbox-item>
             <flexbox-item :span="1">
-              <p>*1</p>
+              <p>*{{item.amount}}</p>
             </flexbox-item>
             <flexbox-item :span="3">
-              <p>同质件</p>
+              <p>{{item.propertyName}}</p>
             </flexbox-item>
             <flexbox-item :span="2">
-              <p>¥3000</p>
+              <p>¥{{item.targetPrice}}</p>
             </flexbox-item>
           </flexbox>
         </div>
@@ -63,23 +63,23 @@
         </cell>
         <cell title="+运费:">
           <p>¥&nbsp;
-            <span style="color:red;">3</span>
+            <span style="color:red;">{{ins.expressMoney}}</span>
           </p>
         </cell>
         <cell title="+税:">
           <p>¥&nbsp;
-            <span style="color:red;">30</span>
+            <span style="color:red;">{{ins.taxRate}}</span>
           </p>
         </cell>
         <cell title="合计金额">
           <p>¥&nbsp;
-            <span style="color:red;">3030</span>
+            <span style="color:red;">¥{{ins.totalPrice}}</span>
           </p>
         </cell>
       </group>
       <group :gutter="10">
-        <cell title="订单编号:" value="dewqewqewqewq"></cell>
-        <cell title="下单时间:" value="2017-11-6 17:48:04"></cell>
+        <cell title="订单编号:" :value="ins.insNo"></cell>
+        <cell title="下单时间:" :value="ins.orderTime"></cell>
         <cell title="支付方式:" value="货到付款"></cell>
         <cell title="发票信息:" value="不需要"></cell>
       </group>
@@ -96,19 +96,18 @@ export default {
   data() {
     return {
       ins: {},
-      reportList: {},
+      partInfos: {},
       showPart: true
     }
   },
   created() {
-    // this._initData()
+    this._initData()
   },
   methods: {
     async _initData() {
-      await this.$http.get('/insruances/' + this.$route.params.insId, { params: { state: '0' } }).then((response) => {
-        let quote = response.data
-        this.ins = quote.ins
-        this.reportList = quote.reportPriceList
+      await this.$http.get('/orders/' + this.$route.params.insId, { params: { state: '0' } }).then((response) => {
+        this.ins = response.data
+        this.partInfos = this.ins.partInfos
       })
     },
     changeShowPart() {

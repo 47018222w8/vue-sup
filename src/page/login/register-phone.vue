@@ -1,32 +1,29 @@
 <template>
-  <div class="c-pwd-find">
-    <x-header :left-options="{preventGoBack:true, showBack: false}" :right-options="{showMore:false}" title="找回登录密码">
+  <div class="c-register-phone">
+    <x-header :left-options="{preventGoBack:true, showBack: false}" :right-options="{showMore:false}" title="注册">
       <div slot="left" @click="$router.push({name: 'login'})">
         <i slot="icon" class="fa fa-times fa-lg"></i>
       </div>
     </x-header>
-    <div class="c-body">
+    <div class="c-body" v-if="formData">
       <div v-show="showIndex===0" class="c-account">
-        <p class="c-first">请输入您要找回密码的账号</p>
-        <p class="c-second s-p-desc">账号为您注册时的手机号码</p>
-        <group gutter="0">
-          <x-input :max="11" ref="phone" v-model="formData.uname">
+        <p class="c-first">注册共分为3步,过程中需要上传企业营业执照,建议您事先准备好</p>
+        <group>
+          <x-input :max="11" ref="phone" type="tel" placeholder="请输入手机号" v-model="formData.uname">
             <div slot="label">
               <i class="fa fa-mobile fa-lg" style="padding-right:10px;"></i>&nbsp;
             </div>
           </x-input>
         </group>
         <br>
-        <div class="c-btn">
-          <div style="width:80%">
-            <x-button :disabled="formData.uname.length===11?false:true" :show-loading="findPhoneLoading" @click.native="findPhone" type="primary">{{findPhoneLoading?'加载中...':'开始找回密码'}}</x-button>
-          </div>
-        </div>
+        <x-button :disabled="formData.uname.length===11?false:true" :show-loading="findPhoneLoading" @click.native="subPhone" type="primary">{{findPhoneLoading?'加载中...':'开始注册'}}</x-button>
       </div>
       <div v-show="showIndex===1" class="c-code">
-        <p class="c-first">我们已发送
-          <span style="font-weight:700;color:#000;">验证码</span>短信到您的手机</p>
-        <h4 style="text-align:center;">{{formData.uname.substr(0, 3)+'****'+formData.uname.substr(7)}}</h4>
+        <br>
+        <h3 style="text-align:center;">输入短信验证码</h3>
+        <p class="s-p-desc">已经向
+          <span style="font-size:16px;">{{formData.uname}}</span> 发送短信验证码</p>
+        <p class="s-p-desc">请查看短信并输入验证码</p>
         <flexbox>
           <flexbox-item>
             <x-input text-align="center" type="tel" ref="a" :max="1" :show-clear="false" v-model="a"></x-input>
@@ -49,34 +46,40 @@
         <p class="c-code-p" @click="changeShowCode">收不到短信验证码?</p>
       </div>
       <div v-show="showIndex===2" class="c-pwd">
-        <p class="c-first">请为您的账号
-          <span>{{formData.uname.substr(0, 3)+'****'+formData.uname.substr(7)}}</span>设置一个新密码</p>
         <br>
-        <group>
-          <x-input ref="pwd" title="密码" :max="12" :type="pwdShow?'text':'password'" v-model="formData.password">
+        <h3 style="text-align:center;">设置登录密码和昵称</h3>
+        <br>
+        <group style="background-color:#fff;" label-width="4.5em" label-margin-right="2em" label-align="right">
+          <x-input ref="pwd" title="登录密码" placeholder="长度6-12位" :max="12" :type="pwdShow?'text':'password'" v-model="formData.password">
             <i @click="showPwd" slot="right" :class="pwdShow?'fa fa-eye-slash fa-lg':'fa fa-eye fa-lg'"></i>
           </x-input>
+          <x-input title="昵称" :max="6" placeholder="最多6个字" v-model="formData.shortName"></x-input>
         </group>
-        <br>
-        <x-button :text="loading?'保存中...':'保存新密码'" :disabled="loading" @click.native="subPwd" :show-loading="loading" type="primary"></x-button>
-        <br>
-        <p style="color:#0091ea;">暂不设置,先进入找件儿</p>
+        <div style="padding:10px;0">
+          <x-button :text="loading?'加载中...':'下一步'" :disabled="formData.password.length?false:true" @click.native="subPwd" :show-loading="loading" type="primary"></x-button>
+        </div>
       </div>
-      <actionsheet v-model="showCode" :menus="menus2" show-cancel></actionsheet>
+      <div v-show="showIndex===3" class="c-operate-type">
+        <br>
+        <h2 style="text-align:center;">请选择经营类别</h2>
+        <br>
+        <checklist label-position="left" :options="operateTypeList" v-model="operateTypeListValue" :max="1"></checklist>
+        <br>
+        <x-button :text="loading?'加载中...':'确认'" :disabled="loading" @click.native="chooseOperate" :show-loading="loading" type="primary"></x-button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-  import { XHeader, XButton, Group, XInput, Flexbox, FlexboxItem, Actionsheet } from 'vux'
-  import { RE_PHONE, JWT_TOKEN_HEAD, JWT_HEADER } from '@/components/constant'
-  import axios from 'axios'
+  import { XHeader, XButton, Group, XInput, Flexbox, FlexboxItem, Actionsheet, Checklist, XAddress, Msg } from 'vux'
+  import { REGISTER_DATA } from '@/store/mutation-type'
+  import { RE_PHONE } from '@/components/constant'
   export default {
     data() {
       return {
         findPhoneLoading: false,
         showIndex: 0,
-        code: '',
         a: '',
         b: '',
         c: '',
@@ -89,15 +92,38 @@
         },
         // 显示密码
         pwdShow: false,
-        // 提交修改密码等待框
+        // 所有大按钮加载判断
         loading: false,
+        operateTypeListValue: ['1'],
+        operateTypeList: [
+          { key: '1', value: '车型件', inlineDesc: '例如:您经营一汽大众全车件,则您需要选择此项' },
+          { key: '2', value: '专项件', inlineDesc: '例如:您经营全部汽车品牌保险杠,则您需要选择此项' }
+        ],
         formData: {
+          storeName: '',
+          contacter: '',
+          shortName: '',
           uname: '',
-          password: ''
+          password: '',
+          code: '',
+          openId: '',
+          majorBusiness: 0,
+          majorBusinessIds: [],
+          provinceId: null,
+          provinceName: null,
+          cityId: null,
+          cityName: null,
+          regionId: null,
+          regionName: null,
+          attr: null,
+          // 营业执照存储路径
+          licenseImg: '',
+          channelSource: '1'
         }
       }
     },
     created() {
+      this.formData.openId = localStorage.getItem('openId')
     },
     mounted() {
       this.$refs.phone.focus()
@@ -112,18 +138,18 @@
       }
     },
     methods: {
-      async findPhone() {
+      async subPhone() {
         this.findPhoneLoading = true
         if (RE_PHONE.test(this.formData.uname)) {
           await this.$http.get('/noIntercept/supplier/check/' + this.formData.uname, this.formData).then((response) => {
-            if (!response.data) {
+            if (response.data) {
               this.sendMsg()
               this.showIndex = 1
               setTimeout(() => {
                 this.$refs.a.focus()
               }, 50)
             } else {
-              this.$vux.toast.text('该手机号没有注册过,请仔细核对', 'middle')
+              this.$vux.toast.text('该手机号已注册过,请直接登录', 'middle')
             }
           })
         } else {
@@ -146,40 +172,28 @@
       showPwd() {
         this.pwdShow ? this.pwdShow = false : this.pwdShow = true
       },
+      // 提交密码
       subPwd() {
-        if (!this.loading) {
-          if (this.formData.password.trim() && this.formData.password.length > 5) {
-            this.loading = true
-            this.$http.put('/noIntercept/members/password', this.formData).then((response) => {
-              localStorage.setItem(JWT_HEADER, JWT_TOKEN_HEAD + response.data.token)
-              axios.defaults.headers.common[JWT_HEADER] = JWT_TOKEN_HEAD + response.data.token
-              this.$vux.toast.show({
-                text: '修改成功',
-                position: 'middle',
-                time: '1200'
-              })
-              setTimeout(() => {
-                this.$router.push({
-                  name: 'quoteList'
-                })
-              }, 1400)
-            }).catch((error) => {
-              let result = error.response
-              result.status === 401 && this.$vux.toast.show({
-                text: '修改成功',
-                position: 'middle',
-                time: '1200'
-              })
-              setTimeout(() => {
-                this.$router.push({
-                  name: 'login'
-                })
-              }, 1400)
-            })
-          } else {
-            this.$vux.toast.text('请输入大于六位的密码', 'bottom')
-          }
+        if (!this.formData.password.trim() || this.formData.password.length < 5) {
+          this.$vux.toast.text('请输入大于六位的密码', 'bottom')
+        } else if (!this.formData.shortName || this.formData.shortName.length > 6) {
+          this.$vux.toast.text('请输入小于六位的昵称', 'bottom')
+        } else {
+          this.showIndex = 3
         }
+      },
+      chooseOperate() {
+        if (this.operateTypeListValue.length) {
+          this.formData.majorBusiness = +this.operateTypeListValue[0]
+          this.$store.commit(REGISTER_DATA, this.formData)
+          this.formData.majorBusiness === 1 && this.$router.push({ name: 'carBrandList', params: { type: 1 } })
+          this.formData.majorBusiness === 2 && this.$router.push({ name: 'carPartSorts', params: { type: 1 } })
+        } else {
+          this.$vux.toast.text('请选择经营范围', 'bottom')
+        }
+      },
+      subForm() {
+        this.showIndex = 5
       }
     },
     watch: {
@@ -225,36 +239,35 @@
       XInput,
       Flexbox,
       FlexboxItem,
-      Actionsheet
+      Actionsheet,
+      Checklist,
+      XAddress,
+      Msg
     }
   }
 </script>
 
 <style lang="less">
 @import "../../styles/sup.less";
-.c-pwd-find {
+.c-register-phone {
   overflow: hidden;
   .c-body {
     overflow: auto;
     height: calc(~"100vh - @{vux-header-height}");
     background-color: @s-background-color;
-    p {
-      text-align: center;
-    }
     .c-account {
+      padding: 0 10px 0 10px;
       .c-first {
-        font-size: @s-p-first-size;
-        padding-top: 10px;
+        padding: 15px 0 15px 0;
       }
-      .c-second {
-        font-size: @s-p-second-size;
-      }
-      .c-btn {
-        .display-flex;
-        .justify-content(center);
+      p {
+        text-align: center;
       }
     }
     .c-code {
+      p {
+        text-align: center;
+      }
       .weui-cell {
         padding-top: 0;
         padding-bottom: 0;
@@ -269,21 +282,6 @@
         padding: 15px 0 10px 0;
         color: @s-desc-font-color;
         font-size: 16px;
-      }
-    }
-    .c-pwd {
-      button.weui-btn,
-      input.weui-btn {
-        width: 80%;
-      }
-      .c-first {
-        font-size: 16px;
-        padding-top: 10px;
-        color: @s-desc-font-color;
-        span {
-          font-weight: 700;
-          color: #000;
-        }
       }
     }
   }

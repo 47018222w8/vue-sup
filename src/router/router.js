@@ -6,6 +6,8 @@ import { QUOTE_LIST_KEEP_ALIVE } from '../store/mutation-type'
 Vue.use(Router)
 const login = r => require.ensure([], () => r(require('@/page/login/login')), 'login')
 const register = r => require.ensure([], () => r(require('@/page/login/register')), 'register')
+const registerResult = r => require.ensure([], () => r(require('@/page/login/register-result')), 'registerResult')
+const registerPhone = r => require.ensure([], () => r(require('@/page/login/register-phone')), 'registerPhone')
 const pwdFind = r => require.ensure([], () => r(require('@/page/login/pwd-find')), 'pwdFind')
 const quote = r => require.ensure([], () => r(require('@/page/quote/quote')), 'quote')
 const quoteInfo = r => require.ensure([], () => r(require('@/page/quote/quote-info')), 'quoteInfo')
@@ -16,6 +18,7 @@ const supplierList = r => require.ensure([], () => r(require('@/page/supplier-li
 const error = r => require.ensure([], () => r(require('@/page/error')), 'error')
 const chat = r => require.ensure([], () => r(require('@/page/chat')), 'chat')
 const carBrandList = r => require.ensure([], () => r(require('@/page/shop/car-brand-list')), 'carBrandList')
+const carPartSorts = r => require.ensure([], () => r(require('@/page/shop/car-part-sorts')), 'carPartSorts')
 const home = r => require.ensure([], () => r(require('@/page/quote/home')), 'home')
 const newestQuote = r => require.ensure([], () => r(require('@/page/quote/quote-newest')), 'newestQuote')
 const screen = r => require.ensure([], () => r(require('@/page/quote/screen')), 'screen')
@@ -42,8 +45,9 @@ const router = new Router({
     name: 'login',
     component: login,
     beforeEnter: (to, from, next) => {
-      let a = localStorage.getItem(JWT_HEADER)
-      if (a) {
+      // 不管干啥先把openId存起来
+      to.query.openId && localStorage.setItem('openId', to.query.openId)
+      if (localStorage.getItem(JWT_HEADER)) {
         next('/home/quote/list')
       } else {
         next()
@@ -52,7 +56,24 @@ const router = new Router({
   }, {
     path: '/register',
     name: 'register',
-    component: register
+    component: register,
+    beforeEnter: (to, from, next) => {
+      // 直接跳页是不允许的
+      let data = store.state.registerData
+      if (data && data.code) {
+        next()
+      } else {
+        next('/login')
+      }
+    }
+  }, {
+    path: '/registerPhone',
+    name: 'registerPhone',
+    component: registerPhone
+  }, {
+    path: '/registerResult',
+    name: 'registerResult',
+    component: registerResult
   }, {
     path: '/pwdFind',
     name: 'pwdFind',
@@ -156,7 +177,7 @@ const router = new Router({
     name: 'account',
     component: account
   }, {
-    path: '/businessScope',
+    path: '/businessScope/:memberId',
     name: 'businessScope',
     component: businessScope
   }, {
@@ -175,6 +196,10 @@ const router = new Router({
     path: '/carBrand/list/:type',
     name: 'carBrandList',
     component: carBrandList
+  }, {
+    path: '/carPartSorts/:type',
+    name: 'carPartSorts',
+    component: carPartSorts
   }, {
     path: '/error',
     name: 'error',

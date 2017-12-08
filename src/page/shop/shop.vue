@@ -32,11 +32,11 @@
               </div>
             </flexbox-item>
             <flexbox-item style="margin-left:0px;">
-              <div class="c-fa s-div-right-border" @click="$router.push({name: 'customer'})">
+              <div class="c-fa s-div-right-border" @click="$router.push({name: 'carBrandList', params: { type: 0 }})">
                 <p style="color:#009688;">
                   <i slot="icon" class="fa fa-user fa-lg"></i>
                 </p>
-                <p>客户管理</p>
+                <p>品牌管理</p>
               </div>
             </flexbox-item>
             <flexbox-item style="margin-left:0px;">

@@ -11,8 +11,9 @@
     <div class="c-body">
       <p class="s-p-desc" style="padding-left:10px;">绿色为选中,点击可取消</p>
       <div class="s-checker-brand">
-        <checker v-model="formData.carBrand" @on-change="changeBrand" type="checkbox" default-item-class="s-checker-brand-default" selected-item-class="s-checker-brand-selected">
-          <checker-item :value="item" @on-item-click="changeBrandItem" v-for="(item, index) in carBrandList" :key="index">{{item.value}}</checker-item>
+        <load-more v-show="tipShow" :show-loading="loadingMore" :tip="tipText" background-color="#fbf9fe"></load-more>
+        <checker v-model="result" type="checkbox" default-item-class="s-checker-brand-default" selected-item-class="s-checker-brand-selected">
+          <checker-item :value="item" v-for="(item, index) in carBrandList" :key="index">{{item.value}}</checker-item>
         </checker>
       </div>
     </div>
@@ -20,48 +21,46 @@
 </template>
 
 <script>
-import { XHeader, Checker, CheckerItem } from 'vux'
-export default {
-  data() {
-    return {
-      formData: { carBrand: [{ key: 0, value: '全部' }] },
-      carBrandList: [{ key: 0, value: '全部' }]
-    }
-  },
-  created() {
-    this._initData()
-  },
-  methods: {
-    async _initData() {
-      await this.$http.get('/suppliers', { params: { flag: '1' } }).then((response) => {
-        response.data.forEach((value) => {
-          this.carBrandList.push({ key: value.carBrandId, value: value.carBrandName })
+  import { XHeader, Checker, CheckerItem, LoadMore } from 'vux'
+  export default {
+    data() {
+      return {
+        result: [],
+        carBrandList: [],
+        memberId: 0,
+        loadingMore: true,
+        tipShow: true,
+        tipText: '加载中...'
+      }
+    },
+    created() {
+      this.memberId = this.$route.params.memberId
+      this._initData()
+    },
+    methods: {
+      async _initData() {
+        await this.$http.get('/suppliers/son/' + this.memberId).then((response) => {
+          response.data.supList.forEach((value) => {
+            this.carBrandList.push({ key: value.carBrandId, value: value.carBrandName })
+          })
+          response.data.supSonList.forEach((value) => {
+            this.result.push({ key: value.carBrandId, value: value.carBrandName })
+          })
+          this.loadingMore = false
+          this.tipShow = false
         })
-      })
-    },
-    changeBrand(value) {
-      if (!value.length) {
-        this.formData.carBrand = [this.carBrandList[0]]
-      }
-      if (value.length === 2 && this.formData.carBrand[0].key === 0) {
-        this.formData.carBrand.splice(0, 1)
+      },
+      done() {
       }
     },
-    changeBrandItem(value) {
-      if (value.key === 0) {
-        this.formData.carBrand = []
-      }
-    },
-    done() {
+    components: {
+      scroll,
+      XHeader,
+      Checker,
+      CheckerItem,
+      LoadMore
     }
-  },
-  components: {
-    scroll,
-    XHeader,
-    Checker,
-    CheckerItem
   }
-}
 </script>
 
 <style lang="less">

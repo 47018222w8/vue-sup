@@ -18,7 +18,9 @@ const state = {
   // 报价数据
   quote: null,
   // 首页tabindex
-  homeTabIndex: 0
+  homeTabIndex: 0,
+  // 注册数据
+  registerData: null
 }
 export default new Vuex.Store({
   state,
