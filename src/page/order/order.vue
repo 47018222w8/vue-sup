@@ -12,11 +12,11 @@
         <p class="s-second-title">班车/上门取货/代收货款/¥{{ins.totalPrice}}</p>
       </div>
       <div class="s-div-block" style="padding-top:0px;">
-        <p class="s-second-title">{{ins.repairName}}</p>
+        <p class="s-second-title">{{ins.shipName}}</p>
         <flexbox>
           <flexbox-item :span="10">
-            <p class="s-p-desc">{{ins.memberAddress}}</p>
-            <p class="s-p-desc">{{ins.contacter}}&nbsp;&nbsp;{{ins.mobile}}</p>
+            <p class="s-p-desc">{{ins.shipArea}}</p>
+            <p class="s-p-desc">联系电话&nbsp;&nbsp;{{ins.mobile}}</p>
           </flexbox-item>
           <flexbox-item style="text-align:center;">
             <i style="color:#666;" class="fa fa-phone fa-lg"></i>
@@ -38,19 +38,19 @@
           </flexbox-item>
         </flexbox>
         <div class="s-div-top-border" style="padding-top:5px;" v-show="showPart">
-          <p>我是备注信息</p>
-          <flexbox v-for="(item, index) in partInfos" :key="index" >
+          <p>没有备注</p>
+          <flexbox v-for="(item, index) in partInfos" :key="index">
             <flexbox-item>
-              <p>{{item.name}}</p>
+              <p>{{item.goodsName}}</p>
             </flexbox-item>
             <flexbox-item :span="1">
-              <p>*{{item.amount}}</p>
+              <p>*{{item.num}}</p>
             </flexbox-item>
             <flexbox-item :span="3">
-              <p>{{item.propertyName}}</p>
+              <p>没有零件品质</p>
             </flexbox-item>
             <flexbox-item :span="2">
-              <p>¥{{item.targetPrice}}</p>
+              <p>¥{{item.goodsPrice}}</p>
             </flexbox-item>
           </flexbox>
         </div>
@@ -61,12 +61,12 @@
             <span style="color:red;">3000</span>
           </p>
         </cell>
-        <cell title="+运费:">
+        <cell title="运费:">
           <p>¥&nbsp;
             <span style="color:red;">{{ins.expressMoney}}</span>
           </p>
         </cell>
-        <cell title="+税:">
+        <cell title="税点:">
           <p>¥&nbsp;
             <span style="color:red;">{{ins.taxRate}}</span>
           </p>
@@ -80,59 +80,76 @@
       <group :gutter="10">
         <cell title="订单编号:" :value="ins.insNo"></cell>
         <cell title="下单时间:" :value="ins.orderTime"></cell>
-        <cell title="支付方式:" value="货到付款"></cell>
+        <cell title="支付方式:" :value="ins.paymentName"></cell>
         <cell title="发票信息:" value="不需要"></cell>
       </group>
     </div>
-    <div class="s-footer-btn">
-      <x-button style="width:80%" type="primary" @click.native="$router.push({name: 'send'})">确认接单并开始备货</x-button>
+    <div v-if="orderState === '7'" class="s-footer-btn">
+      <x-button style="width:80%" type="primary" @click.native="sub">确认接单并开始备货</x-button>
     </div>
   </div>
 </template>
 
 <script>
-import { XHeader, XButton, Flexbox, FlexboxItem, Group, Cell, CellBox } from 'vux'
-export default {
-  data() {
-    return {
-      ins: {},
-      partInfos: {},
-      showPart: true
-    }
-  },
-  created() {
-    this._initData()
-  },
-  methods: {
-    async _initData() {
-      await this.$http.get('/orders/' + this.$route.params.insId, { params: { state: '0' } }).then((response) => {
-        this.ins = response.data
-        this.partInfos = this.ins.partInfos
-      })
+  import { XHeader, XButton, Flexbox, FlexboxItem, Group, Cell, CellBox } from 'vux'
+  export default {
+    data() {
+      return {
+        ins: {},
+        partInfos: {},
+        showPart: true,
+        insId: this.$route.params.insId,
+        sonSn: this.$route.query.sonSn,
+        orderState: this.$route.query.orderState
+      }
     },
-    changeShowPart() {
-      this.showPart ? this.showPart = false : this.showPart = true
+    created() {
+      this._initData()
     },
-    toQuotePage() {
-      this.$router.push({
-        name: 'quote',
-        params: {
-          insId: this.$route.params.insId
-        }
-      })
+    methods: {
+      async _initData() {
+        await this.$http.get('/order/detail/' + this.insId + '/' + this.sonSn).then((response) => {
+          this.ins = response.data
+          this.partInfos = this.ins.itemList
+        })
+      },
+      changeShowPart() {
+        this.showPart ? this.showPart = false : this.showPart = true
+      },
+      sub() {
+        this.$http.get('/update/goodsReady/' + this.sonSn).then((response) => {
+          this.$vux.toast.show({
+            text: '接单成功,请准备发货',
+            position: 'middle',
+            time: '1400'
+          })
+          setTimeout(() => {
+            this.$router.push({
+              name: 'orders'
+            })
+          }, 1400)
+        })
+      },
+      toQuotePage() {
+        this.$router.push({
+          name: 'quote',
+          params: {
+            insId: this.$route.params.insId
+          }
+        })
+      }
+    },
+    components: {
+      scroll,
+      XHeader,
+      XButton,
+      Flexbox,
+      FlexboxItem,
+      Group,
+      Cell,
+      CellBox
     }
-  },
-  components: {
-    scroll,
-    XHeader,
-    XButton,
-    Flexbox,
-    FlexboxItem,
-    Group,
-    Cell,
-    CellBox
   }
-}
 </script>
 
 <style lang="less">

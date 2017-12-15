@@ -30,13 +30,9 @@
           </ul>
           <scroll ref="scrollRight" class="c-right" :data="reportPriceList[cLeftIndex].listRPI">
             <div>
-              <!-- <group :title="reportPriceList[cLeftIndex].name" label-width="4.5em" label-margin-right="2em" label-align="right">
-                <cell title="相关图片" is-link @click.native="showPartImg(cLeftIndex)"></cell>
-              </group> -->
               <group gutter="0" class="groupClass" v-for="(rpi,index) in reportPriceList[cLeftIndex].listRPI" :key="index" label-width="4.5em" label-margin-right="2em" label-align="right">
                 <popup-picker @on-show="qualityShow(index)" @on-change="changeQuality(index)" :data="qualityList" v-model="rpi.qrArry" :columns="1" title="零件品质" value-text-align="left" show-name></popup-picker>
-                <!-- <datetime @click.native="blur" v-model="rpi.canShipDateBsStr" format="YYYY-MM-DD HH" title="发货时间" value-text-align="left"></datetime> -->
-                <cell title="相关图片" is-link @click.native="showPartImg(cLeftIndex)"></cell>
+                <cell value-align="left" title="相关图片" :value="reportPriceList[cLeftIndex].imgPriviewList.length?'点击查看':'此零件没有图片'" is-link @click.native="showPartImg(cLeftIndex)"></cell>
                 <x-input @on-focus="onFocus(index)" title="金额" v-model="rpi.reportPrice" type="number"></x-input>
                 <x-textarea style="padding-bottom: 0;" title="备注" v-model="rpi.remark" :show-counter="false" :rows="3" :max="100"></x-textarea>
                 <div style="text-align: center;padding-top: 5px;padding-bottom:5px;">
@@ -63,353 +59,344 @@
 </template>
 
 <script>
-import { XHeader, Spinner, XButton, Step, StepItem, GroupTitle, Badge, Swiper, TransferDom, CellFormPreview, Flexbox, FlexboxItem, XTextarea, XInput, Datetime, Selector, PopupPicker, Cell, Group, Tab, TabItem, Previewer } from 'vux'
-import { RE_MONEY } from '@/components/constant'
-import { REPORT_PRICE_LIST } from '@/store/mutation-type'
-import scroll from '@/components/scroll'
-export default {
-  directives: {
-    TransferDom
-  },
-  data() {
-    return {
-      irpe: {
-        insId: this.$route.params.insId,
-        expressMoney: null,
-        taxRate: null,
-        canShipDateBsStr: null
-      },
-      reportPriceList: [], // 零件信息
-      iilKey: 'reportPriceList' + this.$route.params.insId, // 本地存储key
-      qualityList: [], // 零件品质
-      carInfo: [], // 车辆信息
-      tabIndex: 0, // tab索引
-      cLeftIndex: 0, // menu索引
-      imgPriviewList: [{ src: 'http://img1.gamersky.com/image2017/11/20171111_zy_164_2/image003.jpg', w: 600, h: 400 },
-      { src: 'http://img1.gamersky.com/image2017/11/20171111_zy_164_2/image006.jpg', w: 600, h: 400 }], // 零件图预览
-      carInfoTitle: '', //
-      insImgList: [{img: 'http://img1.gamersky.com/image2017/11/20171111_zy_164_2/image006.jpg'},
-      {img: 'http://img1.gamersky.com/image2017/11/20171111_zy_164_2/image003.jpg '}], // 询价单图片信息\
-      partInfosHeight: [], // 右边零件高度
-      subLoading: false, // 提交等待
-      isAndroid: null, // 是否是安卓
-      qualityC: null, // 弹出时零件品质
-      isOperProdList: [
-        {
-          value: '0', // 沃日,show-name只能用string
-          name: '经营',
-          parent: 0
-        }, {
-          value: '1',
-          name: '不经营',
-          parent: 0
-        }]// 是否经营
-    }
-  },
-  created() {
-    this._initData()
-    let u = navigator.userAgent
-    this.isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1
-  },
-  mounted() {
-
-  },
-  computed: {
-
-  },
-  methods: {
-    // 初始化数据
-    async _initData() {
-      await this.$http.get('/insruances/' + this.irpe.insId, { params: { state: '0' } }).then((response) => {
-        let quote = response.data
-        // 零件品质
-        let qualityList = quote.qualityList
-        for (let i = 0; i < qualityList.length; i++) {
-          this.qualityList.push({
-            value: String(qualityList[i].id), // 沃日,show-name只能用string
-            name: qualityList[i].propertyName,
-            parent: 0
-          })
-        }
-        // 零件列表
-        let reportPriceList = localStorage.getItem(this.iilKey)
-        if (reportPriceList) {
-          reportPriceList = JSON.parse(reportPriceList)
-        } else {
-          reportPriceList = quote.reportPriceList
-          console.log(reportPriceList)
-          for (let i = 0; i < reportPriceList.length; i++) {
-            let listRPI = [{
-              canShipDateBsStr: '2017-01-01 01',
-              reportPrice: null,
-              qrArry: [this.qualityList[0].value], // 坑爹的数组 vmodel的是数组,需要自己在转为要提交的格式
-              qualityRequirement: this.qualityList[0].value,
-              remark: null
-            }]
-            reportPriceList[i].imgPriviewList = []
-            reportPriceList[i].img && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img, w: 600, h: 400 })
-            reportPriceList[i].img1 && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img1, w: 600, h: 400 })
-            reportPriceList[i].img2 && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img2, w: 600, h: 400 })
-            reportPriceList[i].img3 && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img3, w: 600, h: 400 })
-            reportPriceList[i].img4 && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img4, w: 600, h: 400 })
-            reportPriceList[i].iopArry = [1] // 1为不经营
-            reportPriceList[i].isOperProd = this.isOperProdList[0].value
-            reportPriceList[i].done = 0 // 0:不经营 1:已完成 2:格式错误
-            reportPriceList[i].listRPI = listRPI
-          }
-        }
-        this.reportPriceList = reportPriceList
-        // 询价单信息
-        let ins = quote.ins
-        ins.rearImg && this.insImgList.push({
-          img: quote.domain + ins.rearImg,
-          title: '车尾照片'
-        })
-        ins.frontImg && this.insImgList.push({
-          img: quote.domain + ins.frontImg,
-          title: '车头照片'
-        })
-        ins.driveLicense && this.insImgList.push({
-          img: quote.domain + ins.driveLicense,
-          title: '行车证照片'
-        })
-        this.irpe.insNo = ins.insNo
-        this.irpe.repairName = ins.entMemberName
-        this.irpe.carNo = ins.carNo
-        this.irpe.carMark = ins.carMark
-        this.irpe.arriveTimeStr = ins.arriveTimeStr
-        this.carInfoTitle = ins.carBrandName
-        this.carInfo.splice(0, 0, { label: '车型', value: ins.carMark },
+  import { XHeader, Spinner, XButton, Step, StepItem, GroupTitle, Badge, Swiper, TransferDom, CellFormPreview, Flexbox, FlexboxItem, XTextarea, XInput, Datetime, Selector, PopupPicker, Cell, Group, Tab, TabItem, Previewer } from 'vux'
+  import { RE_MONEY } from '@/components/constant'
+  import { REPORT_PRICE_LIST } from '@/store/mutation-type'
+  import scroll from '@/components/scroll'
+  export default {
+    directives: {
+      TransferDom
+    },
+    data() {
+      return {
+        irpe: {
+          insId: this.$route.params.insId,
+          expressMoney: null,
+          taxRate: null,
+          canShipDateBsStr: null
+        },
+        reportPriceList: [], // 零件信息
+        iilKey: 'reportPriceList' + this.$route.params.insId, // 本地存储key
+        qualityList: [], // 零件品质
+        carInfo: [], // 车辆信息
+        tabIndex: 0, // tab索引
+        cLeftIndex: 0, // menu索引
+        imgPriviewList: [{ src: 'http://img1.gamersky.com/image2017/11/20171111_zy_164_2/image003.jpg', w: 600, h: 400 },
+        { src: 'http://img1.gamersky.com/image2017/11/20171111_zy_164_2/image006.jpg', w: 600, h: 400 }], // 零件图预览
+        carInfoTitle: '', //
+        insImgList: [{ img: 'http://img1.gamersky.com/image2017/11/20171111_zy_164_2/image006.jpg' },
+        { img: 'http://img1.gamersky.com/image2017/11/20171111_zy_164_2/image003.jpg ' }], // 询价单图片信息\
+        partInfosHeight: [], // 右边零件高度
+        subLoading: false, // 提交等待
+        isAndroid: null, // 是否是安卓
+        qualityC: null, // 弹出时零件品质
+        isOperProdList: [
           {
-            label: '车牌号',
-            value: ins.carNo ? ins.carNo : '无'
+            value: '0', // 沃日,show-name只能用string
+            name: '经营',
+            parent: 0
           }, {
-            label: '单号',
-            value: ins.insNo
-          }, {
-            label: 'vin',
-            value: ins.vin === '00000000000000000' ? '无' : ins.vin
-          }, {
-            label: '到货时间',
-            value: ins.arriveTimeStr
-          }, {
-            label: '修理厂',
-            value: ins.entMemberName
-          }, {
-            label: '地址',
-            value: ins.address
-          }, {
-            label: '是否需要发票',
-            value: ins.invoice === 1 ? '需要' : '不需要'
-          })
-      })
-      this._calculateHeight()
-    },
-    // 显示零件图片
-    showPartImg(index) {
-      this.blur
-      if (this.reportPriceList[index].imgPriviewList.length > 0) {
-        this.imgPriviewList = this.reportPriceList[index].imgPriviewList
-        this.$nextTick(() => {
-          this.$refs.previewer.show(0)
-        })
-      } else {
-        this.$vux.toast.text('此零件没有图片', 'bottom')
+            value: '1',
+            name: '不经营',
+            parent: 0
+          }]// 是否经营
       }
     },
-    showInsImg() {
-      this.$refs.previewer.show(0)
+    created() {
+      this._initData()
+      let u = navigator.userAgent
+      this.isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1
     },
-    // 验证是否完成
-    validateDone(index) {
-      let rpi = this.reportPriceList[index].listRPI
-      if (rpi.length === 1 && !rpi[0].reportPrice) {
-        this.reportPriceList[index].isOperProd = '1'
-        this.reportPriceList[index].done = 0
-      } else {
-        this.reportPriceList[index].isOperProd = '0'
-        this.reportPriceList[index].done = 1
-        for (let i = 0; i < rpi.length; i++) {
-          if (!RE_MONEY.test(rpi[i].reportPrice) || !rpi[i].qualityRequirement) {
-            this.reportPriceList[index].done = 2
+    mounted() {
+
+    },
+    computed: {
+      imgValue() {
+
+      }
+    },
+    methods: {
+      // 初始化数据
+      async _initData() {
+        await this.$http.get('/insruances/' + this.irpe.insId, { params: { state: '0' } }).then((response) => {
+          let quote = response.data
+          // 零件品质
+          let qualityList = quote.qualityList
+          for (let i = 0; i < qualityList.length; i++) {
+            this.qualityList.push({
+              value: String(qualityList[i].id), // 沃日,show-name只能用string
+              name: qualityList[i].propertyName,
+              parent: 0
+            })
+          }
+          // 零件列表
+          let reportPriceList = localStorage.getItem(this.iilKey)
+          if (reportPriceList) {
+            reportPriceList = JSON.parse(reportPriceList)
+          } else {
+            reportPriceList = quote.reportPriceList
+            for (let i = 0; i < reportPriceList.length; i++) {
+              let listRPI = [{
+                canShipDateBsStr: '2017-01-01 01',
+                reportPrice: null,
+                qrArry: [this.qualityList[0].value], // 坑爹的数组 vmodel的是数组,需要自己在转为要提交的格式
+                qualityRequirement: this.qualityList[0].value,
+                remark: null
+              }]
+              reportPriceList[i].imgPriviewList = []
+              reportPriceList[i].img && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img, w: 600, h: 400 })
+              reportPriceList[i].img1 && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img1, w: 600, h: 400 })
+              reportPriceList[i].img2 && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img2, w: 600, h: 400 })
+              reportPriceList[i].img3 && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img3, w: 600, h: 400 })
+              reportPriceList[i].img4 && reportPriceList[i].imgPriviewList.push({ src: quote.domain + reportPriceList[i].img4, w: 600, h: 400 })
+              reportPriceList[i].iopArry = [1] // 1为不经营
+              reportPriceList[i].isOperProd = this.isOperProdList[0].value
+              reportPriceList[i].done = 0 // 0:不经营 1:已完成 2:格式错误
+              reportPriceList[i].listRPI = listRPI
+            }
+          }
+          this.reportPriceList = reportPriceList
+          // 询价单信息
+          let ins = quote.ins
+          ins.rearImg && this.insImgList.push({
+            img: quote.domain + ins.rearImg,
+            title: '车尾照片'
+          })
+          ins.frontImg && this.insImgList.push({
+            img: quote.domain + ins.frontImg,
+            title: '车头照片'
+          })
+          ins.driveLicense && this.insImgList.push({
+            img: quote.domain + ins.driveLicense,
+            title: '行车证照片'
+          })
+          this.irpe.insNo = ins.insNo
+          this.irpe.repairName = ins.entMemberName
+          this.irpe.carNo = ins.carNo
+          this.irpe.carMark = ins.carMark
+          this.irpe.arriveTimeStr = ins.arriveTimeStr
+          this.carInfoTitle = ins.carBrandName
+          this.carInfo.splice(0, 0, { label: '车型', value: ins.carMark },
+            {
+              label: '车牌号',
+              value: ins.carNo ? ins.carNo : '无'
+            }, {
+              label: '单号',
+              value: ins.insNo
+            }, {
+              label: 'vin',
+              value: ins.vin === '00000000000000000' ? '无' : ins.vin
+            }, {
+              label: '到货时间',
+              value: ins.arriveTimeStr
+            }, {
+              label: '修理厂',
+              value: ins.entMemberName
+            }, {
+              label: '地址',
+              value: ins.address
+            }, {
+              label: '是否需要发票',
+              value: ins.invoice === 1 ? '需要' : '不需要'
+            })
+        })
+        this._calculateHeight()
+      },
+      // 显示零件图片
+      showPartImg(index) {
+        this.blur
+        if (this.reportPriceList[index].imgPriviewList.length > 0) {
+          this.imgPriviewList = this.reportPriceList[index].imgPriviewList
+          this.$nextTick(() => {
+            this.$refs.previewer.show(0)
+          })
+        } else {
+          this.$vux.toast.text('此零件没有图片', 'bottom')
+        }
+      },
+      showInsImg() {
+        this.$refs.previewer.show(0)
+      },
+      // 验证是否完成
+      validateDone(index) {
+        let rpi = this.reportPriceList[index].listRPI
+        if (rpi.length === 1 && !rpi[0].reportPrice) {
+          // 不经营
+          this.reportPriceList[index].isOperProd = '1'
+          this.reportPriceList[index].done = 0
+        } else {
+          this.reportPriceList[index].isOperProd = '0'
+          this.reportPriceList[index].done = 1
+          for (let i = 0; i < rpi.length; i++) {
+            if (!RE_MONEY.test(rpi[i].reportPrice) || !rpi[i].qualityRequirement) {
+              this.reportPriceList[index].done = 2
+              break
+            }
+          }
+        }
+      },
+      // 选择零件时保存数据
+      savePart(index) {
+        this.validateDone(this.cLeftIndex)
+        this._calculateHeight()
+        this.cLeftIndex = index
+        localStorage.setItem(this.iilKey, JSON.stringify(this.reportPriceList))
+      },
+      // 返回
+      back() {
+        this.$router.go(-1)
+      },
+      // 提供更多品质报价
+      addMoreQuality() {
+        if (this.reportPriceList[this.cLeftIndex].listRPI.length < this.qualityList.length) {
+          let qrValue = null
+          for (let i = 0; i < this.qualityList.length; i++) {
+            let f = true
+            this.reportPriceList[this.cLeftIndex].listRPI.forEach((item) => {
+              if (item.qrArry[0] === this.qualityList[i].value) {
+                f = false
+              }
+            })
+            if (f) {
+              qrValue = this.qualityList[i].value
+              break
+            }
+          }
+          this.reportPriceList[this.cLeftIndex].listRPI.push({
+            canShipDateBsStr: null,
+            reportPrice: null,
+            qrArry: [qrValue],
+            qualityRequirement: this.qualityList[0].value,
+            remark: null
+          })
+        } else {
+          this.$vux.toast.text('无法添加更多品质', 'bottom')
+        }
+        setTimeout((e) => {
+          this._calculateHeight()
+        }, 150)
+      },
+      // 删除品质报价
+      delMoreQuality(index) {
+        this.reportPriceList[this.cLeftIndex].listRPI.splice(index, 1)
+        setTimeout((e) => {
+          this._calculateHeight()
+        }, 150)
+      },
+      // 修改一个品质时,检查是否其它品质已有此品质,如有,则提示,并不修改
+      changeQuality(index) {
+        for (let i = 0; i < this.reportPriceList[this.cLeftIndex].listRPI.length; i++) {
+          let item = this.reportPriceList[this.cLeftIndex].listRPI[i]
+          if (i !== index && item.qrArry[0] === this.reportPriceList[this.cLeftIndex].listRPI[index].qrArry[0]) {
+            this.reportPriceList[this.cLeftIndex].listRPI[index].qrArry[0] = this.qualityC
+            this.$vux.toast.text('已含有该品质', 'bottom')
             break
           }
         }
-      }
-    },
-    // 选择零件时保存数据
-    savePart(index) {
-      this.validateDone(this.cLeftIndex)
-      this._calculateHeight()
-      this.cLeftIndex = index
-      localStorage.setItem(this.iilKey, JSON.stringify(this.reportPriceList))
-    },
-    // 返回
-    back() {
-      this.$router.go(-1)
-    },
-    // 提供更多品质报价
-    addMoreQuality() {
-      if (this.reportPriceList[this.cLeftIndex].listRPI.length < this.qualityList.length) {
-        let qrValue = null
+      },
+      qualityShow(index) {
+        this.blur()
+        // 更换品质必弹出,记住此时的零件品质,用以更新零件品质
         for (let i = 0; i < this.qualityList.length; i++) {
-          let f = true
-          this.reportPriceList[this.cLeftIndex].listRPI.forEach((item) => {
-            if (item.qrArry[0] === this.qualityList[i].value) {
-              f = false
-            }
-          })
-          if (f) {
-            qrValue = this.qualityList[i].value
+          if (this.qualityList[i].value === this.reportPriceList[this.cLeftIndex].listRPI[index].qrArry[0]) {
+            this.qualityC = this.reportPriceList[this.cLeftIndex].listRPI[index].qrArry[0]
             break
           }
         }
-        this.reportPriceList[this.cLeftIndex].listRPI.push({
-          canShipDateBsStr: null,
-          reportPrice: null,
-          qrArry: [qrValue],
-          qualityRequirement: this.qualityList[0].value,
-          remark: null
-        })
-      } else {
-        this.$vux.toast.text('无法添加更多品质', 'bottom')
-      }
-      setTimeout((e) => {
-        this._calculateHeight()
-      }, 150)
-    },
-    // 删除品质报价
-    delMoreQuality(index) {
-      this.reportPriceList[this.cLeftIndex].listRPI.splice(index, 1)
-      setTimeout((e) => {
-        this._calculateHeight()
-      }, 150)
-    },
-    // 修改一个品质时,检查是否其它品质已有此品质,如有,则提示,并不修改
-    changeQuality(index) {
-      for (let i = 0; i < this.reportPriceList[this.cLeftIndex].listRPI.length; i++) {
-        let item = this.reportPriceList[this.cLeftIndex].listRPI[i]
-        if (i !== index && item.qrArry[0] === this.reportPriceList[this.cLeftIndex].listRPI[index].qrArry[0]) {
-          this.reportPriceList[this.cLeftIndex].listRPI[index].qrArry[0] = this.qualityC
-          this.$vux.toast.text('已含有该品质', 'bottom')
-          break
-        }
-      }
-    },
-    qualityShow(index) {
-      this.blur()
-      // 更换品质必弹出,记住此时的零件品质,用以更新零件品质
-      for (let i = 0; i < this.qualityList.length; i++) {
-        if (this.qualityList[i].value === this.reportPriceList[this.cLeftIndex].listRPI[index].qrArry[0]) {
-          this.qualityC = this.reportPriceList[this.cLeftIndex].listRPI[index].qrArry[0]
-          break
-        }
-      }
-    },
-    // 提交报价
-    subForm() {
-      this.validateDone(this.cLeftIndex)
-      let reportPriceList = this.reportPriceList
-      for (let i = 0; i < reportPriceList.length; i++) {
-        if (reportPriceList[i].done === 2) {
-          this.$vux.alert.show({
-            title: '提示',
-            content: '带x的零件请输入正确的金额'
-          })
-          return
-        }
-      }
-      let listRP = [] // 提交的集合
-      let listRPShow = [] // 展示的集合
-      for (let i = 0; i < reportPriceList.length; i++) {
-        for (let j = 0; j < reportPriceList[i].listRPI.length; j++) {
-          reportPriceList[i].listRPI[j].qualityRequirement = reportPriceList[i].listRPI[j].qrArry[0]
-          for (let k = 0; k < this.qualityList.length; k++) {
-            if (this.qualityList[i].value === reportPriceList[i].listRPI[j].qualityRequirement) {
-              reportPriceList[i].listRPI[j].qualityRequirementName = this.qualityList[i].name
-            }
+      },
+      // 提交报价
+      subForm() {
+        this.validateDone(this.cLeftIndex)
+        let reportPriceList = this.reportPriceList
+        for (let i = 0; i < reportPriceList.length; i++) {
+          if (reportPriceList[i].done === 2) {
+            this.$vux.alert.show({
+              title: '提示',
+              content: '带x的零件请输入正确的金额'
+            })
+            return
           }
         }
-        listRP.push({
-          id: reportPriceList[i].id,
-          isOperProd: reportPriceList[i].iopArry[0], // 是否经营
-          name: reportPriceList[i].name, // 名称
-          listRPI: reportPriceList[i].listRPI // 报价结果
-        })
-        reportPriceList[i].done === 1 && listRPShow.push({
-          id: reportPriceList[i].id,
-          isOperProd: reportPriceList[i].iopArry[0], // 是否经营
-          name: reportPriceList[i].name, // 名称
-          listRPI: reportPriceList[i].listRPI // 报价结果
-        })
+        let listRP = [] // 提交的集合
+        let listRPShow = [] // 展示的集合
+        for (let i = 0; i < reportPriceList.length; i++) {
+          for (let j = 0; j < reportPriceList[i].listRPI.length; j++) {
+            reportPriceList[i].listRPI[j].qualityRequirement = reportPriceList[i].listRPI[j].qrArry[0]
+            for (let k = 0; k < this.qualityList.length; k++) {
+              if (this.qualityList[i].value === reportPriceList[i].listRPI[j].qualityRequirement) {
+                reportPriceList[i].listRPI[j].qualityRequirementName = this.qualityList[i].name
+                break
+              }
+            }
+          }
+          listRP.push({
+            id: reportPriceList[i].id,
+            isOperProd: reportPriceList[i].isOperProd, // 是否经营
+            name: reportPriceList[i].name, // 名称
+            listRPI: reportPriceList[i].listRPI // 报价结果
+          })
+          reportPriceList[i].done === 1 && listRPShow.push({
+            id: reportPriceList[i].id,
+            isOperProd: reportPriceList[i].isOperProd, // 是否经营
+            name: reportPriceList[i].name, // 名称
+            listRPI: reportPriceList[i].listRPI // 报价结果
+          })
+        }
+        this.irpe.listRP = listRP
+        this.irpe.listRPShow = listRPShow
+        this.$store.commit(REPORT_PRICE_LIST, this.irpe)
+        localStorage.setItem(this.iilKey, JSON.stringify(this.reportPriceList))
+        this.$router.push({ name: 'quoteInfo', params: { insId: this.irpe.insId } })
+      },
+      // 计算高度
+      _calculateHeight() {
+        let partInfos = this.$refs.part.querySelectorAll('.groupClass')
+        let height = 0
+        this.partInfosHeight.length = 0
+        for (let i = 0, l = partInfos.length; i < l; i++) {
+          let item = partInfos[i]
+          height += item.clientHeight
+          this.partInfosHeight.push(height)
+        }
+      },
+      // 哔了狗的虚拟键盘遮挡
+      onFocus(index) {
+        // 键盘弹出需要时间
+        this.isAndroid && setTimeout((e) => {
+          this.$refs.scrollRight.scrollTo(0, -this.partInfosHeight[index], 300)
+        }, 200)
+      },
+      // 失去全部焦点
+      blur() {
+        document.activeElement.blur()
       }
-      this.irpe.listRP = listRP
-      this.irpe.listRPShow = listRPShow
-      this.$store.commit(REPORT_PRICE_LIST, this.irpe)
-      localStorage.setItem(this.iilKey, JSON.stringify(this.reportPriceList))
-      this.$router.push({ name: 'quoteInfo', params: { insId: this.irpe.insId } })
-      // this.$http.post('/reportPriceInfos', this.irpe).then((response) => {
-      //   this.$vux.toast.show({
-      //     text: '报价成功',
-      //     time: 1500,
-      //     position: 'middle'
-      //   })
-      //   setTimeout((e) => {
-      //     this.$router.push({
-      //       name: 'quoteList'
-      //     })
-      //   }, 1400)
-      // })
     },
-    // 计算高度
-    _calculateHeight() {
-      let partInfos = this.$refs.part.querySelectorAll('.groupClass')
-      let height = 0
-      this.partInfosHeight.length = 0
-      for (let i = 0, l = partInfos.length; i < l; i++) {
-        let item = partInfos[i]
-        height += item.clientHeight
-        this.partInfosHeight.push(height)
-      }
-    },
-    // 哔了狗的虚拟键盘遮挡
-    onFocus(index) {
-      // 键盘弹出需要时间
-      this.isAndroid && setTimeout((e) => {
-        this.$refs.scrollRight.scrollTo(0, -this.partInfosHeight[index], 300)
-      }, 200)
-    },
-    // 失去全部焦点
-    blur() {
-      document.activeElement.blur()
+    components: {
+      XHeader,
+      Cell,
+      Group,
+      GroupTitle,
+      Tab,
+      TabItem,
+      PopupPicker,
+      Selector,
+      Datetime,
+      XInput,
+      XTextarea,
+      Flexbox,
+      FlexboxItem,
+      CellFormPreview,
+      Previewer,
+      Swiper,
+      Badge,
+      TransferDom,
+      scroll,
+      Step,
+      StepItem,
+      XButton,
+      Spinner
     }
-  },
-  components: {
-    XHeader,
-    Cell,
-    Group,
-    GroupTitle,
-    Tab,
-    TabItem,
-    PopupPicker,
-    Selector,
-    Datetime,
-    XInput,
-    XTextarea,
-    Flexbox,
-    FlexboxItem,
-    CellFormPreview,
-    Previewer,
-    Swiper,
-    Badge,
-    TransferDom,
-    scroll,
-    Step,
-    StepItem,
-    XButton,
-    Spinner
   }
-}
 </script>
 
 <style  lang="less">

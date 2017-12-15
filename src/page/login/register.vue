@@ -10,7 +10,7 @@
         <group title="您填写的信息只用于注册，我们会严格保密，请放心填写" label-width="5em" label-margin-right="2em" label-align="right">
           <x-input title="企业名称" :max="50" placeholder="同营业执照一致" v-model="formData.storeName"></x-input>
           <x-input title="企业法人" :max="50" placeholder="同营业执照一致" v-model="formData.contacter"></x-input>
-          <x-address v-model="region" title="所属省市区" value-text-align="left" :list="addressData" placeholder="请选择企业所在的区域" :show.sync="showAddress"></x-address>
+          <x-address v-model="region" title="所属省市区"  value-text-align="left" :list="addressData" placeholder="请选择企业所在的区域"></x-address>
           <x-input title="详细地址" :max="50" placeholder="请填写详细地址" v-model="formData.attr"></x-input>
         </group>
         <br>
@@ -40,7 +40,6 @@
         formData: null,
         region: ['7', '85', '908'],
         addressData: [],
-        showAddress: false,
         imgShow: false,
         imgSrc: ''
       }
@@ -86,6 +85,7 @@
           this.$vux.toast.text('请上传营业执照', 'bottom')
           return
         }
+        this.loading = true
         this.addressData.forEach(item => {
           if (item.value === this.region[0]) {
             this.formData.provinceId = item.value

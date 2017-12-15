@@ -8,7 +8,6 @@ import App from './App'
 import { ToastPlugin, LoadingPlugin, AlertPlugin, ConfirmPlugin } from 'vux'
 import axios from 'axios'
 import { BASE_URL, JWT_HEADER } from './components/constant'
-import { QUOTE_LIST_KEEP_ALIVE } from './store/mutation-type'
 Vue.use(LoadingPlugin)
 Vue.use(ToastPlugin)
 Vue.use(AlertPlugin)
@@ -28,8 +27,6 @@ axios.interceptors.response.use(function (response) {
       })
       throw error
     } else if (result.status === 401 && result.data.code === 'AUTHORIZATION_EXPIRED') {
-      // 不再缓存
-      store.commit(QUOTE_LIST_KEEP_ALIVE, { keepAlive: false })
       localStorage.removeItem(JWT_HEADER)
       Vue.$vux.toast.text('登录超时,即将返回登录页', 'bottom')
       setTimeout(() => {

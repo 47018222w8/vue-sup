@@ -53,10 +53,10 @@
       <div class="s-footer-btn">
         <flexbox>
           <flexbox-item>
-            <x-button style="width:80%" @click.native="toQuotePage">修改报价</x-button>
+            <x-button style="width:90%" :disabled="loading" @click.native="toQuotePage">修改报价</x-button>
           </flexbox-item>
           <flexbox-item>
-            <x-button style="width:80%" :disabled="loading" :show-loading="loading" @click.native="sub" type="primary">提交报价</x-button>
+            <x-button style="width:90%" :disabled="loading" :show-loading="loading" @click.native="sub" type="primary">提交报价</x-button>
           </flexbox-item>
         </flexbox>
       </div>
@@ -65,73 +65,62 @@
 </template>
 
 <script>
-import { XHeader, XButton, Flexbox, FlexboxItem, Cell, Group, CellBox, XInput, Datetime } from 'vux'
-import { RE_MONEY } from '@/components/constant'
-export default {
-  data() {
-    return {
-      quote: this.$store.state.quote,
-      loading: false
-    }
-  },
-  created() {
-    !this.quote && this.toQuotePage()
-  },
-  methods: {
-    toQuotePage() {
-      this.$router.go(-1)
+  import { XHeader, XButton, Flexbox, FlexboxItem, Cell, Group, CellBox, XInput, Datetime } from 'vux'
+  import { RE_MONEY } from '@/components/constant'
+  export default {
+    data() {
+      return {
+        quote: this.$store.state.quote,
+        loading: false
+      }
     },
-    sub() {
-      if (this.validate()) {
-        this.loading = true
-        this.$vux.toast.show({
-          text: '报价成功',
-          time: 1500,
-          position: 'middle'
-        })
-      }
-      // this.$http.post('/reportPriceInfos', this.irpe).then((response) => {
-      //   this.$vux.toast.show({
-      //     text: '报价成功',
-      //     time: 1500,
-      //     position: 'middle'
-      //   })
-      //   setTimeout((e) => {
-      //     this.$router.push({
-      //       name: 'quoteList'
-      //     })
-      //   }, 1400)
-      // })
+    created() {
+      !this.quote && this.toQuotePage()
     },
-    validate() {
-      if (!RE_MONEY.test(this.quote.expressMoney)) {
-        this.$vux.toast.text('请输入正确的运费', 'bottom')
-        return false
+    methods: {
+      toQuotePage() {
+        this.$router.go(-1)
+      },
+      sub() {
+        if (this.validate() && !this.loading) {
+          this.loading = true
+          console.log(this.quote)
+          // this.$http.post('/reportPriceInfos', this.quote).then((response) => {
+          //   this.$router.push({
+          //     name: 'quoteSuccess'
+          //   })
+          // })
+        }
+      },
+      validate() {
+        if (!RE_MONEY.test(this.quote.expressMoney)) {
+          this.$vux.toast.text('请输入正确的运费', 'bottom')
+          return false
+        }
+        if (this.quote.taxRate === '') {
+          this.$vux.toast.text('请输入税点', 'bottom')
+          return false
+        }
+        if (!this.quote.canShipDateBsStr) {
+          this.$vux.toast.text('请输入税点', 'bottom')
+          return false
+        }
+        return true
       }
-      if (this.quote.taxRate === '') {
-        this.$vux.toast.text('请输入税点', 'bottom')
-        return false
-      }
-      if (!this.quote.canShipDateBsStr) {
-        this.$vux.toast.text('请输入税点', 'bottom')
-        return false
-      }
-      return true
+    },
+    components: {
+      scroll,
+      XHeader,
+      XButton,
+      Flexbox,
+      FlexboxItem,
+      Cell,
+      Group,
+      CellBox,
+      XInput,
+      Datetime
     }
-  },
-  components: {
-    scroll,
-    XHeader,
-    XButton,
-    Flexbox,
-    FlexboxItem,
-    Cell,
-    Group,
-    CellBox,
-    XInput,
-    Datetime
   }
-}
 </script>
 
 <style lang="less">

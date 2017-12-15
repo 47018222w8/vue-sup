@@ -82,7 +82,7 @@
     },
     created() {
       if (this.type === 0) {
-        this.backParam.name = 'supplierList'
+        this.backParam.name = 'supCarBrand'
         this._initData0()
       }
       if (this.type === 1) {

@@ -60,7 +60,7 @@
         <br>
         <x-button :text="loading?'保存中...':'保存新密码'" :disabled="loading" @click.native="subPwd" :show-loading="loading" type="primary"></x-button>
         <br>
-        <p style="color:#0091ea;">暂不设置,先进入找件儿</p>
+        <!-- <p style="color:#0091ea;">暂不设置,先进入找件儿</p> -->
       </div>
       <actionsheet v-model="showCode" :menus="menus2" show-cancel></actionsheet>
     </div>
@@ -121,7 +121,7 @@
               this.showIndex = 1
               setTimeout(() => {
                 this.$refs.a.focus()
-              }, 50)
+              }, 250)
             } else {
               this.$vux.toast.text('该手机号没有注册过,请仔细核对', 'middle')
             }

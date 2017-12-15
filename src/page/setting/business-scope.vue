@@ -1,19 +1,19 @@
 <template>
   <div class="c-business-scope">
     <x-header :left-options="{preventGoBack:true,showBack:false}" :right-options="{showMore:false}" title="负责业务范围">
-      <div slot="left" @click="$router.push({name: 'account'})">
-        取消
+      <div slot="overwrite-left" @click="back">
+        <i slot="icon" class="fa fa-chevron-left fa-lg"></i>
       </div>
-      <div class="s-p-desc" slot="right" @click="done">
-        完成
+      <div slot="right" v-if="memberId">
+        <p :class="result.length?'':'s-p-desc'" @click="done">完成</p>
       </div>
     </x-header>
     <div class="c-body">
-      <p class="s-p-desc" style="padding-left:10px;">绿色为选中,点击可取消</p>
+      <p class="s-p-desc" style="padding-left:10px;">绿色为经营范围</p>
       <div class="s-checker-brand">
         <load-more v-show="tipShow" :show-loading="loadingMore" :tip="tipText" background-color="#fbf9fe"></load-more>
         <checker v-model="result" type="checkbox" default-item-class="s-checker-brand-default" selected-item-class="s-checker-brand-selected">
-          <checker-item :value="item" v-for="(item, index) in carBrandList" :key="index">{{item.value}}</checker-item>
+          <checker-item :disabled="memberId?false:true" :value="item" v-for="(item, index) in carBrandList" :key="index">{{item.value}}</checker-item>
         </checker>
       </div>
     </div>
@@ -50,7 +50,36 @@
           this.tipShow = false
         })
       },
+      back() {
+        window.history.go(-1)
+      },
       done() {
+        if (this.result.length) {
+          this.$vux.loading.show({
+            text: '加载中'
+          })
+          let carBrandIdList = []
+          this.result.forEach(item => carBrandIdList.push(item.key))
+          this.$http.put('/suppliers/son', { memberId: this.memberId, carBrandIdList: carBrandIdList }).then((response) => {
+            this.$vux.loading.hide()
+            this.$vux.toast.show({
+              text: '操作成功'
+            })
+            setTimeout(() => {
+              this.$router.push({ name: 'saleMan' })
+            }, 1500)
+          }).catch((error) => {
+            this.$vux.loading.hide()
+            let result = error.response
+            result.status === 403 && this.$vux.toast.show({
+              text: result.data.message,
+              type: 'warn',
+              position: 'middle',
+              time: '1500'
+            })
+            this.loading = false
+          })
+        }
       }
     },
     components: {

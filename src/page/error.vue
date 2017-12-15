@@ -14,6 +14,7 @@
       Divider
     },
     created() {
+      this.$vux.loading.hide()
       this.$store.commit(CHANGE_LOADING, { isLoading: false })
     },
     data() {
@@ -21,7 +22,7 @@
         buttons: [{
           type: 'default',
           text: '返回首页',
-          link: '/home/quote/list'
+          link: '/quote/list'
         }]
       }
     }

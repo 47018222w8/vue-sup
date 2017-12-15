@@ -10,22 +10,24 @@ const registerResult = r => require.ensure([], () => r(require('@/page/login/reg
 const registerPhone = r => require.ensure([], () => r(require('@/page/login/register-phone')), 'registerPhone')
 const pwdFind = r => require.ensure([], () => r(require('@/page/login/pwd-find')), 'pwdFind')
 const quote = r => require.ensure([], () => r(require('@/page/quote/quote')), 'quote')
+const quoteSuccess = r => require.ensure([], () => r(require('@/page/quote/quote-success')), 'quoteSuccess')
 const quoteInfo = r => require.ensure([], () => r(require('@/page/quote/quote-info')), 'quoteInfo')
 const quoteList = r => require.ensure([], () => r(require('@/page/quote/quote-list')), 'quoteList')
-const quoteHistory = r => require.ensure([], () => r(require('@/page/quote/quote-history')), 'quoteHistory')
 const quoteHistoryInfo = r => require.ensure([], () => r(require('@/page/quote/quote-history-info')), 'quoteHistoryInfo')
-const supplierList = r => require.ensure([], () => r(require('@/page/supplier-list')), 'supplierList')
+const supCarBrand = r => require.ensure([], () => r(require('@/page/shop/sup-car-brand')), 'supCarBrand')
 const error = r => require.ensure([], () => r(require('@/page/error')), 'error')
 const chat = r => require.ensure([], () => r(require('@/page/chat')), 'chat')
 const carBrandList = r => require.ensure([], () => r(require('@/page/shop/car-brand-list')), 'carBrandList')
 const carPartSorts = r => require.ensure([], () => r(require('@/page/shop/car-part-sorts')), 'carPartSorts')
-const home = r => require.ensure([], () => r(require('@/page/quote/home')), 'home')
-const newestQuote = r => require.ensure([], () => r(require('@/page/quote/quote-newest')), 'newestQuote')
-const screen = r => require.ensure([], () => r(require('@/page/quote/screen')), 'screen')
+// const home = r => require.ensure([], () => r(require('@/page/quote/home')), 'home')
+// const newestQuote = r => require.ensure([], () => r(require('@/page/quote/quote-newest')), 'newestQuote')
+// const screen = r => require.ensure([], () => r(require('@/page/quote/screen')), 'screen')
+// const quoteHistory = r => require.ensure([], () => r(require('@/page/quote/quote-history')), 'quoteHistory')
 const orders = r => require.ensure([], () => r(require('@/page/order/orders')), 'orders')
 const order = r => require.ensure([], () => r(require('@/page/order/order')), 'order')
 const send = r => require.ensure([], () => r(require('@/page/order/send')), 'send')
 const shop = r => require.ensure([], () => r(require('@/page/shop/shop')), 'shop')
+const supPartSort = r => require.ensure([], () => r(require('@/page/shop/sup-part-sort')), 'supPartSort')
 const saleAnalysis = r => require.ensure([], () => r(require('@/page/shop/sale-analysis')), 'saleAnalysis')
 const saleMan = r => require.ensure([], () => r(require('@/page/shop/sale-man')), 'saleMan')
 const saleManAdd = r => require.ensure([], () => r(require('@/page/shop/sale-man-add')), 'saleManAdd')
@@ -36,10 +38,12 @@ const remindPhone = r => require.ensure([], () => r(require('@/page/setting/remi
 const pwdChange = r => require.ensure([], () => r(require('@/page/setting/pwd-change')), 'pwdChange')
 const account = r => require.ensure([], () => r(require('@/page/setting/account')), 'account')
 const businessScope = r => require.ensure([], () => r(require('@/page/setting/business-scope')), 'businessScope')
+// 没有token的请求
+// const noToken = ['login', 'register', 'registerPhone', 'registerResult', 'pwdFind']
 const router = new Router({
   routes: [{
     path: '',
-    redirect: '/home/quote/list'
+    redirect: '/quote/list'
   }, {
     path: '/login',
     name: 'login',
@@ -48,8 +52,10 @@ const router = new Router({
       // 不管干啥先把openId存起来
       to.query.openId && localStorage.setItem('openId', to.query.openId)
       if (localStorage.getItem(JWT_HEADER)) {
-        next('/home/quote/list')
+        next('/quote/list')
       } else {
+        // 只要进入登录页就不再缓存
+        store.commit(QUOTE_LIST_KEEP_ALIVE, { keepAlive: false })
         next()
       }
     }
@@ -79,44 +85,11 @@ const router = new Router({
     name: 'pwdFind',
     component: pwdFind
   }, {
-    path: '/home',
-    name: 'home',
-    component: home,
-    meta: { showTabbar: true },
-    beforeEnter: (to, from, next) => {
-      let a = localStorage.getItem(JWT_HEADER)
-      if (!a) {
-        // 不再缓存
-        store.commit(QUOTE_LIST_KEEP_ALIVE, { keepAlive: false })
-        next('/login')
-      } else {
-        next()
-      }
-    },
-    children: [
-      {
-        path: 'newestQuote/:insId',
-        component: newestQuote,
-        name: 'newestQuote',
-        meta: { showTabbar: true }
-      }, {
-        path: 'quote/list',
-        name: 'quoteList',
-        component: quoteList,
-        // 是否缓存页面
-        meta: { keepAlive: true, showTabbar: true }
-      }, {
-        path: 'quote/history',
-        name: 'quoteHistory',
-        component: quoteHistory,
-        // 是否缓存页面
-        meta: { keepAlive: true, showTabbar: true }
-      }, {
-        path: 'screen',
-        component: screen,
-        name: 'screen'
-      }
-    ]
+    path: '/quote/list',
+    name: 'quoteList',
+    component: quoteList,
+    // 是否缓存页面
+    meta: { keepAlive: true, showTabbar: true }
   }, {
     path: '/quote/history/:insId',
     name: 'quoteHistoryInfo',
@@ -125,6 +98,10 @@ const router = new Router({
     path: '/quote/:insId',
     name: 'quote',
     component: quote
+  }, {
+    path: '/quoteSuccess',
+    name: 'quoteSuccess',
+    component: quoteSuccess
   }, {
     path: '/quote/:insId/info',
     name: 'quoteInfo',
@@ -147,6 +124,14 @@ const router = new Router({
     name: 'shop',
     meta: { showTabbar: true },
     component: shop
+  }, {
+    path: '/supCarBrand',
+    name: 'supCarBrand',
+    component: supCarBrand
+  }, {
+    path: '/supPartSort',
+    name: 'supPartSort',
+    component: supPartSort
   }, {
     path: '/customer',
     name: 'customer',
@@ -188,10 +173,6 @@ const router = new Router({
     path: '/remindPhone',
     name: 'remindPhone',
     component: remindPhone
-  }, {
-    path: '/supplier/list',
-    name: 'supplierList',
-    component: supplierList
   }, {
     path: '/carBrand/list/:type',
     name: 'carBrandList',

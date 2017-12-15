@@ -6,7 +6,7 @@
     </keep-alive>
     <router-view v-if="!$route.meta.keepAlive"></router-view>
     <tabbar v-show="$route.meta.showTabbar" class="tabbar">
-      <tabbar-item :selected="homeTabBar" link="/home/quote/list">
+      <tabbar-item :selected="homeTabBar" link="/quote/list">
         <i slot="icon" class="fa fa-rocket"></i>
         <span slot="label">报价</span>
       </tabbar-item>

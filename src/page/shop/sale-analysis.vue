@@ -11,26 +11,26 @@
           <p class="s-second-title s-div-bottom-border">经营数据</p>
         </div>
         <div class="c-content" slot="content">
-          <flexbox>
+         <flexbox>
             <flexbox-item>
-              <p class="s-p-desc" style="padding-top:8px;">近7天报价</p>
-              <p class="c-second-title">161</p>
-              <p class="s-p-desc" style="padding-bottom:8px;">历史 549</p>
+              <p class="s-p-desc" style="padding-top:5px;">近7天报价</p>
+              <p class="c-second-title">{{sale[0].count}}</p>
+              <p class="s-p-desc" style="padding-bottom:5px;">历史 {{sale[1].count}}</p>
             </flexbox-item>
             <flexbox-item>
-              <p class="s-p-desc" style="padding-top:8px;">近7天成交</p>
-              <p class="c-second-title">161</p>
-              <p class="s-p-desc" style="padding-bottom:8px;">历史 300</p>
+              <p class="s-p-desc" style="padding-top:5px;">近7天成交</p>
+              <p class="c-second-title">{{sale[2].count}}</p>
+              <p class="s-p-desc" style="padding-bottom:5px;">历史 {{sale[3].count}}</p>
             </flexbox-item>
             <flexbox-item>
-              <p class="s-p-desc" style="padding-top:8px;">近7天战败</p>
-              <p class="c-second-title">161</p>
-              <p class="s-p-desc" style="padding-bottom:8px;">历史 249</p>
+              <p class="s-p-desc" style="padding-top:5px;">近7天战败</p>
+              <p class="c-second-title">{{sale[0].count - sale[2].count}}</p>
+              <p class="s-p-desc" style="padding-bottom:5px;">历史 {{sale[1].count - sale[3].count}}</p>
             </flexbox-item>
           </flexbox>
         </div>
       </card>
-      <card class="c-count">
+      <!-- <card class="c-count">
         <div slot="header">
           <p class="s-second-title">报价率统计</p>
         </div>
@@ -60,7 +60,7 @@
             </flexbox-item>
           </flexbox>
         </div>
-      </card>
+      </card> -->
       <card class="c-list">
         <div slot="header">
           <p>最近30天战败报价单列表</p>
@@ -84,50 +84,49 @@
 </template>
 
 <script>
-import { XHeader, XButton, Flexbox, FlexboxItem, CheckIcon, Card, XCircle } from 'vux'
-export default {
-  data() {
-    return {
-      ins: {},
-      reportList: {},
-      showPart: true,
-      demo1: true
-    }
-  },
-  created() {
-    // this._initData()
-  },
-  methods: {
-    async _initData() {
-      await this.$http.get('/insruances/' + this.$route.params.insId, { params: { state: '0' } }).then((response) => {
-        let quote = response.data
-        this.ins = quote.ins
-        this.reportList = quote.reportPriceList
-      })
+  import { XHeader, XButton, Flexbox, FlexboxItem, CheckIcon, Card, XCircle } from 'vux'
+  export default {
+    data() {
+      return {
+        ins: {},
+        reportList: {},
+        showPart: true,
+        demo1: true,
+        sale: null
+      }
     },
-    changeShowPart() {
-      this.showPart ? this.showPart = false : this.showPart = true
+    created() {
+      this._initData()
     },
-    toQuotePage() {
-      this.$router.push({
-        name: 'quote',
-        params: {
-          insId: this.$route.params.insId
-        }
-      })
+    methods: {
+      async _initData() {
+        await this.$http.get('/salesStatistics/getSaleData').then((response) => {
+          this.sale = response.data
+        })
+      },
+      changeShowPart() {
+        this.showPart ? this.showPart = false : this.showPart = true
+      },
+      toQuotePage() {
+        this.$router.push({
+          name: 'quote',
+          params: {
+            insId: this.$route.params.insId
+          }
+        })
+      }
+    },
+    components: {
+      scroll,
+      XHeader,
+      XButton,
+      Flexbox,
+      FlexboxItem,
+      CheckIcon,
+      Card,
+      XCircle
     }
-  },
-  components: {
-    scroll,
-    XHeader,
-    XButton,
-    Flexbox,
-    FlexboxItem,
-    CheckIcon,
-    Card,
-    XCircle
   }
-}
 </script>
 
 <style lang="less">

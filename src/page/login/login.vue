@@ -14,14 +14,14 @@
         <p @click="$router.push({name: 'pwdFind'})">忘记密码?</p>
       </div>
     </div>
-    <p>登录遇到问题?</p>
+    <a :href="csTel" style="font-size:14px;color:black;">登录遇到问题?</a>
   </div>
 </template>
 
 <script>
   import { JWT_TOKEN_HEAD, JWT_HEADER } from '@/components/constant'
   import { XInput, Group, XButton, Cell } from 'vux'
-  import { QUOTE_LIST_KEEP_ALIVE } from '@/store/mutation-type'
+  import { QUOTE_LIST_KEEP_ALIVE, CUSTOMER_SERVICE_TEL } from '@/store/mutation-type'
   import axios from 'axios'
   export default {
     name: 'Login',
@@ -41,7 +41,8 @@
         loading: false,
         pwdShow: false,
         message: '',
-        toast: false
+        toast: false,
+        csTel: 'tel:' + CUSTOMER_SERVICE_TEL
       }
     },
     created() {
@@ -59,7 +60,7 @@
             this.$vux.toast.show({
               text: '登录成功',
               position: 'middle',
-              time: '1200'
+              time: '1400'
             })
             setTimeout(() => {
               this.$router.push({

@@ -27,18 +27,13 @@
           </group>
         </div>
       </scroll>
-      <div class="c-right">
-        <ul>
-          <li @click="goToLetter(lIndex)" v-for="(letter, lIndex) in carPartSorts" :key="lIndex">{{letter.character}}</li>
-        </ul>
-      </div>
     </div>
     <div class="c-body" v-show="showIndex===1">
       <scroll class="c-left" :data="searchList">
         <div>
           <group>
-            <cell v-for="(carBrand, index) in searchList" :key="index">
-              <check-icon style="width:100%" slot="title" :value.sync="carBrand.check">{{carBrand.carBrandName}}</check-icon>
+            <cell v-for="(cp, index) in searchList" :key="index">
+              <check-icon style="width:100%" slot="title" :value.sync="cp.check">{{cp.name}}</check-icon>
             </cell>
           </group>
         </div>
@@ -81,7 +76,7 @@
     },
     created() {
       if (this.type === 0) {
-        this.backParam.name = 'supplierList'
+        this.backParam.name = 'supPartSort'
         this._initData0()
       }
       if (this.type === 1) {
@@ -93,7 +88,7 @@
     },
     methods: {
       async _initData0() {
-        await this.$http.get('/stores/0/carBrands').then((response) => {
+        await this.$http.get('/stores/0/carParts').then((response) => {
           this.carPartSorts = response.data
         })
       },
@@ -115,21 +110,21 @@
         }
       },
       // 个人中心添加专项件
-      async doneType0() {
+      doneType0() {
         this.doneDisabled = true
         let parm = {
-          carBrandIdList: this.results
+          carPartSortIdList: this.results
         }
-        await this.$http.post('/suppliers', parm).then((response) => {
+        this.$http.post('/supplierCarParts', parm).then((response) => {
+          this.$vux.toast.show({
+            text: '添加成功',
+            position: 'middle',
+            time: '1500'
+          })
+          setTimeout(() => {
+            this.$router.push(this.backParam)
+          }, 1450)
         })
-        this.$vux.toast.show({
-          text: '添加成功',
-          position: 'middle',
-          time: '1500'
-        })
-        setTimeout(() => {
-          this.$router.push(this.backParam)
-        }, 1450)
       },
       // 注册添加专项件
       doneType1() {
@@ -139,11 +134,8 @@
       },
       search(value) {
         this.searchList = []
-        value && this.carPartSorts.forEach((letter) => {
-          letter.carBrandList.forEach((carBrand) => {
-            // 由于引用相同,所以结算时可以只计算letterList即可
-            carBrand.carBrandName.indexOf(value) !== -1 && this.searchList.push(carBrand)
-          })
+        value && this.carPartSorts.forEach((item) => {
+          item.name.indexOf(value) !== -1 && this.searchList.push(item)
         })
       }
     }

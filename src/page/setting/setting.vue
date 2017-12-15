@@ -2,15 +2,15 @@
   <div class="c-setting">
     <x-header :left-options="{preventGoBack:true,showBack:false}" :right-options="{showMore:false}" title="设置">
     </x-header>
-    <div class="c-body">
+    <div class="c-body" v-if="member">
       <group gutter="0">
-        <cell title="账号" value="13312341234" is-link link="/account"></cell>
-        <cell title="提醒通知设置" value="部分开启" is-link link="/remind"></cell>
+        <cell title="账号" :value="member.uname" is-link link="/account"></cell>
+        <cell title="提醒通知设置" is-link link="/remind"></cell>
       </group>
       <group :gutter="10">
-        <cell title="呼叫客服">
+        <cell title="呼叫客服" >
           <div slot="default">
-            <i style="color:#2196F3" class="fa fa-user-circle fa-lg"></i>
+            <a href="tel:13364473978"><i style="color:#2196F3" class="fa fa-user-circle fa-lg"></i></a>
           </div>
         </cell>
         <cell title="投诉建议" is-link></cell>
@@ -31,33 +31,38 @@
 </template>
 
 <script>
-import { XHeader, Flexbox, FlexboxItem, Group, Cell, XSwitch } from 'vux'
-export default {
-  data() {
-    return {
-      ins: {},
-      reportList: {},
-      showPart: true,
-      demo1: true
+  import { XHeader, Flexbox, FlexboxItem, Group, Cell, XSwitch } from 'vux'
+  export default {
+    data() {
+      return {
+        showPart: true,
+        demo1: true,
+        member: null
+      }
+    },
+    created() {
+      this.getMember()
+    },
+    methods: {
+      async getMember() {
+        await this.$http.get('/member').then((response) => {
+          this.member = response.data
+        })
+      },
+      changTab(index) {
+        console.log(index)
+      }
+    },
+    components: {
+      scroll,
+      XHeader,
+      Flexbox,
+      FlexboxItem,
+      Group,
+      Cell,
+      XSwitch
     }
-  },
-  created() {
-  },
-  methods: {
-    changTab(index) {
-      console.log(index)
-    }
-  },
-  components: {
-    scroll,
-    XHeader,
-    Flexbox,
-    FlexboxItem,
-    Group,
-    Cell,
-    XSwitch
   }
-}
 </script>
 
 <style lang="less">

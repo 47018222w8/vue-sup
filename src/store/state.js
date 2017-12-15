@@ -20,7 +20,9 @@ const state = {
   // 首页tabindex
   homeTabIndex: 0,
   // 注册数据
-  registerData: null
+  registerData: null,
+  // 账号信息
+  member: null
 }
 export default new Vuex.Store({
   state,

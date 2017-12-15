@@ -1,58 +1,32 @@
 <template>
   <div class="c-send">
     <x-header :left-options="{preventGoBack:true}" :right-options="{showMore:false}" title="发货">
-      <div slot="overwrite-left" @click="$router.push({name: 'order',params: {insId:1234}})">
+      <div slot="overwrite-left" @click="$router.push({name: 'orders'})">
         <i slot="icon" class="fa fa-chevron-left fa-lg"></i>
       </div>
     </x-header>
     <div class="c-body s-div-bottom-border">
       <div class="s-div-block" style="margin-top:0px;">
-        <p class="s-second-title">本次发货零配件清单(8)</p>
-        <flexbox>
+        <p class="s-second-title">本次发货零配件清单({{partInfos.length}}})</p>
+        <flexbox v-for="(item, index) in partInfos" :key="index">
           <flexbox-item>
-            <p>保险杠</p>
+            <p>{{item.goodsName}}</p>
           </flexbox-item>
           <flexbox-item :span="2">
-            <p>*1</p>
-          </flexbox-item>
-          <flexbox-item :span="1">
-            <check-icon :value.sync="demo1"></check-icon>
+            <p>*{{item.num}}</p>
           </flexbox-item>
         </flexbox>
-        <hr class="s-hr-dashed">
-        <flexbox>
-          <flexbox-item>
-            <p>保险杠</p>
-          </flexbox-item>
-          <flexbox-item :span="2">
-            <p>*1</p>
-          </flexbox-item>
-          <flexbox-item :span="1">
-            <check-icon :value.sync="demo1"></check-icon>
-          </flexbox-item>
-        </flexbox>
-        <hr class="s-hr-dashed">
-
       </div>
       <group title="物流配送">
         <cell title="配送方式" value="班车"></cell>
         <cell title="物流电话" value="13312341234"></cell>
       </group>
       <group title="收货信息">
-        <cell-box>
-          <flexbox align="start">
-            <flexbox-item :span="3">
-              <p>收货地址</p>
-            </flexbox-item>
-            <flexbox-item>
-              <p class="s-p-desc">吉林省 长春市 二道区自由大路与郑州街交汇东行100米</p>
-            </flexbox-item>
-          </flexbox>
-          </cell-box>
-          <cell title="维修厂名称" value="车益佰豪车管家豪泰店"></cell>
-          <cell title="联系电话" value="13344445555"></cell>
+        <cell title="收货地址" :value="ins.shipArea"></cell>
+        <cell title="维修厂名称" :value="ins.shipName"></cell>
+        <cell title="联系电话" :value="ins.mobile"></cell>
       </group>
-      <group :gutter="10">
+      <!-- <group :gutter="10">
         <cell-box>
           <flexbox align="start">
             <flexbox-item :span="3">
@@ -62,57 +36,75 @@
               <p class="s-p-desc">吉林省 长春市 二道区自由大路与郑州街交汇东行100米</p>
             </flexbox-item>
           </flexbox>
-          </cell-box>
-      </group>
+        </cell-box>
+      </group> -->
     </div>
     <div class="s-footer-btn">
-      <x-button style="width:80%" type="primary">确认发货并通知物流</x-button>
+      <x-button style="width:80%" type="primary" @click.native="sub">确认发货并通知物流</x-button>
     </div>
   </div>
 </template>
 
 <script>
-import { XHeader, XButton, Flexbox, FlexboxItem, CheckIcon, Group, Cell, CellBox } from 'vux'
-export default {
-  data() {
-    return {
-      ins: {},
-      reportList: {},
-      demo1: true
-    }
-  },
-  created() {
-    // this._initData()
-  },
-  methods: {
-    async _initData() {
-      await this.$http.get('/insruances/' + this.$route.params.insId, { params: { state: '0' } }).then((response) => {
-        let quote = response.data
-        this.ins = quote.ins
-        this.reportList = quote.reportPriceList
-      })
+  import { XHeader, XButton, Flexbox, FlexboxItem, CheckIcon, Group, Cell, CellBox } from 'vux'
+  export default {
+    data() {
+      return {
+        ins: {},
+        partInfos: {},
+        demo1: true,
+        insId: this.$route.params.insId,
+        mainSn: this.$route.query.mainSn,
+        sonSn: this.$route.query.sonSn,
+        insOrderId: this.$route.query.insOrderId
+      }
     },
-    toQuotePage() {
-      this.$router.push({
-        name: 'quote',
-        params: {
-          insId: this.$route.params.insId
-        }
-      })
+    created() {
+      console.log(this.mainSn)
+      this._initData()
+    },
+    methods: {
+      async _initData() {
+        await this.$http.get('/order/detail/' + this.insId + '/' + this.sonSn).then((response) => {
+          this.ins = response.data
+          this.partInfos = this.ins.itemList
+        })
+      },
+      sub() {
+        this.$http.get('/order/sendGoods/' + this.insId + '/' + this.mainSn + '/' + this.insOrderId).then((response) => {
+          this.$vux.toast.show({
+            text: '发货成功',
+            position: 'middle',
+            time: '1400'
+          })
+          setTimeout(() => {
+            this.$router.push({
+              name: 'orders'
+            })
+          }, 1400)
+        })
+      },
+      toQuotePage() {
+        this.$router.push({
+          name: 'quote',
+          params: {
+            insId: this.$route.params.insId
+          }
+        })
+      }
+    },
+    components: {
+      scroll,
+      XHeader,
+      XButton,
+      Flexbox,
+      FlexboxItem,
+      CheckIcon,
+      Group,
+      Cell,
+      CellBox
     }
-  },
-  components: {
-    scroll,
-    XHeader,
-    XButton,
-    Flexbox,
-    FlexboxItem,
-    CheckIcon,
-    Group,
-    Cell,
-    CellBox
   }
-}
 </script>
 
 <style lang="less">

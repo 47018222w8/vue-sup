@@ -1,29 +1,23 @@
 <template>
   <div class="c-order">
-    <x-header :left-options="{showBack:false}" :right-options="{showMore:false}" @on-click-more="showMenus = true">
-      <div style="margin-top: 5px;" slot="overwrite-title">
-        <button-tab v-model="titleIndex">
-          <button-tab-item @on-item-click="changeTitle">近两天</button-tab-item>
-          <button-tab-item @on-item-click="changeTitle">选择日期</button-tab-item>
-        </button-tab>
-      </div>
-    </x-header>
-    <tab>
+    <tab defaultColor="#666" bar-active-color="#fff" active-color="#fff">
       <tab-item selected @on-item-click="changTab">新订单</tab-item>
-      <tab-item @on-item-click="changTab">待配送</tab-item>
-      <tab-item @on-item-click="changTab">配送中</tab-item>
+      <tab-item @on-item-click="changTab">待发货</tab-item>
+      <tab-item @on-item-click="changTab">已发货</tab-item>
       <tab-item @on-item-click="changTab">已完成</tab-item>
       <tab-item @on-item-click="changTab">全部</tab-item>
     </tab>
     <div class="c-part-list">
-      <p v-show="tabIndex===0" class="s-second-title">您尚有{{total}}张新订单待备货</p>
-      <p v-show="tabIndex===2" class="s-second-title">您有{{total}}张订单在配送中</p>
-      <p v-show="tabIndex===3" class="s-second-title">您有{{total}}张订单已完成</p>
       <scroll :pullup="true" @scrollToEnd="loadMore" :data="quoteList" class="quote-list">
         <div>
+          <p v-show="tabIndex===0" class="s-second-title">您尚有{{total}}张新订单待备货</p>
+          <p v-show="tabIndex===1" class="s-second-title">您有{{total}}张订单待发货</p>
+          <p v-show="tabIndex===2" class="s-second-title">您有{{total}}张订单配送中</p>
+          <p v-show="tabIndex===3" class="s-second-title">您有{{total}}张订单已完成</p>
+          <p v-show="tabIndex===4" class="s-second-title">您共有{{total}}张订单</p>
           <swipeout>
             <swipeout-item v-for="(quote, index) in quoteList" :key="index" transition-mode="follow">
-              <div slot="content" class="vux-1px-t" @click="toOrderPage(quote.id)">
+              <div slot="content" class="vux-1px-t" @click="toOrderPage(quote)">
                 <div class="c-swipeout-item-title">
                   <p style="padding-left:10px;">
                     <span class="s-second-title">{{quote.repairName}}</span>
@@ -35,7 +29,7 @@
                     <img slot="icon" width="40" :src="quote.brandLogo">
                   </div>
                   <div class="c-middle">
-                    <p>{{quote.carName}}</p>
+                    <p>{{quote.carMark}}</p>
                     <p>{{quote.partCount}}个零件</p>
                     <p class="s-p-desc">{{quote.askTimeStr}}</p>
                   </div>
@@ -63,16 +57,15 @@
         quoteList: [],
         tabIndex: 0,
         loadingMore: false,
-        notReadCount: 0,
         maxPage: 1,
         total: 0,
         // 请求参数
         params: {
           pageNum: 1,
-          pageSize: 10
-        },
-        // 请求url
-        url: '/orders'
+          pageSize: 10,
+          orderSource: 1,
+          listType: 'new'
+        }
       }
     },
     created() {
@@ -101,17 +94,20 @@
           this.loadingMore = true
           let params = this.params
           await this.$http.get('/orders', { params }).then((response) => {
-            this.quoteList.push(...response.data.insurancePage.list)
-            this.notReadCount = response.data.notReadCount
-            this.maxPage = response.data.insurancePage.pages
-            this.total = response.data.insurancePage.total
+            this.quoteList.push(...response.data.orders)
+            this.total = response.data.totalCount
+            this.maxPage = Math.ceil(this.total / this.params.pageSize)
             this.params.pageNum++
           })
           this.loadingMore = false
         }
       },
-      toOrderPage(insId) {
-        this.$router.push({ name: 'order', params: { insId: insId } })
+      toOrderPage(item) {
+        if (item.orderState === '0') {
+          this.$router.push('/orders/' + item.insId + '/send?mainSn=' + item.mainSn + '&insOrderId=' + item.tinsId + '&sonSn=' + item.sonSn)
+        } else {
+          this.$router.push('/orders/' + item.insId + '?sonSn=' + item.sonSn + '&orderState=' + item.orderState)
+        }
       },
       changeTitle() {
       },
@@ -121,33 +117,45 @@
       changTab(index) {
         this.tabIndex = index
         switch (index) {
-          // 配送中
-          case 2:
-            this.url = '/orders'
+          // 待发货
+          case 1:
             this.params.pageNum = 1
-            this.params.reportState = 3
-            this.params.status = null
+            this.maxPage = 1
             this.quoteList = []
+            this.params.listType = 'waitShip'
+            this._initData()
+            break
+          // 已发货
+          case 2:
+            this.params.pageNum = 1
+            this.maxPage = 1
+            this.quoteList = []
+            this.params.listType = 'shipping'
             this._initData()
             break
           // 已完成
           case 3:
-            this.url = '/orders/done'
             this.params.pageNum = 1
-            this.params.reportState = null
-            this.params.status = '7'
+            this.maxPage = 1
             this.quoteList = []
+            this.params.listType = 'done'
+            this._initData()
+            break
+          // 全部
+          case 4:
+            this.params.pageNum = 1
+            this.maxPage = 1
+            this.quoteList = []
+            this.params.listType = 'all'
             this._initData()
             break
           // 新订单
           default: 0
-            this.url = '/orders'
             this.params.pageNum = 1
-            this.params.reportState = 2
-            this.params.status = null
+            this.maxPage = 1
+            this.params.listType = 'new'
             this.quoteList = []
             this._initData()
-            break
         }
       },
       loadMore() {
@@ -174,50 +182,53 @@
 
 <style lang="less">
 @import "../../styles/sup.less";
-.c-part-list {
-  .display-flex;
-  .flex-direction(column);
-  padding: 0 12px 0 12px;
-  background-color: #fff;
-  overflow: hidden;
-  .c-cell {
-    .flex(none);
+.c-order {
+  .vux-tab {
+    background-color: @s-primary-color;
   }
-  .quote-list {
-    p {
-      padding: 0;
-    }
+  .c-part-list {
     .display-flex;
-    .flex(none);
     .flex-direction(column);
-    .c-swipeout-item-title {
-      .display-flex;
-      .justify-content(space-between);
-      .align-items(center);
-      height: 44px;
+    padding: 0 12px 0 12px;
+    background-color: #fff;
+    overflow: hidden;
+    .c-cell {
+      .flex(none);
     }
-    .c-swipeout-item-desc {
+    .quote-list {
+      p {
+        padding: 0;
+      }
       .display-flex;
-      .c-left {
-        .flex(0 0 15%);
-      }
-      .c-middle {
-        .flex(auto);
-      }
-      .c-right {
-        .flex(0 0 5%);
+      .flex(none);
+      .flex-direction(column);
+      .c-swipeout-item-title {
         .display-flex;
-        .align-items(center);
         .justify-content(space-between);
-        .vux-x-icon {
-          fill: @s-desc-font-color;
+        .align-items(center);
+        height: 44px;
+      }
+      .c-swipeout-item-desc {
+        .display-flex;
+        .c-left {
+          .flex(0 0 15%);
+        }
+        .c-middle {
+          .flex(auto);
+        }
+        .c-right {
+          .flex(0 0 5%);
+          .display-flex;
+          .align-items(center);
+          .justify-content(space-between);
+          .vux-x-icon {
+            fill: @s-desc-font-color;
+          }
         }
       }
+      max-height: calc(~"100vh - @{s-footer-height} - @{vux-tab-height}");
+      overflow: hidden;
     }
-    max-height: calc(
-      ~"100vh - @{vux-header-height} - @{s-footer-height} - @{vux-tab-height} - 38px"
-    );
-    overflow: hidden;
   }
 }
 </style>

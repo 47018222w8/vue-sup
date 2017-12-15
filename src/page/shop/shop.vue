@@ -15,12 +15,12 @@
             <p>查看门店基本信息</p>
           </flexbox-item>
           <flexbox-item style="margin-left: 0px;" :span="2">
-            <br>
-            <p class="c-shop-state">营业中</p>
+            <!-- <br>
+            <p class="c-shop-state">营业中</p> -->
           </flexbox-item>
         </flexbox>
       </div>
-      <card class="c-col">
+      <card class="c-col" v-if="member && member.parentid===0">
         <div slot="content">
           <flexbox>
             <flexbox-item style="margin-left:0px;">
@@ -32,11 +32,11 @@
               </div>
             </flexbox-item>
             <flexbox-item style="margin-left:0px;">
-              <div class="c-fa s-div-right-border" @click="$router.push({name: 'carBrandList', params: { type: 0 }})">
+              <div class="c-fa s-div-right-border" @click="toOperate">
                 <p style="color:#009688;">
                   <i slot="icon" class="fa fa-user fa-lg"></i>
                 </p>
-                <p>品牌管理</p>
+                <p>经营范围</p>
               </div>
             </flexbox-item>
             <flexbox-item style="margin-left:0px;">
@@ -75,18 +75,18 @@
           <flexbox>
             <flexbox-item>
               <p class="s-p-desc" style="padding-top:5px;">近7天报价</p>
-              <p class="c-second-title">161</p>
-              <p class="s-p-desc" style="padding-bottom:5px;">历史 549</p>
+              <p class="c-second-title">{{sale[0].count}}</p>
+              <p class="s-p-desc" style="padding-bottom:5px;">历史 {{sale[1].count}}</p>
             </flexbox-item>
             <flexbox-item>
               <p class="s-p-desc" style="padding-top:5px;">近7天成交</p>
-              <p class="c-second-title">161</p>
-              <p class="s-p-desc" style="padding-bottom:5px;">历史 300</p>
+              <p class="c-second-title">{{sale[2].count}}</p>
+              <p class="s-p-desc" style="padding-bottom:5px;">历史 {{sale[3].count}}</p>
             </flexbox-item>
             <flexbox-item>
               <p class="s-p-desc" style="padding-top:5px;">近7天战败</p>
-              <p class="c-second-title">161</p>
-              <p class="s-p-desc" style="padding-bottom:5px;">历史 249</p>
+              <p class="c-second-title">{{sale[0].count - sale[2].count}}</p>
+              <p class="s-p-desc" style="padding-bottom:5px;">历史 {{sale[1].count - sale[3].count}}</p>
             </flexbox-item>
           </flexbox>
         </div>
@@ -115,49 +115,63 @@
 </template>
 
 <script>
-import { XHeader, XButton, Flexbox, FlexboxItem, CheckIcon, Card } from 'vux'
-export default {
-  data() {
-    return {
-      ins: {},
-      reportList: {},
-      showPart: true,
-      demo1: true
-    }
-  },
-  created() {
-    // this._initData()
-  },
-  methods: {
-    async _initData() {
-      await this.$http.get('/insruances/' + this.$route.params.insId, { params: { state: '0' } }).then((response) => {
-        let quote = response.data
-        this.ins = quote.ins
-        this.reportList = quote.reportPriceList
-      })
+  import { XHeader, XButton, Flexbox, FlexboxItem, CheckIcon, Card } from 'vux'
+  export default {
+    data() {
+      return {
+        ins: {},
+        reportList: {},
+        showPart: true,
+        demo1: true,
+        member: null,
+        sale: null
+      }
     },
-    changeShowPart() {
-      this.showPart ? this.showPart = false : this.showPart = true
+    created() {
+      this.getMember()
     },
-    toQuotePage() {
-      this.$router.push({
-        name: 'quote',
-        params: {
-          insId: this.$route.params.insId
-        }
-      })
+    methods: {
+      async getMember() {
+        await this.$http.get('/member').then((response) => {
+          this.member = response.data
+        })
+        await this.$http.get('/salesStatistics/getSaleData').then((response) => {
+          this.sale = response.data
+        })
+      },
+      async _initData() {
+        await this.$http.get('/insruances/' + this.$route.params.insId, { params: { state: '0' } }).then((response) => {
+          let quote = response.data
+          this.ins = quote.ins
+          this.reportList = quote.reportPriceList
+        })
+      },
+      toOperate() {
+        this.member.majorBusiness === 1 && this.$router.push({ name: 'supCarBrand' })
+        this.member.majorBusiness === 2 && this.$router.push({ name: 'supPartSort' })
+      },
+      changeShowPart() {
+        this.showPart ? this.showPart = false : this.showPart = true
+      },
+      toQuotePage() {
+        this.$router.push({
+          name: 'quote',
+          params: {
+            insId: this.$route.params.insId
+          }
+        })
+      }
+    },
+    components: {
+      scroll,
+      XHeader,
+      XButton,
+      Flexbox,
+      FlexboxItem,
+      CheckIcon,
+      Card
     }
-  },
-  components: {
-    scroll,
-    XHeader,
-    XButton,
-    Flexbox,
-    FlexboxItem,
-    CheckIcon,
-    Card
   }
-}
 </script>
 
 <style lang="less">

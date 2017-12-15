@@ -44,6 +44,7 @@
         </flexbox>
         <br><br>
         <p class="c-code-p" @click="changeShowCode">收不到短信验证码?</p>
+        <actionsheet v-model="showCode" :menus="menus" @on-click-menu="clickCode"></actionsheet>
       </div>
       <div v-show="showIndex===2" class="c-pwd">
         <br>
@@ -74,7 +75,7 @@
 <script>
   import { XHeader, XButton, Group, XInput, Flexbox, FlexboxItem, Actionsheet, Checklist, XAddress, Msg } from 'vux'
   import { REGISTER_DATA } from '@/store/mutation-type'
-  import { RE_PHONE } from '@/components/constant'
+  import { RE_PHONE, CUSTOMER_SERVICE_TEL } from '@/components/constant'
   export default {
     data() {
       return {
@@ -86,10 +87,16 @@
         d: '',
         // 收不到短信验证码弹出框
         showCode: false,
-        menus2: {
-          menu1: '重新获取验证码短信',
-          menu2: '拨打客服电话'
+        menus: [{
+          label: '60秒后获取验证码短信',
+          type: 'disabled',
+          value: 'a'
         },
+        {
+          label: '拨打客服电话',
+          type: 'primary ',
+          value: 'b'
+        }],
         // 显示密码
         pwdShow: false,
         // 所有大按钮加载判断
@@ -119,7 +126,10 @@
           // 营业执照存储路径
           licenseImg: '',
           channelSource: '1'
-        }
+        },
+        // 获取短信倒计时
+        seconds: 60,
+        tiemer: null
       }
     },
     created() {
@@ -157,6 +167,29 @@
         }
         this.findPhoneLoading = false
       },
+      countDown() {
+        this.timer = setTimeout((e) => {
+          this.seconds--
+          if (this.seconds === 0) {
+            clearTimeout(this.timer)
+            this.menus[0].label = '获取验证码短信'
+            this.menus[0].type = 'primary'
+            this.seconds = 60
+          } else {
+            this.menus[0].type = 'disabled'
+            this.menus[0].label = this.seconds + '后获取验证码短信'
+            this.countDown()
+          }
+        }, 1000)
+      },
+      clickCode(key, value) {
+        if (key === 'a') {
+          this.sendMsg()
+        }
+        if (key === 'b') {
+          window.location.href = 'tel:' + CUSTOMER_SERVICE_TEL
+        }
+      },
       // 发送短信验证码
       async sendMsg() {
         let params = {
@@ -164,6 +197,7 @@
           text: '注册验证码'
         }
         await this.$http.get('/noIntercept/shortMsgs/4', { params }).then((response) => {
+          this.countDown()
         })
       },
       changeShowCode() {
