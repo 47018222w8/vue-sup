@@ -6,7 +6,7 @@
           <i slot="icon" class="fa fa-chevron-left fa-lg"></i>
         </div>
       </x-header>
-      <div class="c-body">
+      <div class="c-body" v-if="quote">
         <flexbox>
           <flexbox-item :span="1" style="padding-left:10px;">
             <div style="background-color:#2196f3;color:#fff;text-align:center;">
@@ -38,7 +38,7 @@
               <flexbox-item>
                 <flexbox v-for="(item, index) in rp.listRPI" :key="'s'+index">
                   <flexbox-item>
-                    <p>原厂件</p>
+                    <p>{{item.qualityRequirementName}}</p>
                   </flexbox-item>
                   <flexbox-item>
                     <p>¥{{item.reportPrice}}</p>
@@ -61,17 +61,31 @@
         </flexbox>
       </div>
     </div>
+    <x-dialog v-model="showDialog" class="c-dialog" hide-on-blur>
+      <p style="padding:10px 0;">
+        该询价需要发票,确认不输入税点吗?
+      </p>
+      <flexbox :gutter="0">
+        <flexbox-item>
+          <x-button @click.native="showDialog = false">取消</x-button>
+        </flexbox-item>
+        <flexbox-item>
+          <x-button @click.native="subSon" type="primary">确认</x-button>
+        </flexbox-item>
+      </flexbox>
+    </x-dialog>
   </div>
 </template>
 
 <script>
-  import { XHeader, XButton, Flexbox, FlexboxItem, Cell, Group, CellBox, XInput, Datetime } from 'vux'
+  import { XHeader, XButton, Flexbox, FlexboxItem, Cell, Group, CellBox, XInput, Datetime, XDialog } from 'vux'
   import { RE_MONEY } from '@/components/constant'
   export default {
     data() {
       return {
         quote: this.$store.state.quote,
-        loading: false
+        loading: false,
+        showDialog: false
       }
     },
     created() {
@@ -83,14 +97,21 @@
       },
       sub() {
         if (this.validate() && !this.loading) {
-          this.loading = true
-          console.log(this.quote)
-          // this.$http.post('/reportPriceInfos', this.quote).then((response) => {
-          //   this.$router.push({
-          //     name: 'quoteSuccess'
-          //   })
-          // })
+          if (this.quote.isInvoice === 1 && !this.quote.taxRate) {
+            this.showDialog = true
+            return
+          }
+          this.subSon()
         }
+      },
+      subSon() {
+        this.showDialog = false
+        this.loading = true
+        this.$http.post('/reportPriceInfos', this.quote).then((response) => {
+          this.$router.push({
+            name: 'quoteSuccess'
+          })
+        })
       },
       validate() {
         if (!RE_MONEY.test(this.quote.expressMoney)) {
@@ -102,7 +123,7 @@
           return false
         }
         if (!this.quote.canShipDateBsStr) {
-          this.$vux.toast.text('请输入税点', 'bottom')
+          this.$vux.toast.text('请选择发货时间', 'bottom')
           return false
         }
         return true
@@ -118,7 +139,8 @@
       Group,
       CellBox,
       XInput,
-      Datetime
+      Datetime,
+      XDialog
     }
   }
 </script>

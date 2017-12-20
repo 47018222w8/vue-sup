@@ -1,13 +1,23 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
-    <title>车益佰-找件儿</title>
-    <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-  </head>
-  <body>
-    <div id="app-box"></div>
-    <!-- built files will be auto injected -->
-  </body>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+  <title>车益佰-找件儿</title>
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <div id="app-box"></div>
+  <!-- built files will be auto injected -->
+</body>
+<script type="text/javascript">
+  // 获取openId
+  var supUrl = location.href
+  supUrl = supUrl.substring(supUrl.indexOf('index.html'))
+  var openId = supUrl.substring(supUrl.indexOf('=') + 1, supUrl.indexOf('/', 10) - 1)
+  localStorage.setItem('openId', openId)
+</script>
+
 </html>

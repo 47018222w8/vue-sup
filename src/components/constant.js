@@ -1,5 +1,5 @@
 // url前缀
-export const BASE_URL = '/api/sup/v1'
+export const BASE_URL = '/apiSup/sup/v1'
 export const JWT_TOKEN_HEAD = 'Bearer '
 export const JWT_HEADER = 'Authorization'
 // 两位小数正则

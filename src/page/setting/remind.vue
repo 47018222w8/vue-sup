@@ -10,7 +10,7 @@
         <x-switch title="接收电话通知" v-model="remind.isPhone" :value-map="[0,1]" @on-change="subRemind"></x-switch>
         <x-switch title="接收短信消息通知" v-model="remind.isSms" :value-map="[0,1]" @on-change="subRemind"></x-switch>
         <x-switch title="接收微信消息通知" v-model="remind.isWechat" :value-map="[0,1]" @on-change="subRemind"></x-switch>
-        <cell title="接收电话/短信的电话号码" value="133****1234" is-link link="/remindPhone"></cell>
+        <cell title="接收电话/短信的电话号码" :value="remind.phone" is-link link="/remindPhone"></cell>
       </group>
       <!-- <group title="收到聊天消息时">
         <x-switch title="接收微信消息通知" v-model="remind.chat.wechat"></x-switch>

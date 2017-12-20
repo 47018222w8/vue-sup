@@ -13,7 +13,7 @@
       <!-- <swiper v-if="insImgList.length>0" :list="insImgList" height="180px" dots-class="custom-bottom" dots-position="center"></swiper> -->
       <cell title="品牌" :value="carInfoTitle"></cell>
       <cell-form-preview :list="carInfo"></cell-form-preview>
-      <img v-for="(item, index) in insImgList" :src="item.img" width="100" :key="index" @click="showInsImg">
+      <img v-for="(item, index) in insImgList" :src="item.img" width="100" :key="index" @click="showInsImg(index)">
     </group>
     <div class="parts" v-show="tabIndex===0" ref="parts">
       <template v-if="reportPriceList.length>0">
@@ -72,20 +72,18 @@
         irpe: {
           insId: this.$route.params.insId,
           expressMoney: null,
-          taxRate: null,
+          taxRate: 0,
           canShipDateBsStr: null
         },
         reportPriceList: [], // 零件信息
         iilKey: 'reportPriceList' + this.$route.params.insId, // 本地存储key
         qualityList: [], // 零件品质
         carInfo: [], // 车辆信息
+        carInfoTitle: '',
         tabIndex: 0, // tab索引
         cLeftIndex: 0, // menu索引
-        imgPriviewList: [{ src: 'http://img1.gamersky.com/image2017/11/20171111_zy_164_2/image003.jpg', w: 600, h: 400 },
-        { src: 'http://img1.gamersky.com/image2017/11/20171111_zy_164_2/image006.jpg', w: 600, h: 400 }], // 零件图预览
-        carInfoTitle: '', //
-        insImgList: [{ img: 'http://img1.gamersky.com/image2017/11/20171111_zy_164_2/image006.jpg' },
-        { img: 'http://img1.gamersky.com/image2017/11/20171111_zy_164_2/image003.jpg ' }], // 询价单图片信息\
+        imgPriviewList: [], // 询价单图片信息
+        insImgList: [], // 询价单图片信息
         partInfosHeight: [], // 右边零件高度
         subLoading: false, // 提交等待
         isAndroid: null, // 是否是安卓
@@ -175,6 +173,7 @@
           this.irpe.carNo = ins.carNo
           this.irpe.carMark = ins.carMark
           this.irpe.arriveTimeStr = ins.arriveTimeStr
+          this.irpe.isInvoice = ins.isInvoice
           this.carInfoTitle = ins.carBrandName
           this.carInfo.splice(0, 0, { label: '车型', value: ins.carMark },
             {
@@ -197,7 +196,7 @@
               value: ins.address
             }, {
               label: '是否需要发票',
-              value: ins.invoice === 1 ? '需要' : '不需要'
+              value: ins.isInvoice === 1 ? '需要' : '不需要'
             })
         })
         this._calculateHeight()
@@ -214,8 +213,14 @@
           this.$vux.toast.text('此零件没有图片', 'bottom')
         }
       },
-      showInsImg() {
-        this.$refs.previewer.show(0)
+      // 询价单图片
+      showInsImg(index) {
+        this.imgPriviewList = []
+        console.log(this.insImgList)
+        this.insImgList.forEach(item => this.imgPriviewList.push({ src: item.img, w: 600, h: 400 }))
+        this.$nextTick(() => {
+          this.$refs.previewer.show(index)
+        })
       },
       // 验证是否完成
       validateDone(index) {
@@ -226,9 +231,11 @@
           this.reportPriceList[index].done = 0
         } else {
           this.reportPriceList[index].isOperProd = '0'
+          // 验证成功
           this.reportPriceList[index].done = 1
           for (let i = 0; i < rpi.length; i++) {
             if (!RE_MONEY.test(rpi[i].reportPrice) || !rpi[i].qualityRequirement) {
+              // 验证失败
               this.reportPriceList[index].done = 2
               break
             }
@@ -308,6 +315,7 @@
       subForm() {
         this.validateDone(this.cLeftIndex)
         let reportPriceList = this.reportPriceList
+        let f = true
         for (let i = 0; i < reportPriceList.length; i++) {
           if (reportPriceList[i].done === 2) {
             this.$vux.alert.show({
@@ -316,6 +324,11 @@
             })
             return
           }
+          (reportPriceList[i].done === 1) && (f = false)
+        }
+        if (f) {
+          this.$vux.toast.show('请至少输入一个报价', 'middle')
+          return
         }
         let listRP = [] // 提交的集合
         let listRPShow = [] // 展示的集合
@@ -323,8 +336,8 @@
           for (let j = 0; j < reportPriceList[i].listRPI.length; j++) {
             reportPriceList[i].listRPI[j].qualityRequirement = reportPriceList[i].listRPI[j].qrArry[0]
             for (let k = 0; k < this.qualityList.length; k++) {
-              if (this.qualityList[i].value === reportPriceList[i].listRPI[j].qualityRequirement) {
-                reportPriceList[i].listRPI[j].qualityRequirementName = this.qualityList[i].name
+              if (this.qualityList[k].value === reportPriceList[i].listRPI[j].qualityRequirement) {
+                reportPriceList[i].listRPI[j].qualityRequirementName = this.qualityList[k].name
                 break
               }
             }

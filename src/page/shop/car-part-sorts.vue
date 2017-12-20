@@ -13,10 +13,7 @@
         <slot name="rightIcon"></slot>
       </div>
     </div>
-    <div style="text-align:center;" v-if="!carPartSorts.length">
-      <inline-loading></inline-loading>
-      <span style="vertical-align:middle;display:inline-block;font-size:14px;">&nbsp;&nbsp;{{ '加载中...' }}</span>
-    </div>
+    <load-more v-if="!carPartSorts.length" :show-loading="loadingMore" :tip="tip" background-color="#fbf9fe"></load-more>
     <div class="c-body" v-show="showIndex===0">
       <scroll class="c-left" ref="scrollLeft" :click="true" :data="carPartSorts">
         <div ref="brandDiv">
@@ -58,7 +55,8 @@
         // 0:个人中心添加专项件 1:注册添加经营专项件
         type: +this.$route.params.type,
         backParam: {},
-        formData: null
+        formData: null,
+        tip: '加载中...'
       }
     },
     components: {
@@ -90,6 +88,10 @@
       async _initData0() {
         await this.$http.get('/stores/0/carParts').then((response) => {
           this.carPartSorts = response.data
+          if (!this.carPartSorts) {
+            this.tip = '已全部经营'
+            this.loadingMore = false
+          }
         })
       },
       async _initData1() {

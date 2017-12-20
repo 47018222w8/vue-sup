@@ -6,7 +6,7 @@
 
 <script>
   import { Msg, Divider, XButton } from 'vux'
-  import { CHANGE_LOADING } from '@/store/mutation-type'
+  import { CHANGE_LOADING, QUOTE_LIST_KEEP_ALIVE } from '@/store/mutation-type'
   export default {
     components: {
       Msg,
@@ -16,6 +16,7 @@
     created() {
       this.$vux.loading.hide()
       this.$store.commit(CHANGE_LOADING, { isLoading: false })
+      this.$store.commit(QUOTE_LIST_KEEP_ALIVE, { keepAlive: false })
     },
     data() {
       return {

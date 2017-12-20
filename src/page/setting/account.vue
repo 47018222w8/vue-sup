@@ -56,22 +56,13 @@
         this.$vux.toast.show({
           text: '注销成功',
           position: 'middle',
-          time: '1300'
+          time: '1400'
         })
-        if (openId) {
-          setTimeout(() => {
-            this.$router.push({
-              path: 'login',
-              query: { openId: openId }
-            })
-          }, 1400)
-        } else {
-          setTimeout(() => {
-            this.$router.push({
-              path: 'login'
-            })
-          }, 1400)
-        }
+        setTimeout(() => {
+          this.$router.push({
+            path: 'login'
+          })
+        }, 1400)
       }
     },
     components: {

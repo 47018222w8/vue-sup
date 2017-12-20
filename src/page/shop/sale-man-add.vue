@@ -53,6 +53,7 @@
         await this.$http.get('/suppliers', { params: { flag: '1' } }).then((response) => {
           response.data.forEach((value) => {
             this.carBrandList.push({ key: value.carBrandId, value: value.carBrandName })
+            this.result.push({ key: value.carBrandId, value: value.carBrandName })
           })
         })
       },
@@ -75,8 +76,10 @@
             return
           }
           this.loading = true
+          this.$vux.loading.show({
+            text: '加载中'
+          })
           this.result.forEach(item => this.formData.carBrandIdList.push(item.key))
-          this.$store.commit(CHANGE_LOADING, { isLoading: true })
           this.$http.post('/members/sons', this.formData).then((response) => {
             this.$store.commit(CHANGE_LOADING, { isLoading: false })
             this.$vux.toast.show('添加成功', 'middle')
@@ -91,6 +94,7 @@
               position: 'middle',
               time: '1500'
             })
+            this.$vux.loading.hide()
             this.loading = false
           })
         }

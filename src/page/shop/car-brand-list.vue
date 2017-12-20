@@ -13,10 +13,7 @@
         <slot name="rightIcon"></slot>
       </div>
     </div>
-    <div style="text-align:center;" v-if="!letterList.length">
-      <inline-loading></inline-loading>
-      <span style="vertical-align:middle;display:inline-block;font-size:14px;">&nbsp;&nbsp;{{ '加载中...' }}</span>
-    </div>
+    <load-more v-if="!letterList.length" :show-loading="loadingMore" :tip="tip" background-color="#fbf9fe"></load-more>
     <div class="c-body" v-show="showIndex===0">
       <scroll class="c-left" ref="scrollLeft" :click="true" :data="letterList">
         <div ref="brandDiv">
@@ -49,7 +46,7 @@
 </template>
 
 <script>
-  import { Divider, XButton, Cell, Group, Tab, TabItem, Search, Checklist, CheckIcon, InlineLoading } from 'vux'
+  import { Divider, XButton, Cell, Group, Tab, TabItem, Search, Checklist, CheckIcon, LoadMore } from 'vux'
   import { REGISTER_DATA } from '@/store/mutation-type'
   import scroll from '@/components/scroll'
   export default {
@@ -64,7 +61,9 @@
         // 0:个人中心添加品牌 1:注册添加经营品牌
         type: +this.$route.params.type,
         backParam: {},
-        formData: null
+        formData: null,
+        tip: '加载中...',
+        loadingMore: true
       }
     },
     components: {
@@ -78,7 +77,7 @@
       Checklist,
       CheckIcon,
       XButton,
-      InlineLoading
+      LoadMore
     },
     created() {
       if (this.type === 0) {
@@ -99,6 +98,10 @@
       async _initData0() {
         await this.$http.get('/stores/0/carBrands').then((response) => {
           this.letterList = response.data
+          if (!this.letterList.length) {
+            this.tip = '已全部经营'
+            this.loadingMore = false
+          }
         })
       },
       async _initData1() {

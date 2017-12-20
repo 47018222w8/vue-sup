@@ -19,9 +19,9 @@
 </template>
 
 <script>
-  import { JWT_TOKEN_HEAD, JWT_HEADER } from '@/components/constant'
+  import { JWT_TOKEN_HEAD, JWT_HEADER, CUSTOMER_SERVICE_TEL } from '@/components/constant'
   import { XInput, Group, XButton, Cell } from 'vux'
-  import { QUOTE_LIST_KEEP_ALIVE, CUSTOMER_SERVICE_TEL } from '@/store/mutation-type'
+  import { QUOTE_LIST_KEEP_ALIVE } from '@/store/mutation-type'
   import axios from 'axios'
   export default {
     name: 'Login',

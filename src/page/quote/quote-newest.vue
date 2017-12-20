@@ -41,7 +41,7 @@
           </div>
           <hr class="c-hr" />
           <h5 class="c-second-title">零部件({{partList.length}})</h5>
-          <p class="s-desc">{{ins.invoice?'需要发票':'不需要发票'}}</p>
+          <p class="s-desc">{{ins.isInvoice?'需要发票':'不需要发票'}}</p>
           <p class="s-desc">{{ins.arriveTimeStr}}前到货</p>
           <flexbox v-for="(item, index) in partList" :key="index">
             <flexbox-item>

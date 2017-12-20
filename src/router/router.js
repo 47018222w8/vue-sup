@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import { JWT_HEADER } from '../components/constant'
 import store from '../store/state'
-import { QUOTE_LIST_KEEP_ALIVE } from '../store/mutation-type'
+import { QUOTE_LIST_KEEP_ALIVE, CHANGE_LOADING } from '../store/mutation-type'
 Vue.use(Router)
 const login = r => require.ensure([], () => r(require('@/page/login/login')), 'login')
 const register = r => require.ensure([], () => r(require('@/page/login/register')), 'register')
@@ -49,8 +49,6 @@ const router = new Router({
     name: 'login',
     component: login,
     beforeEnter: (to, from, next) => {
-      // 不管干啥先把openId存起来
-      to.query.openId && localStorage.setItem('openId', to.query.openId)
       if (localStorage.getItem(JWT_HEADER)) {
         next('/quote/list')
       } else {
@@ -192,10 +190,10 @@ const router = new Router({
   }]
 })
 router.beforeEach(function (to, from, next) {
-  // store.commit(CHANGE_LOADING, { isLoading: true })
+  store.commit(CHANGE_LOADING, { isLoading: true })
   next()
 })
 router.afterEach(function (to) {
-  // store.commit(CHANGE_LOADING, { isLoading: false })
+  store.commit(CHANGE_LOADING, { isLoading: false })
 })
 export default router

@@ -16,13 +16,11 @@
             <swipeout-button type="warn" @click.native="delSon(index)">删除</swipeout-button>
           </div>
           <div slot="content" @click="toInfo(index)">
-            <flexbox>
+            <flexbox align="center">
               <flexbox-item :span="1">
                 <p style="text-align:center;">
                   <i class="fa fa-user-o" style="color:red;"></i>
                 </p>
-                <p>&nbsp;</p>
-                <p>&nbsp;</p>
               </flexbox-item>
               <flexbox-item>
                 <flexbox class="s-div-bottom-border">
@@ -41,14 +39,7 @@
                     <p>{{item.uname}}</p>
                   </flexbox-item>
                 </flexbox>
-                <flexbox class="s-div-bottom-border">
-                  <flexbox-item :span="3">
-                    <p>负责业务</p>
-                  </flexbox-item>
-                  <flexbox-item>
-                    <p>all</p>
-                  </flexbox-item>
-                </flexbox>
+
               </flexbox-item>
               <flexbox-item :span="1">
                 <i class="fa fa-angle-right fa-lg"></i>

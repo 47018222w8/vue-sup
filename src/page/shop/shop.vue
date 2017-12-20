@@ -1,6 +1,6 @@
 <template>
   <div class="c-shop">
-    <div class="c-body">
+    <div class="c-body" v-if="member && sale">
       <div class="c-title s-div-block" style="padding-right:0;">
         <flexbox style="padding:15px 0">
           <flexbox-item style="margin-left: 0;" :span="3">
@@ -9,7 +9,7 @@
             </div>
           </flexbox-item>
           <flexbox-item style="margin-left: 0px;">
-            <p style="font-size:16px;">长春众联安顺&nbsp;&nbsp;
+            <p style="font-size:16px;">{{member.name}}&nbsp;&nbsp;
               <i class="fa fa-angle-right fa-lg"></i>
             </p>
             <p>查看门店基本信息</p>
@@ -20,7 +20,7 @@
           </flexbox-item>
         </flexbox>
       </div>
-      <card class="c-col" v-if="member && member.parentid===0">
+      <card class="c-col" v-if="member.parentid===0">
         <div slot="content">
           <flexbox>
             <flexbox-item style="margin-left:0px;">
@@ -40,7 +40,7 @@
               </div>
             </flexbox-item>
             <flexbox-item style="margin-left:0px;">
-              <div class="c-fa s-div-right-border" @click="$router.push({name: 'saleMan'})">
+              <div class="c-fa s-div-right-border" @click="toSaleMan">
                 <p style="color:#E51C23;">
                   <i slot="icon" class="fa fa-user-o fa-lg"></i>
                 </p>
@@ -145,6 +145,10 @@
           this.ins = quote.ins
           this.reportList = quote.reportPriceList
         })
+      },
+      toSaleMan() {
+        this.member.majorBusiness === 1 && this.$router.push({ name: 'saleMan' })
+        this.member.majorBusiness === 2 && this.$vux.toast.text('此功能暂未开放', 'middle')
       },
       toOperate() {
         this.member.majorBusiness === 1 && this.$router.push({ name: 'supCarBrand' })

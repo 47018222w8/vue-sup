@@ -10,7 +10,6 @@
     </x-header>
     <div class="c-body">
       <group gutter="0" label-width="4.5em" label-margin-right="2em" label-align="left">
-        <cell title="账号" :value="member.uname" value-align="left"></cell>
         <x-input title="旧密码" type="password" :max="12" v-model="formData.oldPwd"></x-input>
         <x-input title="新密码" type="password" :max="12" v-model="formData.password"></x-input>
         <x-input title="确认密码" type="password" :max="12" v-model="formData.newPwdConfirm"></x-input>
