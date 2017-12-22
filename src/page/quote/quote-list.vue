@@ -7,6 +7,7 @@
           <button-tab-item @on-item-click="changeTab">历史询价单</button-tab-item>
         </button-tab>
       </div>
+      <i slot="right" class="fa fa-refresh fa-lg" @click="refresh"></i>
       <div v-show="tabIndex===8" slot="right">
         <p>筛选</p>
       </div>
@@ -99,8 +100,9 @@
         // 此时说明需要从新加载组件
         if (!vm.$store.state.quoteListKeepAlive) {
           vm._initParam()
-          vm._initData()
           vm.tabIndex = 0
+          vm.isHistory = 0
+          vm._initData()
           vm.$store.commit(QUOTE_LIST_KEEP_ALIVE, { keepAlive: true })
         }
       })

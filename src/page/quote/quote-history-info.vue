@@ -33,7 +33,7 @@
                 <p>{{(index+1)+'.'+rp.name}}</p>
               </flexbox-item>
               <flexbox-item>
-                <p>原厂件</p>
+                <p>{{rp.qualityRequirementName}}</p>
               </flexbox-item>
               <flexbox-item>
                 <p>¥{{rp.reportPrice}}</p>

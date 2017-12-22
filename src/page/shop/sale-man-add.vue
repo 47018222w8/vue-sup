@@ -30,7 +30,6 @@
 <script>
   import { XHeader, XButton, Flexbox, FlexboxItem, XInput, Group, Checker, CheckerItem } from 'vux'
   import { RE_PHONE } from '@/components/constant'
-  import { CHANGE_LOADING } from '@/store/mutation-type'
   export default {
     data() {
       return {
@@ -81,8 +80,12 @@
           })
           this.result.forEach(item => this.formData.carBrandIdList.push(item.key))
           this.$http.post('/members/sons', this.formData).then((response) => {
-            this.$store.commit(CHANGE_LOADING, { isLoading: false })
-            this.$vux.toast.show('添加成功', 'middle')
+            this.$vux.loading.hide()
+            this.$vux.toast.show({
+              text: '添加成功',
+              position: 'middle',
+              time: '1500'
+            })
             setTimeout(() => {
               this.$router.push({ name: 'saleMan' })
             }, 1500)

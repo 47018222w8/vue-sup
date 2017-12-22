@@ -13,7 +13,6 @@
         <slot name="rightIcon"></slot>
       </div>
     </div>
-    <load-more v-if="!letterList.length" :show-loading="loadingMore" :tip="tip" background-color="#fbf9fe"></load-more>
     <div class="c-body" v-show="showIndex===0">
       <scroll class="c-left" ref="scrollLeft" :click="true" :data="letterList">
         <div ref="brandDiv">
@@ -41,6 +40,7 @@
         </div>
       </scroll>
     </div>
+    <load-more v-if="!letterList.length" :show-loading="loadingMore" :tip="tip" background-color="#fbf9fe"></load-more>
     <x-button slot="doneBtn" v-if="letterList.length" :disabled="doneDisabled" :show-loading="doneDisabled" @click.native="done" type="primary" :text="doneDisabled?'添加中...':'确认添加'"></x-button>
   </div>
 </template>
@@ -190,6 +190,7 @@
 .c-car-brand {
   .display-flex;
   .flex-direction(column);
+  overflow: hidden;
   .c-header {
     .flex(none);
     .display-flex;

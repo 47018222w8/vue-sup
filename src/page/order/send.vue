@@ -7,7 +7,7 @@
     </x-header>
     <div class="c-body s-div-bottom-border">
       <div class="s-div-block" style="margin-top:0px;">
-        <p class="s-second-title">本次发货零配件清单({{partInfos.length}}})</p>
+        <p class="s-second-title">本次发货零配件清单({{partInfos.length}})</p>
         <flexbox v-for="(item, index) in partInfos" :key="index">
           <flexbox-item>
             <p>{{item.goodsName}}</p>
@@ -60,7 +60,6 @@
       }
     },
     created() {
-      console.log(this.mainSn)
       this._initData()
     },
     methods: {

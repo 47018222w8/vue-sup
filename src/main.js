@@ -21,7 +21,7 @@ axios.interceptors.response.use(function (response) {
 }, function (error) {
   if (error.response) {
     let result = error.response
-    if (result.status === 500) {
+    if (result.status === 500 || result.status === 504) {
       router.push({
         name: 'error'
       })

@@ -8,11 +8,8 @@
     <div class="c-body">
       <checklist title="经营专项件" :options="operateCarPartList" v-model="checkList"></checklist>
     </div>
-    <div style="text-align:center;" v-if="loading">
-      <inline-loading></inline-loading>
-      <span style="vertical-align:middle;display:inline-block;font-size:14px;">&nbsp;&nbsp;{{ '加载中...' }}</span>
-    </div>
-    <div class="c-cell" v-else>
+    <load-more v-if="!operateCarPartList.length" :show-loading="loadingMore" :tip="tip" background-color="#fbf9fe"></load-more>
+    <div class="c-cell">
       <div class="c-btn">
         <x-button mini :disabled="delDisabled" @click.native="del" type="warn">删除选中项</x-button>
       </div>
@@ -24,7 +21,7 @@
 </template>
 
 <script>
-  import { Divider, Cell, Group, Tab, TabItem, XButton, Checklist, XHeader, Spinner, InlineLoading } from 'vux'
+  import { Divider, Cell, Group, Tab, TabItem, XButton, Checklist, XHeader, Spinner, InlineLoading, LoadMore } from 'vux'
   export default {
     data() {
       return {
@@ -32,7 +29,8 @@
         checkList: [],
         letterList: [],
         doneDisabled: false,
-        loading: true
+        tip: '加载中...',
+        loadingMore: true
       }
     },
     created() {
@@ -52,8 +50,11 @@
         await this.$http.get('/supplierCarParts', { params: { flag: '1' } }).then((response) => {
           response.data.forEach((value) => {
             this.operateCarPartList.push({ key: value.carPartSortId, value: value.name })
-            this.loading = false
           })
+          if (!this.operateCarPartList.length) {
+            this.tip = '无经营专项件'
+            this.loadingMore = false
+          }
         })
       },
       // 添加品牌页
@@ -87,6 +88,10 @@
               response.data.forEach((value) => {
                 _this.operateCarPartList.push({ key: value.carPartSortId, value: value.name })
               })
+              if (!_this.operateCarPartList.length) {
+                _this.tip = '无经营专项件'
+                _this.loadingMore = false
+              }
             })
           }
         })
@@ -102,7 +107,8 @@
       Checklist,
       XHeader,
       Spinner,
-      InlineLoading
+      InlineLoading,
+      LoadMore
     }
   }
 </script>

@@ -108,6 +108,8 @@
         this.showDialog = false
         this.loading = true
         this.$http.post('/reportPriceInfos', this.quote).then((response) => {
+          // todo:名字应该提出来
+          localStorage.removeItem('reportPriceList' + this.quote.insId)
           this.$router.push({
             name: 'quoteSuccess'
           })

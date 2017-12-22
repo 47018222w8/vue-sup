@@ -15,8 +15,8 @@
 <script type="text/javascript">
   // 获取openId
   var supUrl = location.href
-  supUrl = supUrl.substring(supUrl.indexOf('index.html'))
-  var openId = supUrl.substring(supUrl.indexOf('=') + 1, supUrl.indexOf('/', 10) - 1)
+  supUrl = supUrl.substring(supUrl.indexOf('=') + 1)
+  var openId = supUrl.substring(0, 28)
   localStorage.setItem('openId', openId)
 </script>
 

@@ -26,7 +26,6 @@
 
 <script>
   import { XHeader, Group, Cell, XButton } from 'vux'
-  import { JWT_HEADER } from '@/components/constant'
   export default {
     data() {
       return {
@@ -52,7 +51,8 @@
           await this.$http.delete('/sessions?openId=' + openId).then((response) => {
           })
         }
-        localStorage.removeItem(JWT_HEADER)
+        localStorage.clear()
+        localStorage.setItem('openId', openId)
         this.$vux.toast.show({
           text: '注销成功',
           position: 'middle',

@@ -47,7 +47,11 @@
     },
     created() {
       let openId = localStorage.getItem('openId')
-      openId && (this.formData.openId = openId)
+      localStorage.clear()
+      if (openId) {
+        localStorage.setItem('openId', openId)
+        this.formData.openId = openId
+      }
       this.$store.commit(QUOTE_LIST_KEEP_ALIVE, { keepAlive: false })
     },
     methods: {

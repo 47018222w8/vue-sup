@@ -5,7 +5,7 @@
         <i slot="icon" class="fa fa-chevron-left fa-lg"></i>
       </div>
     </x-header>
-    <div class="c-body s-div-bottom-border">
+    <div class="c-body s-div-bottom-border" v-if="ins">
       <div class="c-first">
         <p class="s-second-title">
           <i class="fa fa-truck fa-lg"></i>&nbsp;&nbsp;待发货</p>
@@ -24,7 +24,7 @@
         </flexbox>
       </div>
       <group :gutter="10">
-        <cell :title="ins.carBrandName" value="查看原始报价单" is-link></cell>
+        <cell :title="ins.carBrandName" value="查看原始报价单" is-link @click.native="toPage"></cell>
       </group>
       <div class="s-div-block">
         <flexbox style="padding-bottom:5px;">
@@ -38,7 +38,7 @@
           </flexbox-item>
         </flexbox>
         <div class="s-div-top-border" style="padding-top:5px;" v-show="showPart">
-          <p>没有备注</p>
+          <p>{{partInfos[0].remarks}}</p>
           <flexbox v-for="(item, index) in partInfos" :key="index">
             <flexbox-item>
               <p>{{item.goodsName}}</p>
@@ -47,7 +47,7 @@
               <p>*{{item.num}}</p>
             </flexbox-item>
             <flexbox-item :span="3">
-              <p>没有零件品质</p>
+              <p>{{item.propertyName}}</p>
             </flexbox-item>
             <flexbox-item :span="2">
               <p>¥{{item.goodsPrice}}</p>
@@ -58,7 +58,7 @@
       <group :gutter="10">
         <cell title="零件总额:">
           <p>¥&nbsp;
-            <span style="color:red;">3000</span>
+            <span style="color:red;">{{ins.partTotalPrice}}</span>
           </p>
         </cell>
         <cell title="运费:">
@@ -78,13 +78,13 @@
         </cell>
       </group>
       <group :gutter="10">
-        <cell title="订单编号:" :value="ins.insNo"></cell>
+        <cell title="订单编号:" :value="ins.orderSn"></cell>
         <cell title="下单时间:" :value="ins.orderTime"></cell>
         <cell title="支付方式:" :value="ins.paymentName"></cell>
         <cell title="发票信息:" value="不需要"></cell>
       </group>
     </div>
-    <div v-if="orderState === '7'" class="s-footer-btn">
+    <div v-if="orderState === '-9'" class="s-footer-btn">
       <x-button style="width:80%" type="primary" @click.native="sub">确认接单并开始备货</x-button>
     </div>
   </div>
@@ -95,8 +95,8 @@
   export default {
     data() {
       return {
-        ins: {},
-        partInfos: {},
+        ins: null,
+        partInfos: null,
         showPart: true,
         insId: this.$route.params.insId,
         sonSn: this.$route.query.sonSn,
@@ -117,7 +117,7 @@
         this.showPart ? this.showPart = false : this.showPart = true
       },
       sub() {
-        this.$http.get('/update/goodsReady/' + this.sonSn).then((response) => {
+        this.$http.put('/update/goodsReady/' + this.sonSn).then((response) => {
           this.$vux.toast.show({
             text: '接单成功,请准备发货',
             position: 'middle',
@@ -130,13 +130,8 @@
           }, 1400)
         })
       },
-      toQuotePage() {
-        this.$router.push({
-          name: 'quote',
-          params: {
-            insId: this.$route.params.insId
-          }
-        })
+      toPage() {
+        this.$router.push({ name: 'quoteHistoryInfo', params: { insId: this.insId } })
       }
     },
     components: {

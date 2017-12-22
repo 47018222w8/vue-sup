@@ -46,7 +46,6 @@
     },
     created() {
       this.formData = JSON.parse(JSON.stringify(this.$store.state.registerData))
-      console.log(this.formData)
       this.getRegions()
     },
     methods: {

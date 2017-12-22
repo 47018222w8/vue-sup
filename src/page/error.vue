@@ -1,12 +1,14 @@
 <template>
   <div>
-    <msg title="服务器错误,请联系管理员" icon="warn" :buttons="buttons"></msg>
+    <msg title="服务器错误,请联系管理员" icon="warn">
+      <x-button type="default" slot="buttons" @click.native="toHome">确认</x-button>
+    </msg>
   </div>
 </template>
 
 <script>
   import { Msg, Divider, XButton } from 'vux'
-  import { CHANGE_LOADING, QUOTE_LIST_KEEP_ALIVE } from '@/store/mutation-type'
+  import { CHANGE_LOADING, QUOTE_LIST_KEEP_ALIVE, JWT_HEADER } from '@/store/mutation-type'
   export default {
     components: {
       Msg,
@@ -20,11 +22,12 @@
     },
     data() {
       return {
-        buttons: [{
-          type: 'default',
-          text: '返回首页',
-          link: '/quote/list'
-        }]
+      }
+    },
+    methods: {
+      toHome() {
+        let str = localStorage.getItem(JWT_HEADER)
+        str ? this.$router.push({ name: 'quoteList' }) : this.$router.push({ name: 'login' })
       }
     }
   }

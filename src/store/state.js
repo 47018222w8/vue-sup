@@ -22,7 +22,8 @@ const state = {
   // 注册数据
   registerData: null,
   // 账号信息
-  member: null
+  member: null,
+  orderTabIndex: 0
 }
 export default new Vuex.Store({
   state,

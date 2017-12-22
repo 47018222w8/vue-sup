@@ -1,18 +1,18 @@
 <template>
   <div class="c-order">
     <tab defaultColor="#666" bar-active-color="#fff" active-color="#fff">
-      <tab-item selected @on-item-click="changTab">新订单</tab-item>
-      <tab-item @on-item-click="changTab">待发货</tab-item>
-      <tab-item @on-item-click="changTab">已发货</tab-item>
-      <tab-item @on-item-click="changTab">已完成</tab-item>
-      <tab-item @on-item-click="changTab">全部</tab-item>
+      <tab-item :selected="tabIndex===0" @on-item-click="changTab">新订单</tab-item>
+      <tab-item :selected="tabIndex===1" @on-item-click="changTab">待发货</tab-item>
+      <tab-item :selected="tabIndex===2" @on-item-click="changTab">已发货</tab-item>
+      <tab-item :selected="tabIndex===3" @on-item-click="changTab">已完成</tab-item>
+      <tab-item :selected="tabIndex===4" @on-item-click="changTab">全部</tab-item>
     </tab>
     <div class="c-part-list">
       <scroll :pullup="true" @scrollToEnd="loadMore" :data="quoteList" class="quote-list">
         <div>
           <p v-show="tabIndex===0" class="s-second-title">您尚有{{total}}张新订单待备货</p>
           <p v-show="tabIndex===1" class="s-second-title">您有{{total}}张订单待发货</p>
-          <p v-show="tabIndex===2" class="s-second-title">您有{{total}}张订单配送中</p>
+          <p v-show="tabIndex===2" class="s-second-title">您有{{total}}张订单已发货</p>
           <p v-show="tabIndex===3" class="s-second-title">您有{{total}}张订单已完成</p>
           <p v-show="tabIndex===4" class="s-second-title">您共有{{total}}张订单</p>
           <swipeout>
@@ -50,6 +50,7 @@
 <script>
   import { XHeader, XButton, ButtonTab, ButtonTabItem, Tabbar, TabbarItem, Tab, TabItem, Swipeout, SwipeoutItem, LoadMore, Badge } from 'vux'
   import scroll from '@/components/scroll'
+  import { CHANGE_ORDER_TAB_INDEX } from '@/store/mutation-type'
   export default {
     data() {
       return {
@@ -64,13 +65,13 @@
           pageNum: 1,
           pageSize: 10,
           orderSource: 1,
+          reportState: 2,
           listType: 'new'
         }
       }
     },
     created() {
-      this.params.reportState = 2
-      this._initData()
+      this.changTab(this.$store.state.orderTabIndex)
     },
     computed: {
       tipShow() {
@@ -116,6 +117,7 @@
       },
       changTab(index) {
         this.tabIndex = index
+        this.$store.commit(CHANGE_ORDER_TAB_INDEX, { tabIndex: this.tabIndex })
         switch (index) {
           // 待发货
           case 1:

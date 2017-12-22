@@ -15,33 +15,25 @@
     </div>
     <load-more v-if="!carPartSorts.length" :show-loading="loadingMore" :tip="tip" background-color="#fbf9fe"></load-more>
     <div class="c-body" v-show="showIndex===0">
-      <scroll class="c-left" ref="scrollLeft" :click="true" :data="carPartSorts">
-        <div ref="brandDiv">
-          <group gutter="0" class="brandHeight">
-            <cell v-for="(cp, index) in carPartSorts" :key="index">
-              <check-icon style="width:100%" slot="title" :value.sync="cp.check">{{cp.name}}</check-icon>
-            </cell>
-          </group>
-        </div>
-      </scroll>
+      <group gutter="0" class="brandHeight">
+        <cell v-for="(cp, index) in carPartSorts" :key="index">
+          <check-icon style="width:100%" slot="title" :value.sync="cp.check">{{cp.name}}</check-icon>
+        </cell>
+      </group>
     </div>
     <div class="c-body" v-show="showIndex===1">
-      <scroll class="c-left" :data="searchList">
-        <div>
-          <group>
-            <cell v-for="(cp, index) in searchList" :key="index">
-              <check-icon style="width:100%" slot="title" :value.sync="cp.check">{{cp.name}}</check-icon>
-            </cell>
-          </group>
-        </div>
-      </scroll>
+      <group>
+        <cell v-for="(cp, index) in searchList" :key="index">
+          <check-icon style="width:100%" slot="title" :value.sync="cp.check">{{cp.name}}</check-icon>
+        </cell>
+      </group>
     </div>
     <x-button slot="doneBtn" v-if="carPartSorts.length" :disabled="doneDisabled" :show-loading="doneDisabled" @click.native="done" type="primary" :text="doneDisabled?'添加中...':'确认添加'"></x-button>
   </div>
 </template>
 
 <script>
-  import { Divider, XButton, Cell, Group, Tab, TabItem, Search, Checklist, CheckIcon, InlineLoading } from 'vux'
+  import { Divider, XButton, Cell, Group, Tab, TabItem, Search, Checklist, CheckIcon, InlineLoading, LoadMore } from 'vux'
   import { REGISTER_DATA } from '@/store/mutation-type'
   import scroll from '@/components/scroll'
   export default {
@@ -56,7 +48,8 @@
         type: +this.$route.params.type,
         backParam: {},
         formData: null,
-        tip: '加载中...'
+        tip: '加载中...',
+        loadingMore: true
       }
     },
     components: {
@@ -70,7 +63,8 @@
       Checklist,
       CheckIcon,
       XButton,
-      InlineLoading
+      InlineLoading,
+      LoadMore
     },
     created() {
       if (this.type === 0) {
@@ -147,8 +141,7 @@
 <style scoped lang="less">
 @import "../../styles/sup.less";
 .c-car-brand {
-  .display-flex;
-  .flex-direction(column);
+  overflow: hidden;
   .c-header {
     .flex(none);
     .display-flex;
@@ -172,27 +165,8 @@
     }
   }
   .c-body {
-    .flex(none);
-    .display-flex;
-    overflow: hidden;
-    .c-left {
-      height: calc(~"100vh - @{vux-header-height} - @{vux-button-height}");
-      .flex(auto);
-    }
-    .c-right {
-      .display-flex;
-      .align-items(center);
-      .justify-content(center);
-      .flex(0 0 10px);
-      ul {
-        list-style: none;
-        li {
-          text-align: center;
-          font-size: 12px;
-          color: #999;
-        }
-      }
-    }
+    height: calc(~"100vh - @{vux-tab-height} - @{vux-button-height}");
+    overflow: auto;
   }
 }
 </style>
