@@ -8,7 +8,8 @@
 
 <script>
   import { Msg, Divider, XButton } from 'vux'
-  import { CHANGE_LOADING, QUOTE_LIST_KEEP_ALIVE, JWT_HEADER } from '@/store/mutation-type'
+  import { CHANGE_LOADING, QUOTE_LIST_KEEP_ALIVE } from '@/store/mutation-type'
+  import { JWT_HEADER } from '@/components/constant'
   export default {
     components: {
       Msg,

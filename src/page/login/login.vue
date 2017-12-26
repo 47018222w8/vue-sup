@@ -8,7 +8,7 @@
         </x-input>
       </group>
       <br>
-      <x-button :text="loading?'登录中...':'登录'" :disabled="loading" @click.native="submitForm" :show-loading="loading" type="primary"></x-button>
+      <x-button :text="loading?'登录中...':'供应商登录'" :disabled="loading" @click.native="submitForm" :show-loading="loading" type="primary"></x-button>
       <div class="c-small-desc">
         <p @click="$router.push({name: 'registerPhone'})">快速注册</p>
         <p @click="$router.push({name: 'pwdFind'})">忘记密码?</p>
@@ -73,11 +73,9 @@
             }, 1400)
           }).catch((error) => {
             let result = error.response
-            result.status === 401 && this.$vux.toast.show({
-              text: result.data.message,
-              type: 'warn',
-              position: 'middle',
-              time: '1500'
+            result.status === 401 && this.$vux.alert.show({
+              title: '提示',
+              content: result.data.message
             })
             this.loading = false
           })

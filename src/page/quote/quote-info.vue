@@ -24,12 +24,12 @@
         </group>
         <group :gutter="10">
           <x-input title="运费" type="number" text-align="right" v-model="quote.expressMoney"></x-input>
-          <x-input title="税点" type="number" text-align="right" v-model="quote.taxRate">
+          <x-input title="票点" type="number" text-align="right" v-model="quote.taxRate">
             <span slot="right">%</span>
           </x-input>
           <datetime class="c-datetime" @click.native="blur" v-model="quote.canShipDateBsStr" format="YYYY-MM-DD HH" title="发货时间" value-text-align="right"></datetime>
         </group>
-        <group title="报价明细 下单零配件">
+        <group title="报价明细">
           <cell-box v-for="(rp, index) in quote.listRPShow" :key="index">
             <flexbox align="start">
               <flexbox-item>
@@ -116,7 +116,7 @@
         })
       },
       validate() {
-        if (!RE_MONEY.test(this.quote.expressMoney)) {
+        if (this.quote.expressMoney !== 0 && !RE_MONEY.test(this.quote.expressMoney)) {
           this.$vux.toast.text('请输入正确的运费', 'bottom')
           return false
         }

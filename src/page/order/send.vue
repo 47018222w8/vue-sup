@@ -40,7 +40,7 @@
       </group> -->
     </div>
     <div class="s-footer-btn">
-      <x-button style="width:80%" type="primary" @click.native="sub">确认发货并通知物流</x-button>
+      <x-button style="width:80%" :disabled="loading" :show-loading="loading" type="primary" @click.native="sub">确认发货并通知物流</x-button>
     </div>
   </div>
 </template>
@@ -56,7 +56,8 @@
         insId: this.$route.params.insId,
         mainSn: this.$route.query.mainSn,
         sonSn: this.$route.query.sonSn,
-        insOrderId: this.$route.query.insOrderId
+        insOrderId: this.$route.query.insOrderId,
+        loading: false
       }
     },
     created() {
@@ -70,18 +71,20 @@
         })
       },
       sub() {
-        this.$http.get('/order/sendGoods/' + this.insId + '/' + this.mainSn + '/' + this.insOrderId).then((response) => {
-          this.$vux.toast.show({
-            text: '发货成功',
-            position: 'middle',
-            time: '1400'
-          })
-          setTimeout(() => {
-            this.$router.push({
-              name: 'orders'
+        if (!this.loading) {
+          this.$http.get('/order/sendGoods/' + this.insId + '/' + this.mainSn + '/' + this.insOrderId).then((response) => {
+            this.$vux.toast.show({
+              text: '发货成功',
+              position: 'middle',
+              time: '1400'
             })
-          }, 1400)
-        })
+            setTimeout(() => {
+              this.$router.push({
+                name: 'orders'
+              })
+            }, 1400)
+          })
+        }
       },
       toQuotePage() {
         this.$router.push({

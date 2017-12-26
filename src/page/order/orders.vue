@@ -79,7 +79,7 @@
           return '加载中'
         }
         if (!this.loadingMore && !this.quoteList.length) {
-          return '暂无询价'
+          return '暂无数据'
         }
         if (this.params.pageNum > this.maxPage) {
           return '没有更多数据了'

@@ -71,7 +71,7 @@
       return {
         irpe: {
           insId: this.$route.params.insId,
-          expressMoney: null,
+          expressMoney: 0,
           taxRate: 0,
           canShipDateBsStr: null
         },
@@ -327,12 +327,16 @@
           (reportPriceList[i].done === 1) && (f = false)
         }
         if (f) {
-          this.$vux.toast.show('请至少输入一个报价', 'middle')
+          this.$vux.toast.text('请至少输入一个报价', 'middle')
           return
         }
         let listRP = [] // 提交的集合
         let listRPShow = [] // 展示的集合
         for (let i = 0; i < reportPriceList.length; i++) {
+          if (reportPriceList[i].listRPI.length === 1 && !reportPriceList[i].listRPI[0].reportPrice) {
+            // 不经营
+            reportPriceList[i].isOperProd = '1'
+          }
           for (let j = 0; j < reportPriceList[i].listRPI.length; j++) {
             reportPriceList[i].listRPI[j].qualityRequirement = reportPriceList[i].listRPI[j].qrArry[0]
             for (let k = 0; k < this.qualityList.length; k++) {

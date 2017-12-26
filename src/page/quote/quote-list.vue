@@ -7,7 +7,7 @@
           <button-tab-item @on-item-click="changeTab">历史询价单</button-tab-item>
         </button-tab>
       </div>
-      <i slot="right" class="fa fa-refresh fa-lg" @click="refresh"></i>
+      <p slot="right" @click="refresh">刷新</p>
       <div v-show="tabIndex===8" slot="right">
         <p>筛选</p>
       </div>
@@ -32,7 +32,8 @@
                   <p style="padding-left:10px;" v-else>
                     <span class="s-second-title">{{quote.entMemberName}}</span>
                   </p>
-                  <p class="s-p-desc">待报价</p>
+                  <p class="s-p-desc" v-if="tabIndex===0">待报价</p>
+                  <p class="s-p-desc" v-if="tabIndex===1">已报价</p>
                 </div>
                 <div class="c-swipeout-item-desc">
                   <div class="c-left">

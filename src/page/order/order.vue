@@ -8,7 +8,7 @@
     <div class="c-body s-div-bottom-border" v-if="ins">
       <div class="c-first">
         <p class="s-second-title">
-          <i class="fa fa-truck fa-lg"></i>&nbsp;&nbsp;待发货</p>
+          <i class="fa fa-truck fa-lg"></i>&nbsp;&nbsp;详情</p>
         <p class="s-second-title">班车/上门取货/代收货款/¥{{ins.totalPrice}}</p>
       </div>
       <div class="s-div-block" style="padding-top:0px;">
@@ -19,7 +19,9 @@
             <p class="s-p-desc">联系电话&nbsp;&nbsp;{{ins.mobile}}</p>
           </flexbox-item>
           <flexbox-item style="text-align:center;">
-            <i style="color:#666;" class="fa fa-phone fa-lg"></i>
+            <a :href="'tel:'+ins.mobile">
+              <i style="color:#666;" class="fa fa-phone fa-lg"></i>
+            </a>
           </flexbox-item>
         </flexbox>
       </div>
@@ -73,7 +75,7 @@
         </cell>
         <cell title="合计金额">
           <p>¥&nbsp;
-            <span style="color:red;">¥{{ins.totalPrice}}</span>
+            <span style="color:red;">{{ins.totalPrice}}</span>
           </p>
         </cell>
       </group>
@@ -85,7 +87,7 @@
       </group>
     </div>
     <div v-if="orderState === '-9'" class="s-footer-btn">
-      <x-button style="width:80%" type="primary" @click.native="sub">确认接单并开始备货</x-button>
+      <x-button style="width:80%" type="primary" :disabled="loading" :show-loading="loading" @click.native="sub">确认接单并开始备货</x-button>
     </div>
   </div>
 </template>
@@ -100,7 +102,8 @@
         showPart: true,
         insId: this.$route.params.insId,
         sonSn: this.$route.query.sonSn,
-        orderState: this.$route.query.orderState
+        orderState: this.$route.query.orderState,
+        loading: false
       }
     },
     created() {
@@ -117,18 +120,20 @@
         this.showPart ? this.showPart = false : this.showPart = true
       },
       sub() {
-        this.$http.put('/update/goodsReady/' + this.sonSn).then((response) => {
-          this.$vux.toast.show({
-            text: '接单成功,请准备发货',
-            position: 'middle',
-            time: '1400'
-          })
-          setTimeout(() => {
-            this.$router.push({
-              name: 'orders'
+        if (!this.loading) {
+          this.$http.put('/update/goodsReady/' + this.sonSn).then((response) => {
+            this.$vux.toast.show({
+              text: '接单成功,请准备发货',
+              position: 'middle',
+              time: '1400'
             })
-          }, 1400)
-        })
+            setTimeout(() => {
+              this.$router.push({
+                name: 'orders'
+              })
+            }, 1400)
+          })
+        }
       },
       toPage() {
         this.$router.push({ name: 'quoteHistoryInfo', params: { insId: this.insId } })
