@@ -8,7 +8,7 @@
     <div class="c-body s-div-bottom-border" v-if="ins">
       <div class="c-first">
         <p class="s-second-title">
-          <i class="fa fa-truck fa-lg"></i>&nbsp;&nbsp;详情</p>
+          <i class="fa fa-truck fa-lg"></i>&nbsp;&nbsp;{{showTitle}}</p>
         <p class="s-second-title">班车/上门取货/代收货款/¥{{ins.totalPrice}}</p>
       </div>
       <div class="s-div-block" style="padding-top:0px;">
@@ -108,6 +108,29 @@
     },
     created() {
       this._initData()
+    },
+    computed: {
+      showTitle() {
+        let str = ''
+        switch (this.orderState) {
+          // 待发货
+          case '0':
+            str = '待发货'
+            break
+          // 已发货
+          case '6':
+            str = '已完成'
+            break
+          // 已完成
+          case '-9':
+            str = '新订单'
+            break
+          // 新订单
+          default:
+            str = '配送中'
+        }
+        return str
+      }
     },
     methods: {
       async _initData() {

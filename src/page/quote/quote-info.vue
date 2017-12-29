@@ -121,7 +121,7 @@
           return false
         }
         if (this.quote.taxRate === '') {
-          this.$vux.toast.text('请输入税点', 'bottom')
+          this.$vux.toast.text('请输入票点', 'bottom')
           return false
         }
         if (!this.quote.canShipDateBsStr) {

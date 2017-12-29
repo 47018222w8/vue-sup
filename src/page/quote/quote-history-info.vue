@@ -2,7 +2,7 @@
   <div style="background:#fff;">
     <div class="c-quote-info">
       <x-header :left-options="{preventGoBack:true}" :right-options="{showMore:false}" title="报价单详情">
-        <div slot="overwrite-left" @click="$router.push({name:'quoteHistory'})">
+        <div slot="overwrite-left" @click="back">
           <i slot="icon" class="fa fa-chevron-left fa-lg"></i>
         </div>
       </x-header>
@@ -48,38 +48,41 @@
 </template>
 
 <script>
-import { XHeader, XButton, Flexbox, FlexboxItem, Cell, Group, CellBox, XInput, Datetime } from 'vux'
-export default {
-  data() {
-    return {
-      ins: null,
-      list: null
+  import { XHeader, XButton, Flexbox, FlexboxItem, Cell, Group, CellBox, XInput, Datetime } from 'vux'
+  export default {
+    data() {
+      return {
+        ins: null,
+        list: null
+      }
+    },
+    created() {
+      this._initData()
+    },
+    methods: {
+      async _initData() {
+        await this.$http.get('/insruances/' + this.$route.params.insId + '/history').then((response) => {
+          this.ins = response.data.ins
+          this.list = response.data.reportPriceInfoList
+        })
+      },
+      back() {
+        this.$router.go(-1)
+      }
+    },
+    components: {
+      scroll,
+      XHeader,
+      XButton,
+      Flexbox,
+      FlexboxItem,
+      Cell,
+      Group,
+      CellBox,
+      XInput,
+      Datetime
     }
-  },
-  created() {
-    this._initData()
-  },
-  methods: {
-    async _initData() {
-      await this.$http.get('/insruances/' + this.$route.params.insId + '/history').then((response) => {
-        this.ins = response.data.ins
-        this.list = response.data.reportPriceInfoList
-      })
-    }
-  },
-  components: {
-    scroll,
-    XHeader,
-    XButton,
-    Flexbox,
-    FlexboxItem,
-    Cell,
-    Group,
-    CellBox,
-    XInput,
-    Datetime
   }
-}
 </script>
 
 <style lang="less">

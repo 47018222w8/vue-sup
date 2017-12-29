@@ -22,7 +22,7 @@
                   <p style="padding-left:10px;">
                     <span class="s-second-title">{{quote.repairName}}</span>
                   </p>
-                  <p class="s-p-desc">待备货</p>
+                  <p class="s-p-desc">{{showStr}}</p>
                 </div>
                 <div class="c-swipeout-item-desc">
                   <div class="c-left">
@@ -87,6 +87,31 @@
         if (!this.loadingMore && this.quoteList.length) {
           return '下拉刷新'
         }
+      },
+      showStr() {
+        let str = ''
+        switch (this.tabIndex) {
+          // 待发货
+          case 1:
+            str = '待发货'
+            break
+          // 已发货
+          case 2:
+            str = '已发货'
+            break
+          // 已完成
+          case 3:
+            str = '已完成'
+            break
+          // 全部
+          case 4:
+            str = '全部'
+            break
+          // 新订单
+          default:
+            str = '待备货'
+        }
+        return str
       }
     },
     methods: {
