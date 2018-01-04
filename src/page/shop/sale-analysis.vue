@@ -61,7 +61,7 @@
           </flexbox>
         </div>
       </card> -->
-      <card class="c-list">
+      <!-- <card class="c-list">
         <div slot="header">
           <p>最近30天战败报价单列表</p>
         </div>
@@ -78,7 +78,7 @@
             </flexbox-item>
           </flexbox>
         </div>
-      </card>
+      </card> -->
     </div>
   </div>
 </template>
