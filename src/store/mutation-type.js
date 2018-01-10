@@ -6,4 +6,5 @@ export const HOME_TAB_INDEX = 'e'
 export const REGISTER_DATA = 'f'
 export const GET_MEMBER = 'g'
 export const CHANGE_ORDER_TAB_INDEX = 'h'
+export const LOGIN_TO = 'i'
 

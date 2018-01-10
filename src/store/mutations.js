@@ -1,4 +1,4 @@
-import { CHANGE_LOADING, QUOTE_LIST_KEEP_ALIVE, SCREEN, REPORT_PRICE_LIST, HOME_TAB_INDEX, REGISTER_DATA, GET_MEMBER, CHANGE_ORDER_TAB_INDEX } from './mutation-type'
+import { CHANGE_LOADING, QUOTE_LIST_KEEP_ALIVE, SCREEN, REPORT_PRICE_LIST, HOME_TAB_INDEX, REGISTER_DATA, GET_MEMBER, CHANGE_ORDER_TAB_INDEX, LOGIN_TO } from './mutation-type'
 export default {
   [CHANGE_LOADING](state, payload) {
     state.isLoading = payload.isLoading
@@ -23,5 +23,8 @@ export default {
   },
   [CHANGE_ORDER_TAB_INDEX](state, payload) {
     state.orderTabIndex = payload.tabIndex
+  },
+  [LOGIN_TO](state, payload) {
+    state.loginTo = payload.obj
   }
 }

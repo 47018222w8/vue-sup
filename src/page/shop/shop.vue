@@ -99,12 +99,12 @@
           <flexbox style="padding-bottom:10px;">
             <flexbox-item style="text-align:center;">
               <div class="c-img">
-                <img src="http://192.168.1.109:9008/rfq/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20171128163621.jpg" width="60%" alt="">
+                <img src="http://www.eauto100.com/eauto100-statics/attachment/1.jpg" width="60%" alt="">
               </div>
             </flexbox-item>
             <flexbox-item style="text-align:center;">
               <div class="c-img">
-                <img src="http://192.168.1.109:9008/rfq/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20171128163621.jpg" width="60%" alt="">
+                <img src="http://www.eauto100.com/eauto100-statics/attachment/1.jpg" width="60%" alt="">
               </div>
             </flexbox-item>
           </flexbox>

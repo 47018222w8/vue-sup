@@ -43,7 +43,7 @@ const businessScope = r => require.ensure([], () => r(require('@/page/setting/bu
 const router = new Router({
   routes: [{
     path: '',
-    redirect: '/quote/list'
+    redirect: '/login'
   }, {
     path: '/login',
     name: 'login',

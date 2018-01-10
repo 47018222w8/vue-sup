@@ -61,24 +61,11 @@
         </flexbox>
       </div>
     </div>
-    <x-dialog v-model="showDialog" class="c-dialog" hide-on-blur>
-      <p style="padding:10px 0;">
-        该询价需要发票,确认不输入税点吗?
-      </p>
-      <flexbox :gutter="0">
-        <flexbox-item>
-          <x-button @click.native="showDialog = false">取消</x-button>
-        </flexbox-item>
-        <flexbox-item>
-          <x-button @click.native="subSon" type="primary">确认</x-button>
-        </flexbox-item>
-      </flexbox>
-    </x-dialog>
   </div>
 </template>
 
 <script>
-  import { XHeader, XButton, Flexbox, FlexboxItem, Cell, Group, CellBox, XInput, Datetime, XDialog } from 'vux'
+  import { XHeader, XButton, Flexbox, FlexboxItem, Cell, Group, CellBox, XInput, Datetime } from 'vux'
   import { RE_MONEY } from '@/components/constant'
   export default {
     data() {
@@ -98,10 +85,20 @@
       sub() {
         if (this.validate() && !this.loading) {
           if (this.quote.isInvoice === 1 && !this.quote.taxRate) {
-            this.showDialog = true
-            return
+            let _this = this
+            this.$vux.confirm.show({
+              // 组件除show外的属性
+              onCancel() {
+                this.showDialog = false
+              },
+              onConfirm() {
+                _this.subSon()
+              },
+              content: '该询价需要发票,确认不输入税点吗?'
+            })
+          } else {
+            this.subSon()
           }
-          this.subSon()
         }
       },
       subSon() {
@@ -141,8 +138,7 @@
       Group,
       CellBox,
       XInput,
-      Datetime,
-      XDialog
+      Datetime
     }
   }
 </script>

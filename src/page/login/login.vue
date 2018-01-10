@@ -67,9 +67,7 @@
               time: '1400'
             })
             setTimeout(() => {
-              this.$router.push({
-                name: 'quoteList'
-              })
+              this.$router.push(this.$store.state.loginTo)
             }, 1400)
           }).catch((error) => {
             let result = error.response

@@ -3,8 +3,8 @@
     <x-header :left-options="{showBack:false}" :right-options="{showMore:false}" @on-click-more="showMenus = true" title="报价">
       <div style="margin-top: 5px;" slot="overwrite-title">
         <button-tab v-model="tabIndex">
-          <button-tab-item @on-item-click="changeTab">新询价单</button-tab-item>
-          <button-tab-item @on-item-click="changeTab">历史询价单</button-tab-item>
+          <button-tab-item @on-item-click="changeTab">待报价</button-tab-item>
+          <button-tab-item @on-item-click="changeTab">已报价</button-tab-item>
         </button-tab>
       </div>
       <p slot="right" @click="refresh">刷新</p>

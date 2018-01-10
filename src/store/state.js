@@ -23,7 +23,9 @@ const state = {
   registerData: null,
   // 账号信息
   member: null,
-  orderTabIndex: 0
+  orderTabIndex: 0,
+  // 登录后跳转路由对象
+  loginTo: {name: 'quoteList'}
 }
 export default new Vuex.Store({
   state,

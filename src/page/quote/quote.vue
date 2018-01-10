@@ -251,7 +251,7 @@
       },
       // 返回
       back() {
-        this.$router.go(-1)
+        this.$router.push({name: 'quoteList'})
       },
       // 提供更多品质报价
       addMoreQuality() {
@@ -379,9 +379,9 @@
       // 哔了狗的虚拟键盘遮挡
       onFocus(index) {
         // 键盘弹出需要时间
-        this.isAndroid && setTimeout((e) => {
-          this.$refs.scrollRight.scrollTo(0, -this.partInfosHeight[index], 300)
-        }, 200)
+        // this.isAndroid && setTimeout((e) => {
+        //   this.$refs.scrollRight.scrollTo(0, -this.partInfosHeight[index], 300)
+        // }, 200)
       },
       // 失去全部焦点
       blur() {
